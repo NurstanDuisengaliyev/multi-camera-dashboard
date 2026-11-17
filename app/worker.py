@@ -53,6 +53,7 @@ class CameraWorker(threading.Thread):
 
         self.resize_width = a.get("resize_width", 640)
         self.offline_after_s = a.get("offline_after_s", 5)
+        self.max_fps = a.get("max_fps", 15)
         self.motion_threshold = a.get("motion_threshold", 0.02)
         self.detect_interval_s = a.get("detect_interval_s", 0.5)
         self.dark_threshold = a.get("dark_threshold", 40)
@@ -90,7 +91,7 @@ class CameraWorker(threading.Thread):
     def run(self):
         self.log.info("worker started, source=%s", self.source_spec)
         while not self.stop_event.is_set():
-            source = make_source(self.source_spec)
+            source = make_source(self.source_spec, self.max_fps)
             if not source.open():
                 self._set_online(False, "cannot open source")
                 self.stop_event.wait(RECONNECT_DELAY_S)

@@ -16,10 +16,12 @@ import cv2
 class FileSource:
     """Plays a video file like a live camera: at real speed, looping forever."""
 
-    def __init__(self, path):
+    def __init__(self, path, max_fps=None):
         self.path = path
+        self.max_fps = max_fps
         self.cap = None
         self.fps = 25.0
+        self.skip = 1
         self.next_frame_time = 0.0
 
     def open(self):
@@ -27,15 +29,26 @@ class FileSource:
         if not self.cap.isOpened():
             return False
         # Use the file's own frame rate so playback looks like real time.
-        self.fps = self.cap.get(cv2.CAP_PROP_FPS) or 25.0
+        file_fps = self.cap.get(cv2.CAP_PROP_FPS) or 25.0
+        # A 60 fps video with max_fps=15 -> use every 4th frame. Monitoring doesn't need
+        # 60 fps, and every frame we skip saves analytics CPU time.
+        if self.max_fps and file_fps > self.max_fps:
+            self.skip = int(round(file_fps / self.max_fps))
+        self.fps = file_fps / self.skip
         self.next_frame_time = time.monotonic()
         return True
 
-    def read(self):
-        ok, frame = self.cap.read()
+    def _rewind_if_ended(self, ok):
+        # End of the file: jump back to the first frame -> endless "live" video.
         if not ok:
-            # End of the file: jump back to the first frame -> endless "live" video.
             self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        return ok
+
+    def read(self):
+        for _ in range(self.skip - 1):
+            self._rewind_if_ended(self.cap.grab())  # grab() skips a frame cheaply
+        ok, frame = self.cap.read()
+        if not self._rewind_if_ended(ok):
             ok, frame = self.cap.read()
             if not ok:
                 return None  # file is broken or was removed
@@ -56,6 +69,6 @@ class FileSource:
             self.cap.release()
 
 
-def make_source(spec):
+def make_source(spec, max_fps=None):
     """Create a source from the 'source' value in config.yaml."""
-    return FileSource(spec)
+    return FileSource(spec, max_fps)

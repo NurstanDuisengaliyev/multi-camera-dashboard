@@ -1,0 +1,72 @@
+ Image multicam-dashboard Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 598B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.55kB done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/python:3.12-slim
+#3 DONE 0.9s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 161B done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 17.53kB done
+#5 DONE 0.0s
+
+#6 [ 1/11] FROM docker.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b
+#6 resolve docker.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b done
+#6 DONE 0.0s
+
+#7 [ 3/11] WORKDIR /app
+#7 CACHED
+
+#8 [ 4/11] RUN pip install --no-cache-dir torch==2.8.0 torchvision==0.23.0       --index-url https://download.pytorch.org/whl/cpu
+#8 CACHED
+
+#9 [ 5/11] COPY requirements.txt .
+#9 CACHED
+
+#10 [ 6/11] RUN pip install --no-cache-dir -r requirements.txt
+#10 CACHED
+
+#11 [ 2/11] RUN apt-get update  && apt-get install -y --no-install-recommends libgl1 libglib2.0-0  && rm -rf /var/lib/apt/lists/*
+#11 CACHED
+
+#12 [ 7/11] RUN python -c "from ultralytics import YOLO; YOLO('yolov8n.pt')"
+#12 CACHED
+
+#13 [ 8/11] COPY app ./app
+#13 DONE 0.0s
+
+#14 [ 9/11] COPY scripts ./scripts
+#14 DONE 0.0s
+
+#15 [10/11] COPY videos ./videos
+#15 DONE 0.0s
+
+#16 [11/11] COPY config.yaml .
+#16 DONE 0.0s
+
+#17 exporting to image
+#17 exporting layers
+#17 exporting layers 0.4s done
+#17 exporting manifest sha256:ec80e3a23bba421633c2318e9d616ffe80d8861f2296a2ec04c64519074ad9d2 done
+#17 exporting config sha256:a6ca634a88f72ae99963cf026f667282f577ce0a9a82d03ce6e46f88b1a30489 done
+#17 exporting attestation manifest sha256:473a4824c7b2361ad42f4d1cac17e05d6774290b02d69d656202f9e47606bc11 done
+#17 exporting manifest list sha256:2528997f8e195037269720f455d89aa963aa72a80b6407954c67a52305aff404 done
+#17 naming to docker.io/library/multicam-dashboard:latest done
+#17 unpacking to docker.io/library/multicam-dashboard:latest 0.1s done
+#17 DONE 0.5s
+
+#18 resolving provenance for metadata file
+#18 DONE 0.0s
+ Image multicam-dashboard Built 
+ Container multicam-dashboard Recreate 
+ Container multicam-dashboard Recreated 
+ Container multicam-dashboard Starting 
+ Container multicam-dashboard Started 

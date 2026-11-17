@@ -1,0 +1,10 @@
+# Keep the build context small: only what the image needs.
+.git
+.venv
+__pycache__
+*.pyc
+*.pt
+data
+logs
+results
+.DS_Store

@@ -1,0 +1,21 @@
+# Start everything with:   docker compose up -d --build
+# Stop:                    docker compose down
+# Logs:                    docker compose logs -f
+services:
+  dashboard:
+    build: .
+    image: multicam-dashboard
+    container_name: multicam-dashboard
+    ports:
+      - "${PORT:-8000}:8000"          # host port (change with PORT=80 docker compose up)
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro   # edit cameras/thresholds without rebuilding
+      - ./data:/app/data                    # SQLite event log survives restarts
+      - ./logs:/app/logs                    # logs visible on the host (for submission)
+    restart: unless-stopped              # come back after a crash or a VM reboot
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s

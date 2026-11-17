@@ -110,7 +110,7 @@ async function pollEvents() {
       const isNew = !seenOld && firstKey(e) !== prevNewest;
       if (firstKey(e) === prevNewest) seenOld = true;
       return `<li class="${isNew ? "new" : ""}">
-        <span class="ev-time">${escapeHtml(e.time.slice(11))}</span>
+        <span class="ev-time">${fmtTime(e.ts * 1000)}</span>
         <span class="ev-head"><span class="badge ${info.level}">${info.label}</span> ${escapeHtml(e.camera_name)}</span>
         <span class="ev-msg">${escapeHtml(e.message)}</span>
       </li>`;

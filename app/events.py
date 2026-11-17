@@ -51,10 +51,12 @@ class EventStore:
     def recent(self, limit=50):
         with self.lock:
             rows = self.db.execute(
-                "SELECT time, camera_id, camera_name, type, message, value "
+                "SELECT ts, time, camera_id, camera_name, type, message, value "
                 "FROM events ORDER BY id DESC LIMIT ?", (limit,)
             ).fetchall()
-        keys = ("time", "camera_id", "camera_name", "type", "message", "value")
+        # ts = Unix timestamp, so the browser can show it in the viewer's own time zone
+        # (inside Docker the server clock is UTC).
+        keys = ("ts", "time", "camera_id", "camera_name", "type", "message", "value")
         return [dict(zip(keys, r)) for r in rows]
 
     def export_csv(self, path):
