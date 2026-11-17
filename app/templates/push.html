@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#111110">
+  <title>Phone Camera</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='push.css') }}">
+</head>
+<body class="push">
+  <header class="push-head">
+    <h1>Phone camera</h1>
+    <a href="{{ url_for('index') }}" class="link">Dashboard →</a>
+  </header>
+
+  <main class="push-main">
+    <div class="notice critical hidden" id="insecure">
+      <strong>Camera needs HTTPS.</strong>
+      Safari only allows the camera on secure pages.
+      <a id="https-link" href="#">Open the HTTPS version of this page</a>.
+      The first time, Safari warns that the connection is not private: tap
+      <em>Show Details</em> → <em>visit this website</em>.
+    </div>
+
+    {% if not cameras %}
+    <div class="notice critical">
+      No camera accepts pushed video. Add one to <code>config.yaml</code> with
+      <code>source: push</code> and restart the server.
+    </div>
+    {% endif %}
+
+    <div class="preview">
+      <video id="preview" playsinline muted autoplay></video>
+      <div class="live hidden" id="live-badge"><span class="dot"></span>LIVE</div>
+      <div class="placeholder" id="placeholder">Camera off</div>
+    </div>
+
+    <div class="controls">
+      <button id="btn-start" class="primary" {% if not cameras %}disabled{% endif %}>Start streaming</button>
+      <button id="btn-flip" title="Switch front / back camera">Flip camera</button>
+    </div>
+
+    <dl class="stats push-stats">
+      <div><dt>Status</dt><dd id="st-status">Idle</dd></div>
+      <div><dt>Sent FPS</dt><dd id="st-fps">–</dd></div>
+      <div><dt>Frame</dt><dd id="st-size">–</dd></div>
+      <div><dt>Round trip</dt><dd id="st-rtt">–</dd></div>
+    </dl>
+
+    <form class="settings" onsubmit="return false">
+      <label>Camera on dashboard
+        <select id="cam">
+          {% for cam in cameras %}<option value="{{ cam.id }}">{{ cam.name }} ({{ cam.id }})</option>{% endfor %}
+        </select>
+      </label>
+      <label>Resolution
+        <select id="width">
+          <option value="480">480 px (low data)</option>
+          <option value="640" selected>640 px (= analytics size)</option>
+          <option value="960">960 px</option>
+          <option value="1280">1280 px</option>
+        </select>
+      </label>
+      <label>Max FPS
+        <select id="fps">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="15" selected>15</option>
+          <option value="24">24</option>
+        </select>
+      </label>
+      <label>JPEG quality
+        <select id="quality">
+          <option value="0.5">Low</option>
+          <option value="0.7" selected>Medium</option>
+          <option value="0.85">High</option>
+        </select>
+      </label>
+      {% if need_token %}
+      <label>Push token
+        <input id="token" type="password" autocomplete="current-password" placeholder="PUSH_TOKEN of the server">
+      </label>
+      {% endif %}
+    </form>
+    <p class="hint">Keep this page open and the phone unlocked while streaming:
+      iOS pauses the camera when Safari goes to the background.</p>
+  </main>
+
+  <script>window.PUSH = {{ {"httpsPort": https_port, "needToken": need_token} | tojson }};</script>
+  <script src="{{ url_for('static', filename='push.js') }}"></script>
+</body>
+</html>

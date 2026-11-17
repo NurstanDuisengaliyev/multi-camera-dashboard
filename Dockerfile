@@ -32,7 +32,8 @@ COPY scripts ./scripts
 COPY videos ./videos
 COPY config.yaml .
 
-EXPOSE 8000
+# 8000 = HTTP dashboard, 8443 = HTTPS (needed by the phone camera page /push)
+EXPOSE 8000 8443
 
 # One gunicorn worker process (all camera threads live inside it), many threads
 # because every open video stream in a browser keeps one thread busy.

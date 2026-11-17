@@ -8,6 +8,9 @@ services:
     container_name: multicam-dashboard
     ports:
       - "${PORT:-8000}:8000"          # host port (change with PORT=80 docker compose up)
+      - "${HTTPS_PORT:-8443}:8443"    # HTTPS: phones stream their camera here (/push)
+    environment:
+      - PUSH_TOKEN=${PUSH_TOKEN:-}     # optional password for pushing video (empty = open)
     volumes:
       - ./config.yaml:/app/config.yaml:ro   # edit cameras/thresholds without rebuilding
       - ./data:/app/data                    # SQLite event log survives restarts

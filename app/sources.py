@@ -5,12 +5,16 @@ Every source has the same small interface:
     read()       -> next frame (NumPy image) or None if nothing is available
     close()
 
-Workers only use this interface, so a different source type
-(e.g. a phone pushing frames) can be added later without changing the workers.
+Workers only use this interface, so a different source type can be added
+without changing the workers. Two types exist:
+    FileSource  - a video file played like a live camera ("source: videos/x.mp4")
+    PushSource  - a phone/browser pushing JPEG frames to the server ("source: push")
 """
+import threading
 import time
 
 import cv2
+import numpy as np
 
 
 class FileSource:
@@ -69,6 +73,84 @@ class FileSource:
             self.cap.release()
 
 
-def make_source(spec, max_fps=None):
+class PushHub:
+    """Mailbox between the web server and the camera workers for pushed cameras.
+
+    The Flask route that receives a frame from the phone calls put(); the camera
+    worker waits in get(). Only the NEWEST frame is kept: if analytics are slower
+    than the phone, old frames are dropped instead of piling up (low latency).
+    Frames are stored as JPEG bytes and decoded in the worker thread, so the HTTP
+    request returns quickly.
+    """
+
+    def __init__(self):
+        self.cond = threading.Condition()
+        self.frames = {}  # cam_id -> (seq, received_at, jpeg_bytes)
+
+    def put(self, cam_id, jpeg):
+        with self.cond:
+            seq = self.frames.get(cam_id, (0, 0, None))[0] + 1
+            self.frames[cam_id] = (seq, time.monotonic(), jpeg)
+            self.cond.notify_all()
+        return seq
+
+    def last_time(self, cam_id):
+        with self.cond:
+            return self.frames.get(cam_id, (0, 0.0, None))[1]
+
+    def get(self, cam_id, after_seq, timeout):
+        """Wait for a frame newer than `after_seq`. Returns (seq, jpeg) or (after_seq, None)."""
+        deadline = time.monotonic() + timeout
+        with self.cond:
+            while True:
+                seq, _, jpeg = self.frames.get(cam_id, (0, 0, None))
+                if seq > after_seq:
+                    return seq, jpeg
+                left = deadline - time.monotonic()
+                if left <= 0:
+                    return after_seq, None
+                self.cond.wait(left)
+
+
+push_hub = PushHub()  # one shared hub for the whole process
+
+
+class PushSource:
+    """A camera whose frames are pushed to the server over HTTP (e.g. an iPhone
+    streaming from the /push page). "Opened" = a frame arrived recently."""
+
+    def __init__(self, cam_id, timeout_s=5, hub=None):
+        self.cam_id = cam_id
+        self.timeout_s = timeout_s
+        self.hub = hub or push_hub
+        self.seq = 0
+        self.fps = 0.0  # unknown: depends on the phone and the network
+
+    def open(self):
+        # Not streaming yet -> report "cannot open", the worker retries every few seconds.
+        last = self.hub.last_time(self.cam_id)
+        return last > 0 and time.monotonic() - last < self.timeout_s
+
+    def read(self):
+        while True:
+            self.seq, jpeg = self.hub.get(self.cam_id, self.seq, self.timeout_s)
+            if jpeg is None:
+                return None  # phone stopped sending -> worker marks the camera offline
+            frame = cv2.imdecode(np.frombuffer(jpeg, np.uint8), cv2.IMREAD_COLOR)
+            if frame is not None:
+                return frame
+            # broken JPEG: skip it and wait for the next one
+
+    def close(self):
+        pass
+
+
+def is_push(spec):
+    return str(spec).strip().lower() == "push"
+
+
+def make_source(spec, max_fps=None, cam_id=None, timeout_s=5):
     """Create a source from the 'source' value in config.yaml."""
+    if is_push(spec):
+        return PushSource(cam_id, timeout_s)
     return FileSource(spec, max_fps)

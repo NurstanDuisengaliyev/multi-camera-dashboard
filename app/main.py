@@ -7,6 +7,11 @@ Routes:
   /api/history           JSON: last 5 minutes of people/motion per camera (charts)
   /api/events?limit=50   JSON: latest alerts from the SQLite event log
   /health                JSON: is the service alive? (Docker healthcheck / deployment proof)
+  /push                  phone page: stream the phone camera into a "source: push" camera
+  /api/push/<cam_id>     POST one JPEG frame (body = image/jpeg), used by /push
+
+The phone camera only works over HTTPS, so a second HTTPS listener is started on
+HTTPS_PORT (default 8443, "0" = off). See app/tls.py.
 
 Run locally:   python -m app.main
 In Docker:     gunicorn "app.main:create_app()"   (see Dockerfile)
@@ -21,8 +26,12 @@ from flask import Flask, Response, abort, jsonify, render_template, request
 
 from app.analytics.people import PeopleDetector
 from app.config import load_config, setup_logging
+from app.tls import start_https_server
 from app.events import EventStore
+from app.sources import is_push, push_hub
 from app.worker import CameraWorker
+
+MAX_PUSH_FRAME_BYTES = 2 * 1024 * 1024  # a 1280px JPEG is ~100-300 KB; refuse anything huge
 
 log = logging.getLogger("server")
 
@@ -63,8 +72,8 @@ def create_app():
     jpeg_quality = server_cfg.get("jpeg_quality", 75)
 
     # Shared services, then one worker thread per camera.
-    events = EventStore(os.environ.get("DATABASE", config.get("database", "data/events.db")),
-                        cooldown_s=a.get("alert_cooldown_s", 30))
+    db_path = os.environ.get("DATABASE", config.get("database", "data/events.db"))
+    events = EventStore(db_path, cooldown_s=a.get("alert_cooldown_s", 30))
     detector = PeopleDetector(a.get("model", "yolov8n.pt"), a.get("person_confidence", 0.4))
     workers = {}
     for cam in config["cameras"]:
@@ -75,7 +84,14 @@ def create_app():
     events.add("system", "System", "system_start", "Monitoring started with %d cameras" % len(workers),
                cooldown=False)
 
+    # Cameras the phone may stream into. Optional PUSH_TOKEN env var = a password for
+    # pushing, so strangers who find the public IP can't replace your camera image.
+    push_cams = [w for w in workers.values() if is_push(w.source_spec)]
+    push_token = os.environ.get("PUSH_TOKEN", "")
+    https_port = int(os.environ.get("HTTPS_PORT", 8443))
+
     app = Flask(__name__)
+    app.config["MAX_CONTENT_LENGTH"] = MAX_PUSH_FRAME_BYTES
 
     @app.route("/")
     def index():
@@ -108,12 +124,34 @@ def create_app():
         limit = min(int(request.args.get("limit", 50)), 500)
         return jsonify(events.recent(limit))
 
+    @app.route("/push")
+    def push_page():
+        cams = [{"id": w.cam_id, "name": w.cam_name} for w in push_cams]
+        return render_template("push.html", cameras=cams, need_token=bool(push_token),
+                               secure=request.is_secure, https_port=https_port)
+
+    @app.route("/api/push/<cam_id>", methods=["POST"])
+    def api_push(cam_id):
+        if cam_id not in {w.cam_id for w in push_cams}:
+            return jsonify({"error": "camera %s does not accept pushed video" % cam_id}), 404
+        if push_token and request.headers.get("X-Push-Token", "") != push_token:
+            return jsonify({"error": "wrong push token"}), 403
+        jpeg = request.get_data()
+        if not jpeg.startswith(b"\xff\xd8"):  # every JPEG file starts with these two bytes
+            return jsonify({"error": "body must be a JPEG image"}), 400
+        seq = push_hub.put(cam_id, jpeg)
+        return jsonify({"ok": True, "frame": seq})
+
     @app.route("/health")
     def health():
         online = sum(w.get_stats()["status"] == "online" for w in workers.values())
         return jsonify({"status": "ok", "cameras_online": online, "cameras_total": len(workers),
                         "uptime_s": round(time.time() - started_at)})
 
+    if https_port:
+        # Quiet: werkzeug would otherwise log every pushed frame (10+ lines per second).
+        logging.getLogger("werkzeug").setLevel(logging.WARNING)
+        start_https_server(app, https_port, os.path.dirname(db_path) or "data")
     return app
 
 
