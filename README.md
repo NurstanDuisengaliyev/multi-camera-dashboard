@@ -5,7 +5,7 @@ camera status, FPS, motion detection, tampering detection (dark/blurry), people 
 (YOLOv8n), crowd alerts, history charts and an SQLite event log.
 
 Built with Python, OpenCV, ultralytics YOLO, Flask, Docker; deployed on an Azure VM.
-CSCI 436 Introduction to Cloud Computing final project. Full plan: [PLAN.md](PLAN.md).
+CSCI 436 Introduction to Cloud Computing final project.
 
 ## Run with Docker (recommended)
 

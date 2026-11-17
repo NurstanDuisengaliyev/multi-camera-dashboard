@@ -11,3 +11,8 @@ data/
 
 # Model weights are downloaded automatically
 *.pt
+
+# Claude Code / personal planning files (kept locally, not published)
+.claude/
+CLAUDE.md
+PLAN.md
