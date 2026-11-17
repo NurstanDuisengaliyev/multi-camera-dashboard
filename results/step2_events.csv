@@ -1,0 +1,20 @@
+time,camera_id,camera_name,type,message,value
+2026-11-17 17:58:21,broken,Missing file,camera_offline,Camera offline: cannot open source,
+2026-11-17 17:58:27,cam4,Hallway,motion,Motion detected (5.7% of image),5.7
+2026-11-17 17:58:29,tamper,Tamper test,camera_dark,"Image too dark (brightness 3), camera covered?",2.9
+2026-11-17 17:58:29,cam1,Pedestrian Street,motion,Motion detected (2.0% of image),2.0
+2026-11-17 17:58:29,cam3,Store Aisle,motion,Motion detected (2.2% of image),2.2
+2026-11-17 17:58:35,cam1,Pedestrian Street,crowd,Crowd: 8 people (limit 6),8.0
+2026-11-17 17:58:35,tamper,Tamper test,motion,Motion detected (2.7% of image),2.7
+2026-11-17 17:58:35,tamper,Tamper test,camera_blurry,"Image blurry (sharpness 3.7), lens dirty?",3.7
+2026-11-17 17:58:38,cam2,Office Room,motion,Motion detected (9.5% of image),9.5
+2026-11-17 17:58:52,cam3,Store Aisle,crowd,Crowd: 5 people (limit 4),5.0
+2026-11-17 17:58:52,cam2,Office Room,crowd,Crowd: 3 people (limit 2),3.0
+2026-11-17 17:58:59,cam1,Pedestrian Street,motion,Motion detected (2.2% of image),2.2
+2026-11-17 17:59:00,cam4,Hallway,motion,Motion detected (6.0% of image),6.0
+2026-11-17 17:59:01,cam4,Hallway,crowd,Crowd: 3 people (limit 2),3.0
+2026-11-17 17:59:05,tamper,Tamper test,camera_dark,"Image too dark (brightness 3), camera covered?",2.9
+2026-11-17 17:59:11,tamper,Tamper test,camera_blurry,"Image blurry (sharpness 3.7), lens dirty?",3.7
+2026-11-17 17:59:13,cam3,Store Aisle,motion,Motion detected (2.7% of image),2.7
+2026-11-17 17:59:14,tamper,Tamper test,motion,Motion detected (8.7% of image),8.7
+2026-11-17 17:59:14,cam2,Office Room,motion,Motion detected (41.9% of image),41.9

@@ -1,0 +1,16 @@
+/Users/nurstanduisengaliyev/Projects/multi-camera-dashboard/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+[KDownloading https://github.com/ultralytics/assets/releases/download/v8.4.0/yolov8n.pt to 'yolov8n.pt': 0% ──────────── 40.0KB/6.2MB 62.5KB/s 0.2s<1:42[KDownloading https://github.com/ultralytics/assets/releases/download/v8.4.0/yolov8n.pt to 'yolov8n.pt': 2% ──────────── 136.0KB/6.2MB 329.7KB/s 0.3s<19.0s[KDownloading https://github.com/ultralytics/assets/releases/download/v8.4.0/yolov8n.pt to 'yolov8n.pt': 5% ╸─────────── 328.0KB/6.2MB 1.8MB/s 0.4s<3.2s[KDownloading https://github.com/ultralytics/assets/releases/download/v8.4.0/yolov8n.pt to 'yolov8n.pt': 13% ━╸────────── 856.0KB/6.2MB 5.0MB/s 0.5s<1.1s[KDownloading https://github.com/ultralytics/assets/releases/download/v8.4.0/yolov8n.pt to 'yolov8n.pt': 32% ━━━╸──────── 2.0/6.2MB 11.9MB/s 0.6s<0.4s[KDownloading https://github.com/ultralytics/assets/releases/download/v8.4.0/yolov8n.pt to 'yolov8n.pt': 39% ━━━━╸─────── 2.5/6.2MB 3.7MB/s 0.7s<1.0s[KDownloading https://github.com/ultralytics/assets/releases/download/v8.4.0/yolov8n.pt to 'yolov8n.pt': 71% ━━━━━━━━╸─── 4.5/6.2MB 19.8MB/s 0.8s<0.1s[KDownloading https://github.com/ultralytics/assets/releases/download/v8.4.0/yolov8n.pt to 'yolov8n.pt': 100% ━━━━━━━━━━━━ 6.2MB 6.9MB/s 0.9s
+video                          bright      sharp    motion%       people
+pedestrians.avi             117..123   545..620    0.5..5.7     2..8   (avg 5.7)
+people-detection.mp4        104..120    57..75     0.0..38.2    0..3   (avg 0.7)
+store-aisle-detection.mp4   120..148  1200..1413   0.0..7.7     0..5   (avg 3.2)
+face-demographics-walking.  111..135    20..42     0.0..27.1    0..3   (avg 0.7)
+
+simulated covered lens (5% brightness): bright=5 sharp=0
+simulated blur (25x25 Gaussian):        bright=107 sharp=1.6
+
+ms per frame (640px, CPU Apple Mac):
+  motion   avg    2.3 ms   (n=6044)
+  quality  avg    0.4 ms   (n=209)
+  yolo     avg   16.7 ms   (n=209)

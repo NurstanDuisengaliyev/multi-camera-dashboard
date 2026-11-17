@@ -1,19 +1,43 @@
 # Cameras and analytics settings. Change this file instead of the code.
+# Thresholds were chosen from measurements on our videos (results/step2_calibration.txt).
 
 analytics:
   resize_width: 640          # frames are shrunk to this width before analysis (saves CPU)
   offline_after_s: 5         # no new frame for this long -> camera is "offline"
 
+  # Motion (background subtraction)
+  motion_threshold: 0.02     # > 2% of pixels moving = motion
+  motion_min_area: 400       # ignore moving blobs smaller than this (pixels)
+
+  # People (YOLOv8n)
+  model: yolov8n.pt
+  person_confidence: 0.4     # keep detections the model is at least 40% sure about
+  detect_interval_s: 0.5     # run people detection twice per second per camera
+
+  # Tampering (image quality)
+  dark_threshold: 40         # average brightness below this = covered / too dark (normal: 104-148)
+  blur_threshold: 8          # Laplacian variance below this = blurry (normal: 20-1400, blurred: ~2)
+
+  # Alerts
+  alert_hold_s: 1.5          # a condition must last this long before it becomes an alert
+  alert_cooldown_s: 30       # same alert for the same camera at most once per 30 s
+
+database: data/events.db
+
 cameras:
   - id: cam1
     name: "Pedestrian Street"
     source: videos/pedestrians.avi
+    crowd_limit: 6
   - id: cam2
     name: "Office Room"
     source: videos/people-detection.mp4
+    crowd_limit: 2
   - id: cam3
     name: "Store Aisle"
     source: videos/store-aisle-detection.mp4
+    crowd_limit: 4
   - id: cam4
     name: "Hallway"
     source: videos/face-demographics-walking.mp4
+    crowd_limit: 2

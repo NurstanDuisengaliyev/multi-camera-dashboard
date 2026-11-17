@@ -1,0 +1,82 @@
+2026-11-17 17:58:21,510 INFO    [cam1] worker started, source=videos/pedestrians.avi
+2026-11-17 17:58:21,510 INFO    [cam2] worker started, source=videos/people-detection.mp4
+2026-11-17 17:58:21,510 INFO    [cam3] worker started, source=videos/store-aisle-detection.mp4
+2026-11-17 17:58:21,510 INFO    [cam4] worker started, source=videos/face-demographics-walking.mp4
+2026-11-17 17:58:21,510 INFO    [tamper] worker started, source=data/tamper_test.mp4
+2026-11-17 17:58:21,510 INFO    [broken] worker started, source=videos/does-not-exist.mp4
+2026-11-17 17:58:21,511 INFO    [main] started 6 workers with analytics, running for 60s
+2026-11-17 17:58:21,511 INFO    [cam1] source opened (10.0 fps)
+2026-11-17 17:58:21,513 INFO    [cam2] source opened (12.0 fps)
+2026-11-17 17:58:21,516 INFO    [cam4] source opened (12.0 fps)
+2026-11-17 17:58:21,517 INFO    [tamper] source opened (12.0 fps)
+2026-11-17 17:58:21,519 WARNING [broken] camera offline (cannot open source), retrying every 2s
+2026-11-17 17:58:21,520 WARNING [events] [broken] camera_offline: Camera offline: cannot open source
+2026-11-17 17:58:21,522 INFO    [cam3] source opened (59.9 fps)
+2026-11-17 17:58:21,545 INFO    [cam3] camera online (receiving frames)
+2026-11-17 17:58:21,607 INFO    [cam2] camera online (receiving frames)
+2026-11-17 17:58:21,609 INFO    [cam4] camera online (receiving frames)
+2026-11-17 17:58:21,609 INFO    [tamper] camera online (receiving frames)
+2026-11-17 17:58:21,620 INFO    [cam1] camera online (receiving frames)
+2026-11-17 17:58:27,500 WARNING [events] [cam4] motion: Motion detected (5.7% of image)
+2026-11-17 17:58:29,461 WARNING [events] [tamper] camera_dark: Image too dark (brightness 3), camera covered?
+2026-11-17 17:58:29,492 WARNING [events] [cam1] motion: Motion detected (2.0% of image)
+2026-11-17 17:58:29,627 WARNING [events] [cam3] motion: Motion detected (2.2% of image)
+2026-11-17 17:58:31,518 INFO    [main] cam1   online  fps=11  people=6  motion=  1.8% bright=122 sharp=606   alerts=-
+2026-11-17 17:58:31,518 INFO    [main] cam2   online  fps=12  people=0  motion=  0.0% bright=109 sharp=69    alerts=-
+2026-11-17 17:58:31,518 INFO    [main] cam3   online  fps=59  people=0  motion=  7.0% bright=140 sharp=1252  alerts=-
+2026-11-17 17:58:31,518 INFO    [main] cam4   online  fps=12  people=1  motion= 12.6% bright=132 sharp=21    alerts=motion
+2026-11-17 17:58:31,518 INFO    [main] tamper online  fps=13  people=0  motion=  0.0% bright=3   sharp=0     alerts=dark
+2026-11-17 17:58:31,518 INFO    [main] broken offline fps=0   people=0  motion=  0.0% bright=0   sharp=0     alerts=-
+2026-11-17 17:58:35,330 WARNING [events] [cam1] crowd: Crowd: 8 people (limit 6)
+2026-11-17 17:58:35,377 WARNING [events] [tamper] motion: Motion detected (2.7% of image)
+2026-11-17 17:58:35,378 WARNING [events] [tamper] camera_blurry: Image blurry (sharpness 3.7), lens dirty?
+2026-11-17 17:58:38,355 WARNING [events] [cam2] motion: Motion detected (9.5% of image)
+2026-11-17 17:58:41,526 INFO    [main] cam1   online  fps=11  people=7  motion=  3.0% bright=119 sharp=591   alerts=motion,crowd
+2026-11-17 17:58:41,526 INFO    [main] cam2   online  fps=13  people=2  motion=  3.8% bright=108 sharp=59    alerts=motion
+2026-11-17 17:58:41,526 INFO    [main] cam3   online  fps=59  people=3  motion=  2.6% bright=141 sharp=1226  alerts=motion
+2026-11-17 17:58:41,526 INFO    [main] cam4   online  fps=13  people=1  motion=  1.9% bright=130 sharp=32    alerts=-
+2026-11-17 17:58:41,526 INFO    [main] tamper online  fps=12  people=0  motion=  2.4% bright=104 sharp=68    alerts=-
+2026-11-17 17:58:41,526 INFO    [main] broken offline fps=0   people=0  motion=  0.0% bright=0   sharp=0     alerts=-
+2026-11-17 17:58:51,529 INFO    [main] cam1   online  fps=11  people=6  motion=  2.4% bright=119 sharp=593   alerts=motion
+2026-11-17 17:58:51,529 INFO    [main] cam2   online  fps=12  people=3  motion= 16.5% bright=109 sharp=68    alerts=-
+2026-11-17 17:58:51,529 INFO    [main] cam3   online  fps=59  people=5  motion=  5.0% bright=131 sharp=1302  alerts=motion
+2026-11-17 17:58:51,529 INFO    [main] cam4   online  fps=13  people=0  motion=  0.0% bright=133 sharp=28    alerts=-
+2026-11-17 17:58:51,529 INFO    [main] tamper online  fps=12  people=0  motion=  0.0% bright=3   sharp=0     alerts=dark
+2026-11-17 17:58:51,530 INFO    [main] broken offline fps=0   people=0  motion=  0.0% bright=0   sharp=0     alerts=-
+2026-11-17 17:58:52,120 WARNING [events] [cam3] crowd: Crowd: 5 people (limit 4)
+2026-11-17 17:58:52,773 WARNING [events] [cam2] crowd: Crowd: 3 people (limit 2)
+2026-11-17 17:58:59,599 WARNING [events] [cam1] motion: Motion detected (2.2% of image)
+2026-11-17 17:59:00,829 WARNING [events] [cam4] motion: Motion detected (6.0% of image)
+2026-11-17 17:59:01,228 WARNING [events] [cam4] crowd: Crowd: 3 people (limit 2)
+2026-11-17 17:59:01,538 INFO    [main] cam1   online  fps=10  people=4  motion=  1.6% bright=120 sharp=567   alerts=-
+2026-11-17 17:59:01,538 INFO    [main] cam2   online  fps=13  people=0  motion=  0.0% bright=108 sharp=69    alerts=-
+2026-11-17 17:59:01,538 INFO    [main] cam3   online  fps=59  people=5  motion=  0.1% bright=122 sharp=1322  alerts=crowd
+2026-11-17 17:59:01,538 INFO    [main] cam4   online  fps=13  people=3  motion=  9.5% bright=125 sharp=28    alerts=motion,crowd
+2026-11-17 17:59:01,538 INFO    [main] tamper online  fps=12  people=1  motion=  3.9% bright=118 sharp=66    alerts=motion
+2026-11-17 17:59:01,538 INFO    [main] broken offline fps=0   people=0  motion=  0.0% bright=0   sharp=0     alerts=-
+2026-11-17 17:59:05,378 WARNING [events] [tamper] camera_dark: Image too dark (brightness 3), camera covered?
+2026-11-17 17:59:11,395 WARNING [events] [tamper] camera_blurry: Image blurry (sharpness 3.7), lens dirty?
+2026-11-17 17:59:11,548 INFO    [main] cam1   online  fps=11  people=4  motion=  2.4% bright=118 sharp=596   alerts=motion
+2026-11-17 17:59:11,548 INFO    [main] cam2   online  fps=13  people=0  motion=  0.1% bright=107 sharp=64    alerts=-
+2026-11-17 17:59:11,548 INFO    [main] cam3   online  fps=60  people=4  motion=  1.1% bright=135 sharp=1302  alerts=-
+2026-11-17 17:59:11,548 INFO    [main] cam4   online  fps=12  people=0  motion=  0.0% bright=132 sharp=28    alerts=-
+2026-11-17 17:59:11,548 INFO    [main] tamper online  fps=13  people=0  motion=  0.0% bright=107 sharp=4     alerts=blurry
+2026-11-17 17:59:11,548 INFO    [main] broken offline fps=0   people=0  motion=  0.0% bright=0   sharp=0     alerts=-
+2026-11-17 17:59:13,357 WARNING [events] [cam3] motion: Motion detected (2.7% of image)
+2026-11-17 17:59:14,377 WARNING [events] [tamper] motion: Motion detected (8.7% of image)
+2026-11-17 17:59:14,528 WARNING [events] [cam2] motion: Motion detected (41.9% of image)
+2026-11-17 17:59:21,558 INFO    [main] cam1   online  fps=11  people=6  motion=  4.2% bright=118 sharp=605   alerts=motion
+2026-11-17 17:59:21,558 INFO    [main] cam2   online  fps=12  people=0  motion=  0.0% bright=109 sharp=68    alerts=-
+2026-11-17 17:59:21,558 INFO    [main] cam3   online  fps=59  people=4  motion=  0.5% bright=126 sharp=1337  alerts=-
+2026-11-17 17:59:21,558 INFO    [main] cam4   online  fps=13  people=0  motion=  0.0% bright=132 sharp=28    alerts=-
+2026-11-17 17:59:21,558 INFO    [main] tamper online  fps=12  people=1  motion=  1.6% bright=107 sharp=64    alerts=-
+2026-11-17 17:59:21,558 INFO    [main] broken offline fps=0   people=0  motion=  0.0% bright=0   sharp=0     alerts=-
+2026-11-17 17:59:21,563 INFO    [broken] worker stopped
+2026-11-17 17:59:21,571 INFO    [cam3] worker stopped
+2026-11-17 17:59:21,592 INFO    [cam1] worker stopped
+2026-11-17 17:59:21,624 INFO    [tamper] worker stopped
+2026-11-17 17:59:21,632 INFO    [cam2] worker stopped
+2026-11-17 17:59:21,634 INFO    [cam4] worker stopped
+2026-11-17 17:59:21,635 INFO    [main] exported 19 events to results/step2_events.csv
+2026-11-17 17:59:21,635 INFO    [main] events by type: {'motion': 10, 'camera_blurry': 2, 'camera_dark': 2, 'crowd': 4, 'camera_offline': 1}
+2026-11-17 17:59:21,635 INFO    [main] CPU use: 0.86 cores; benchmark saved to results/step2_benchmark.md
