@@ -1,0 +1,725 @@
+
+===== 2026-11-17 18:14:39 System info =====
+Linux multicam-vm 7.0.0-1017-azure #17~24.04.1-Ubuntu SMP PREEMPT Thu Sep 24 18:46:57 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+PRETTY_NAME="Ubuntu 24.04.5 LTS"
+CPU cores: 2
+               total        used        free      shared  buff/cache   available
+Mem:           7.7Gi       525Mi       6.9Gi       4.0Mi       527Mi       7.2Gi
+Swap:             0B          0B          0B
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/root        29G  2.0G   27G   7% /
+
+===== 2026-11-17 18:14:39 1) Install Docker (from Ubuntu packages) =====
+Hit:1 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+Get:2 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+Get:3 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+Get:4 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 Packages [15.0 MB]
+Get:6 http://azure.archive.ubuntu.com/ubuntu noble/universe Translation-en [5982 kB]
+Get:7 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 Components [3871 kB]
+Get:8 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 c-n-f Metadata [301 kB]
+Get:9 http://azure.archive.ubuntu.com/ubuntu noble/multiverse amd64 Packages [269 kB]
+Get:10 http://azure.archive.ubuntu.com/ubuntu noble/multiverse Translation-en [118 kB]
+Get:11 http://azure.archive.ubuntu.com/ubuntu noble/multiverse amd64 Components [35.0 kB]
+Get:12 http://azure.archive.ubuntu.com/ubuntu noble/multiverse amd64 c-n-f Metadata [8328 B]
+Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1455 kB]
+Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [317 kB]
+Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Components [181 kB]
+Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1715 kB]
+Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [345 kB]
+Get:18 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Components [388 kB]
+Get:19 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 c-n-f Metadata [34.9 kB]
+Get:20 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1887 kB]
+Get:21 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [433 kB]
+Get:22 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [50.7 kB]
+Get:23 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.6 kB]
+Get:24 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Components [940 B]
+Get:25 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 c-n-f Metadata [656 B]
+Get:26 http://azure.archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [40.6 kB]
+Get:27 http://azure.archive.ubuntu.com/ubuntu noble-backports/main Translation-en [9172 B]
+Get:28 http://azure.archive.ubuntu.com/ubuntu noble-backports/main amd64 Components [5740 B]
+Get:29 http://azure.archive.ubuntu.com/ubuntu noble-backports/main amd64 c-n-f Metadata [368 B]
+Get:30 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [31.0 kB]
+Get:31 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe Translation-en [18.6 kB]
+Get:32 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Components [12.6 kB]
+Get:33 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 c-n-f Metadata [1588 B]
+Get:34 http://azure.archive.ubuntu.com/ubuntu noble-backports/restricted amd64 Components [212 B]
+Get:35 http://azure.archive.ubuntu.com/ubuntu noble-backports/restricted amd64 c-n-f Metadata [116 B]
+Get:36 http://azure.archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 Packages [748 B]
+Get:37 http://azure.archive.ubuntu.com/ubuntu noble-backports/multiverse Translation-en [340 B]
+Get:38 http://azure.archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 Components [212 B]
+Get:39 http://azure.archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 c-n-f Metadata [116 B]
+Get:40 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1196 kB]
+Get:41 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [238 kB]
+Get:42 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Components [46.4 kB]
+Get:43 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1229 kB]
+Get:44 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [248 kB]
+Get:45 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Components [76.3 kB]
+Get:46 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 c-n-f Metadata [24.2 kB]
+Get:47 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1788 kB]
+Get:48 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [411 kB]
+Get:49 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [45.4 kB]
+Get:50 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [12.7 kB]
+Get:51 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Components [208 B]
+Get:52 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 c-n-f Metadata [468 B]
+Fetched 38.3 MB in 5s (8343 kB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following additional packages will be installed:
+  bridge-utils containerd dns-root-data dnsmasq-base pigz runc ubuntu-fan
+Suggested packages:
+  ifupdown aufs-tools cgroupfs-mount | cgroup-lite debootstrap docker-buildx
+  docker-doc rinse zfs-fuse | zfsutils
+The following NEW packages will be installed:
+  bridge-utils containerd dns-root-data dnsmasq-base docker-compose-v2
+  docker.io pigz runc ubuntu-fan
+0 upgraded, 9 newly installed, 0 to remove and 31 not upgraded.
+Need to get 88.6 MB of archives.
+After this operation, 345 MB of additional disk space will be used.
+Get:1 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 pigz amd64 2.8-1 [65.6 kB]
+Get:2 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 bridge-utils amd64 1.7.1-1ubuntu2 [33.9 kB]
+Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 runc amd64 1.3.4-0ubuntu1~24.04.1 [9574 kB]
+Get:4 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 containerd amd64 2.2.1-0ubuntu1~24.04.4 [28.2 MB]
+Get:5 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 dns-root-data all 2024071801~ubuntu0.24.04.1 [5918 B]
+Get:6 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 dnsmasq-base amd64 2.91-0ubuntu0.24.04.2 [381 kB]
+Get:7 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 docker-compose-v2 amd64 2.40.3+ds1-0ubuntu1~24.04.1 [14.8 MB]
+Get:8 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 docker.io amd64 29.1.3-0ubuntu3~24.04.2 [35.6 MB]
+Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 ubuntu-fan all 0.12.16+24.04.1 [34.2 kB]
+debconf: unable to initialize frontend: Dialog
+debconf: (Dialog frontend will not work on a dumb terminal, an emacs shell buffer, or without a controlling terminal.)
+debconf: falling back to frontend: Readline
+debconf: unable to initialize frontend: Readline
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Teletype
+dpkg-preconfigure: unable to re-open stdin: 
+Fetched 88.6 MB in 1s (63.5 MB/s)
+Selecting previously unselected package pigz.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 79725 files and directories currently installed.)
+Preparing to unpack .../0-pigz_2.8-1_amd64.deb ...
+Unpacking pigz (2.8-1) ...
+Selecting previously unselected package bridge-utils.
+Preparing to unpack .../1-bridge-utils_1.7.1-1ubuntu2_amd64.deb ...
+Unpacking bridge-utils (1.7.1-1ubuntu2) ...
+Selecting previously unselected package runc.
+Preparing to unpack .../2-runc_1.3.4-0ubuntu1~24.04.1_amd64.deb ...
+Unpacking runc (1.3.4-0ubuntu1~24.04.1) ...
+Selecting previously unselected package containerd.
+Preparing to unpack .../3-containerd_2.2.1-0ubuntu1~24.04.4_amd64.deb ...
+Unpacking containerd (2.2.1-0ubuntu1~24.04.4) ...
+Selecting previously unselected package dns-root-data.
+Preparing to unpack .../4-dns-root-data_2024071801~ubuntu0.24.04.1_all.deb ...
+Unpacking dns-root-data (2024071801~ubuntu0.24.04.1) ...
+Selecting previously unselected package dnsmasq-base.
+Preparing to unpack .../5-dnsmasq-base_2.91-0ubuntu0.24.04.2_amd64.deb ...
+Unpacking dnsmasq-base (2.91-0ubuntu0.24.04.2) ...
+Selecting previously unselected package docker-compose-v2.
+Preparing to unpack .../6-docker-compose-v2_2.40.3+ds1-0ubuntu1~24.04.1_amd64.deb ...
+Unpacking docker-compose-v2 (2.40.3+ds1-0ubuntu1~24.04.1) ...
+Selecting previously unselected package docker.io.
+Preparing to unpack .../7-docker.io_29.1.3-0ubuntu3~24.04.2_amd64.deb ...
+Unpacking docker.io (29.1.3-0ubuntu3~24.04.2) ...
+Selecting previously unselected package ubuntu-fan.
+Preparing to unpack .../8-ubuntu-fan_0.12.16+24.04.1_all.deb ...
+Unpacking ubuntu-fan (0.12.16+24.04.1) ...
+Setting up docker-compose-v2 (2.40.3+ds1-0ubuntu1~24.04.1) ...
+Setting up dnsmasq-base (2.91-0ubuntu0.24.04.2) ...
+Setting up runc (1.3.4-0ubuntu1~24.04.1) ...
+Setting up dns-root-data (2024071801~ubuntu0.24.04.1) ...
+Setting up bridge-utils (1.7.1-1ubuntu2) ...
+debconf: unable to initialize frontend: Dialog
+debconf: (Dialog frontend will not work on a dumb terminal, an emacs shell buffer, or without a controlling terminal.)
+debconf: falling back to frontend: Readline
+debconf: unable to initialize frontend: Readline
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Teletype
+Setting up pigz (2.8-1) ...
+Setting up containerd (2.2.1-0ubuntu1~24.04.4) ...
+Created symlink /etc/systemd/system/multi-user.target.wants/containerd.service → /usr/lib/systemd/system/containerd.service.
+Setting up ubuntu-fan (0.12.16+24.04.1) ...
+Created symlink /etc/systemd/system/multi-user.target.wants/ubuntu-fan.service → /usr/lib/systemd/system/ubuntu-fan.service.
+Setting up docker.io (29.1.3-0ubuntu3~24.04.2) ...
+debconf: unable to initialize frontend: Dialog
+debconf: (Dialog frontend will not work on a dumb terminal, an emacs shell buffer, or without a controlling terminal.)
+debconf: falling back to frontend: Readline
+debconf: unable to initialize frontend: Readline
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Teletype
+info: Selecting GID from range 100 to 999 ...
+info: Adding group `docker' (GID 114) ...
+Created symlink /etc/systemd/system/multi-user.target.wants/docker.service → /usr/lib/systemd/system/docker.service.
+Created symlink /etc/systemd/system/sockets.target.wants/docker.socket → /usr/lib/systemd/system/docker.socket.
+Processing triggers for dbus (1.14.10-4ubuntu4.1) ...
+Processing triggers for man-db (2.12.0-4build2) ...
+debconf: unable to initialize frontend: Dialog
+debconf: (Dialog frontend will not work on a dumb terminal, an emacs shell buffer, or without a controlling terminal.)
+debconf: falling back to frontend: Readline
+debconf: unable to initialize frontend: Readline
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Teletype
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+Docker version 29.1.3, build 29.1.3-0ubuntu3~24.04.2
+Docker Compose version 2.40.3+ds1-0ubuntu1~24.04.1
+
+===== 2026-11-17 18:15:12 2) Get the latest code =====
+Already up to date.
+d59de20 Untrack live log files so git pull on the VM never conflicts
+
+===== 2026-11-17 18:15:12 3) Build the image and start the container =====
+time="2026-11-17T18:15:12Z" level=warning msg="Docker Compose is configured to build using Bake, but buildx isn't installed"
+#0 building with "default" instance using docker driver
+
+#1 [dashboard internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.55kB done
+#1 DONE 0.1s
+
+#2 [dashboard internal] load metadata for docker.io/library/python:3.12-slim
+#2 DONE 2.0s
+
+#3 [dashboard internal] load .dockerignore
+#3 transferring context: 161B done
+#3 DONE 0.1s
+
+#4 [dashboard internal] load build context
+#4 transferring context: 29.50MB 0.2s done
+#4 DONE 0.3s
+
+#5 [dashboard  1/11] FROM docker.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b
+#5 resolve docker.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b 0.1s done
+#5 sha256:05e0eee5572e9c9f50408a2132590133b830a668a1cf2ff2b150f19c57707e2b 0B / 248B 0.2s
+#5 sha256:05e0eee5572e9c9f50408a2132590133b830a668a1cf2ff2b150f19c57707e2b 248B / 248B 0.2s done
+#5 sha256:2dc99d2d0a39fce31e37615eb4c932e16dcc4c2b0ce9993714280081b5dbe085 0B / 12.12MB 0.3s
+#5 sha256:68bced9e0afa4479df17c3646e27c7c7e9ce9ba70c0e6c73b6826487b89037d9 0B / 1.29MB 0.2s
+#5 sha256:37fb86c2a767b88d500c6872195f88078f64765fe0d2f9cc375cc2efbd4c0a41 0B / 29.86MB 0.2s
+#5 sha256:2dc99d2d0a39fce31e37615eb4c932e16dcc4c2b0ce9993714280081b5dbe085 10.49MB / 12.12MB 0.5s
+#5 sha256:2dc99d2d0a39fce31e37615eb4c932e16dcc4c2b0ce9993714280081b5dbe085 12.12MB / 12.12MB 0.5s done
+#5 sha256:68bced9e0afa4479df17c3646e27c7c7e9ce9ba70c0e6c73b6826487b89037d9 1.29MB / 1.29MB 0.6s done
+#5 sha256:37fb86c2a767b88d500c6872195f88078f64765fe0d2f9cc375cc2efbd4c0a41 7.34MB / 29.86MB 0.6s
+#5 sha256:37fb86c2a767b88d500c6872195f88078f64765fe0d2f9cc375cc2efbd4c0a41 29.86MB / 29.86MB 0.8s
+#5 sha256:37fb86c2a767b88d500c6872195f88078f64765fe0d2f9cc375cc2efbd4c0a41 29.86MB / 29.86MB 2.0s done
+#5 extracting sha256:37fb86c2a767b88d500c6872195f88078f64765fe0d2f9cc375cc2efbd4c0a41
+#5 extracting sha256:37fb86c2a767b88d500c6872195f88078f64765fe0d2f9cc375cc2efbd4c0a41 0.8s done
+#5 DONE 3.3s
+
+#5 [dashboard  1/11] FROM docker.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b
+#5 extracting sha256:68bced9e0afa4479df17c3646e27c7c7e9ce9ba70c0e6c73b6826487b89037d9 0.1s done
+#5 DONE 3.4s
+
+#5 [dashboard  1/11] FROM docker.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b
+#5 extracting sha256:2dc99d2d0a39fce31e37615eb4c932e16dcc4c2b0ce9993714280081b5dbe085
+#5 extracting sha256:2dc99d2d0a39fce31e37615eb4c932e16dcc4c2b0ce9993714280081b5dbe085 0.4s done
+#5 DONE 3.8s
+
+#5 [dashboard  1/11] FROM docker.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b
+#5 extracting sha256:05e0eee5572e9c9f50408a2132590133b830a668a1cf2ff2b150f19c57707e2b 0.0s done
+#5 DONE 3.9s
+
+#6 [dashboard  2/11] RUN apt-get update  && apt-get install -y --no-install-recommends libgl1 libglib2.0-0  && rm -rf /var/lib/apt/lists/*
+#6 0.458 Hit:1 http://deb.debian.org/debian trixie InRelease
+#6 0.467 Get:2 http://deb.debian.org/debian trixie-updates InRelease [47.3 kB]
+#6 0.513 Get:3 http://deb.debian.org/debian-security trixie-security InRelease [43.4 kB]
+#6 0.543 Get:4 http://deb.debian.org/debian trixie/main amd64 Packages [9678 kB]
+#6 0.710 Get:5 http://deb.debian.org/debian trixie-updates/main amd64 Packages [1108 B]
+#6 0.734 Get:6 http://deb.debian.org/debian-security trixie-security/main amd64 Packages [306 kB]
+#6 1.430 Fetched 10.1 MB in 1s (8815 kB/s)
+#6 1.430 Reading package lists...
+#6 2.048 Reading package lists...
+#6 2.668 Building dependency tree...
+#6 2.822 Reading state information...
+#6 3.028 The following additional packages will be installed:
+#6 3.029   libatomic1 libdrm-amdgpu1 libdrm-common libdrm-intel1 libdrm2 libedit2
+#6 3.029   libelf1t64 libexpat1 libgbm1 libgl1-mesa-dri libglvnd0 libglx-mesa0 libglx0
+#6 3.029   libllvm19 libpciaccess0 libsensors-config libsensors5 libvulkan1
+#6 3.029   libwayland-server0 libx11-6 libx11-data libx11-xcb1 libxau6 libxcb-dri3-0
+#6 3.029   libxcb-glx0 libxcb-present0 libxcb-randr0 libxcb-shm0 libxcb-sync1
+#6 3.029   libxcb-xfixes0 libxcb1 libxdmcp6 libxext6 libxml2 libxshmfence1 libxxf86vm1
+#6 3.029   libz3-4 mesa-libgallium
+#6 3.030 Suggested packages:
+#6 3.030   low-memory-monitor pciutils lm-sensors
+#6 3.030 Recommended packages:
+#6 3.030   libglib2.0-data shared-mime-info xdg-user-dirs mesa-vulkan-drivers
+#6 3.030   | vulkan-icd
+#6 3.227 The following NEW packages will be installed:
+#6 3.227   libatomic1 libdrm-amdgpu1 libdrm-common libdrm-intel1 libdrm2 libedit2
+#6 3.227   libelf1t64 libexpat1 libgbm1 libgl1 libgl1-mesa-dri libglib2.0-0t64
+#6 3.228   libglvnd0 libglx-mesa0 libglx0 libllvm19 libpciaccess0 libsensors-config
+#6 3.228   libsensors5 libvulkan1 libwayland-server0 libx11-6 libx11-data libx11-xcb1
+#6 3.228   libxau6 libxcb-dri3-0 libxcb-glx0 libxcb-present0 libxcb-randr0 libxcb-shm0
+#6 3.228   libxcb-sync1 libxcb-xfixes0 libxcb1 libxdmcp6 libxext6 libxml2 libxshmfence1
+#6 3.228   libxxf86vm1 libz3-4 mesa-libgallium
+#6 3.306 0 upgraded, 40 newly installed, 0 to remove and 1 not upgraded.
+#6 3.306 Need to get 50.1 MB of archives.
+#6 3.306 After this operation, 218 MB of additional disk space will be used.
+#6 3.306 Get:1 http://deb.debian.org/debian-security trixie-security/main amd64 libexpat1 amd64 2.9.0-1~deb13u1 [126 kB]
+#6 3.364 Get:2 http://deb.debian.org/debian trixie/main amd64 libatomic1 amd64 14.2.0-19 [9308 B]
+#6 3.365 Get:3 http://deb.debian.org/debian trixie/main amd64 libdrm-common all 2.4.124-2 [8288 B]
+#6 3.366 Get:4 http://deb.debian.org/debian trixie/main amd64 libdrm2 amd64 2.4.124-2 [39.0 kB]
+#6 3.369 Get:5 http://deb.debian.org/debian trixie/main amd64 libdrm-amdgpu1 amd64 2.4.124-2 [22.6 kB]
+#6 3.370 Get:6 http://deb.debian.org/debian trixie/main amd64 libpciaccess0 amd64 0.17-3+b3 [51.9 kB]
+#6 3.374 Get:7 http://deb.debian.org/debian trixie/main amd64 libdrm-intel1 amd64 2.4.124-2 [64.1 kB]
+#6 3.389 Get:8 http://deb.debian.org/debian trixie/main amd64 libedit2 amd64 3.1-20250104-1 [93.8 kB]
+#6 3.418 Get:9 http://deb.debian.org/debian trixie/main amd64 libelf1t64 amd64 0.192-4 [189 kB]
+#6 3.422 Get:10 http://deb.debian.org/debian trixie/main amd64 libwayland-server0 amd64 1.23.1-3 [34.4 kB]
+#6 3.423 Get:11 http://deb.debian.org/debian trixie/main amd64 libxml2 amd64 2.12.7+dfsg+really2.9.14-2.1+deb13u3 [700 kB]
+#6 3.451 Get:12 http://deb.debian.org/debian trixie/main amd64 libz3-4 amd64 4.13.3-1 [8560 kB]
+#6 3.552 Get:13 http://deb.debian.org/debian trixie/main amd64 libllvm19 amd64 1:19.1.7-3+b1 [26.0 MB]
+#6 3.666 Get:14 http://deb.debian.org/debian trixie/main amd64 libsensors-config all 1:3.6.2-2 [16.2 kB]
+#6 3.668 Get:15 http://deb.debian.org/debian trixie/main amd64 libsensors5 amd64 1:3.6.2-2 [37.5 kB]
+#6 3.668 Get:16 http://deb.debian.org/debian trixie/main amd64 libxau6 amd64 1:1.0.11-1 [20.4 kB]
+#6 3.668 Get:17 http://deb.debian.org/debian trixie/main amd64 libxdmcp6 amd64 1:1.1.5-1 [27.8 kB]
+#6 3.668 Get:18 http://deb.debian.org/debian trixie/main amd64 libxcb1 amd64 1.17.0-2+b1 [144 kB]
+#6 3.668 Get:19 http://deb.debian.org/debian trixie/main amd64 libx11-data all 2:1.8.12-1 [343 kB]
+#6 3.670 Get:20 http://deb.debian.org/debian trixie/main amd64 libx11-6 amd64 2:1.8.12-1 [815 kB]
+#6 3.690 Get:21 http://deb.debian.org/debian trixie/main amd64 libx11-xcb1 amd64 2:1.8.12-1 [247 kB]
+#6 3.715 Get:22 http://deb.debian.org/debian trixie/main amd64 libxcb-dri3-0 amd64 1.17.0-2+b1 [107 kB]
+#6 3.717 Get:23 http://deb.debian.org/debian trixie/main amd64 libxcb-present0 amd64 1.17.0-2+b1 [106 kB]
+#6 3.717 Get:24 http://deb.debian.org/debian trixie/main amd64 libxcb-randr0 amd64 1.17.0-2+b1 [117 kB]
+#6 3.718 Get:25 http://deb.debian.org/debian trixie/main amd64 libxcb-sync1 amd64 1.17.0-2+b1 [109 kB]
+#6 3.719 Get:26 http://deb.debian.org/debian trixie/main amd64 libxcb-xfixes0 amd64 1.17.0-2+b1 [109 kB]
+#6 3.719 Get:27 http://deb.debian.org/debian trixie/main amd64 libxshmfence1 amd64 1.3.3-1 [10.9 kB]
+#6 3.762 Get:28 http://deb.debian.org/debian trixie/main amd64 mesa-libgallium amd64 25.0.7-2+deb13u1 [9630 kB]
+#6 3.798 Get:29 http://deb.debian.org/debian trixie/main amd64 libgbm1 amd64 25.0.7-2+deb13u1 [44.6 kB]
+#6 3.799 Get:30 http://deb.debian.org/debian trixie/main amd64 libglvnd0 amd64 1.7.0-1+b2 [52.0 kB]
+#6 3.800 Get:31 http://deb.debian.org/debian trixie/main amd64 libxcb-glx0 amd64 1.17.0-2+b1 [122 kB]
+#6 3.800 Get:32 http://deb.debian.org/debian trixie/main amd64 libxcb-shm0 amd64 1.17.0-2+b1 [105 kB]
+#6 3.801 Get:33 http://deb.debian.org/debian trixie/main amd64 libxext6 amd64 2:1.3.4-1+b3 [50.4 kB]
+#6 3.801 Get:34 http://deb.debian.org/debian trixie/main amd64 libxxf86vm1 amd64 1:1.1.4-1+b4 [19.3 kB]
+#6 3.802 Get:35 http://deb.debian.org/debian trixie/main amd64 libvulkan1 amd64 1.4.309.0-1 [130 kB]
+#6 3.803 Get:36 http://deb.debian.org/debian trixie/main amd64 libgl1-mesa-dri amd64 25.0.7-2+deb13u1 [46.2 kB]
+#6 3.818 Get:37 http://deb.debian.org/debian trixie/main amd64 libglx-mesa0 amd64 25.0.7-2+deb13u1 [143 kB]
+#6 3.824 Get:38 http://deb.debian.org/debian trixie/main amd64 libglx0 amd64 1.7.0-1+b2 [34.9 kB]
+#6 3.849 Get:39 http://deb.debian.org/debian trixie/main amd64 libgl1 amd64 1.7.0-1+b2 [89.5 kB]
+#6 3.874 Get:40 http://deb.debian.org/debian trixie/main amd64 libglib2.0-0t64 amd64 2.84.4-3~deb13u5 [1521 kB]
+#6 4.278 debconf: unable to initialize frontend: Dialog
+#6 4.278 debconf: (TERM is not set, so the dialog frontend is not usable.)
+#6 4.278 debconf: falling back to frontend: Readline
+#6 4.278 debconf: unable to initialize frontend: Readline
+#6 4.278 debconf: (Can't locate Term/ReadLine.pm in @INC (you may need to install the Term::ReadLine module) (@INC entries checked: /etc/perl /usr/local/lib/x86_64-linux-gnu/perl/5.40.1 /usr/local/share/perl/5.40.1 /usr/lib/x86_64-linux-gnu/perl5/5.40 /usr/share/perl5 /usr/lib/x86_64-linux-gnu/perl-base /usr/lib/x86_64-linux-gnu/perl/5.40 /usr/share/perl/5.40 /usr/local/lib/site_perl) at /usr/share/perl5/Debconf/FrontEnd/Readline.pm line 8, <STDIN> line 40.)
+#6 4.278 debconf: falling back to frontend: Teletype
+#6 4.284 debconf: unable to initialize frontend: Teletype
+#6 4.284 debconf: (This frontend requires a controlling tty.)
+#6 4.284 debconf: falling back to frontend: Noninteractive
+#6 5.530 Fetched 50.1 MB in 1s (78.6 MB/s)
+#6 5.564 Selecting previously unselected package libexpat1:amd64.
+#6 5.564 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 5658 files and directories currently installed.)
+#6 5.573 Preparing to unpack .../00-libexpat1_2.9.0-1~deb13u1_amd64.deb ...
+#6 5.586 Unpacking libexpat1:amd64 (2.9.0-1~deb13u1) ...
+#6 5.646 Selecting previously unselected package libatomic1:amd64.
+#6 5.648 Preparing to unpack .../01-libatomic1_14.2.0-19_amd64.deb ...
+#6 5.664 Unpacking libatomic1:amd64 (14.2.0-19) ...
+#6 5.709 Selecting previously unselected package libdrm-common.
+#6 5.711 Preparing to unpack .../02-libdrm-common_2.4.124-2_all.deb ...
+#6 5.719 Unpacking libdrm-common (2.4.124-2) ...
+#6 5.772 Selecting previously unselected package libdrm2:amd64.
+#6 5.774 Preparing to unpack .../03-libdrm2_2.4.124-2_amd64.deb ...
+#6 5.785 Unpacking libdrm2:amd64 (2.4.124-2) ...
+#6 5.856 Selecting previously unselected package libdrm-amdgpu1:amd64.
+#6 5.858 Preparing to unpack .../04-libdrm-amdgpu1_2.4.124-2_amd64.deb ...
+#6 5.865 Unpacking libdrm-amdgpu1:amd64 (2.4.124-2) ...
+#6 5.929 Selecting previously unselected package libpciaccess0:amd64.
+#6 5.932 Preparing to unpack .../05-libpciaccess0_0.17-3+b3_amd64.deb ...
+#6 5.939 Unpacking libpciaccess0:amd64 (0.17-3+b3) ...
+#6 6.000 Selecting previously unselected package libdrm-intel1:amd64.
+#6 6.002 Preparing to unpack .../06-libdrm-intel1_2.4.124-2_amd64.deb ...
+#6 6.009 Unpacking libdrm-intel1:amd64 (2.4.124-2) ...
+#6 6.068 Selecting previously unselected package libedit2:amd64.
+#6 6.070 Preparing to unpack .../07-libedit2_3.1-20250104-1_amd64.deb ...
+#6 6.077 Unpacking libedit2:amd64 (3.1-20250104-1) ...
+#6 6.135 Selecting previously unselected package libelf1t64:amd64.
+#6 6.135 Preparing to unpack .../08-libelf1t64_0.192-4_amd64.deb ...
+#6 6.142 Unpacking libelf1t64:amd64 (0.192-4) ...
+#6 6.213 Selecting previously unselected package libwayland-server0:amd64.
+#6 6.215 Preparing to unpack .../09-libwayland-server0_1.23.1-3_amd64.deb ...
+#6 6.222 Unpacking libwayland-server0:amd64 (1.23.1-3) ...
+#6 6.277 Selecting previously unselected package libxml2:amd64.
+#6 6.279 Preparing to unpack .../10-libxml2_2.12.7+dfsg+really2.9.14-2.1+deb13u3_amd64.deb ...
+#6 6.296 Unpacking libxml2:amd64 (2.12.7+dfsg+really2.9.14-2.1+deb13u3) ...
+#6 6.384 Selecting previously unselected package libz3-4:amd64.
+#6 6.386 Preparing to unpack .../11-libz3-4_4.13.3-1_amd64.deb ...
+#6 6.392 Unpacking libz3-4:amd64 (4.13.3-1) ...
+#6 6.812 Selecting previously unselected package libllvm19:amd64.
+#6 6.814 Preparing to unpack .../12-libllvm19_1%3a19.1.7-3+b1_amd64.deb ...
+#6 6.821 Unpacking libllvm19:amd64 (1:19.1.7-3+b1) ...
+#6 7.857 Selecting previously unselected package libsensors-config.
+#6 7.858 Preparing to unpack .../13-libsensors-config_1%3a3.6.2-2_all.deb ...
+#6 7.865 Unpacking libsensors-config (1:3.6.2-2) ...
+#6 7.925 Selecting previously unselected package libsensors5:amd64.
+#6 7.927 Preparing to unpack .../14-libsensors5_1%3a3.6.2-2_amd64.deb ...
+#6 7.938 Unpacking libsensors5:amd64 (1:3.6.2-2) ...
+#6 7.991 Selecting previously unselected package libxau6:amd64.
+#6 7.993 Preparing to unpack .../15-libxau6_1%3a1.0.11-1_amd64.deb ...
+#6 7.999 Unpacking libxau6:amd64 (1:1.0.11-1) ...
+#6 8.056 Selecting previously unselected package libxdmcp6:amd64.
+#6 8.059 Preparing to unpack .../16-libxdmcp6_1%3a1.1.5-1_amd64.deb ...
+#6 8.069 Unpacking libxdmcp6:amd64 (1:1.1.5-1) ...
+#6 8.123 Selecting previously unselected package libxcb1:amd64.
+#6 8.126 Preparing to unpack .../17-libxcb1_1.17.0-2+b1_amd64.deb ...
+#6 8.133 Unpacking libxcb1:amd64 (1.17.0-2+b1) ...
+#6 8.180 Selecting previously unselected package libx11-data.
+#6 8.182 Preparing to unpack .../18-libx11-data_2%3a1.8.12-1_all.deb ...
+#6 8.190 Unpacking libx11-data (2:1.8.12-1) ...
+#6 8.277 Selecting previously unselected package libx11-6:amd64.
+#6 8.279 Preparing to unpack .../19-libx11-6_2%3a1.8.12-1_amd64.deb ...
+#6 8.286 Unpacking libx11-6:amd64 (2:1.8.12-1) ...
+#6 8.369 Selecting previously unselected package libx11-xcb1:amd64.
+#6 8.371 Preparing to unpack .../20-libx11-xcb1_2%3a1.8.12-1_amd64.deb ...
+#6 8.378 Unpacking libx11-xcb1:amd64 (2:1.8.12-1) ...
+#6 8.438 Selecting previously unselected package libxcb-dri3-0:amd64.
+#6 8.440 Preparing to unpack .../21-libxcb-dri3-0_1.17.0-2+b1_amd64.deb ...
+#6 8.447 Unpacking libxcb-dri3-0:amd64 (1.17.0-2+b1) ...
+#6 9.237 Selecting previously unselected package libxcb-present0:amd64.
+#6 9.237 Preparing to unpack .../22-libxcb-present0_1.17.0-2+b1_amd64.deb ...
+#6 9.585 Unpacking libxcb-present0:amd64 (1.17.0-2+b1) ...
+#6 9.651 Selecting previously unselected package libxcb-randr0:amd64.
+#6 9.653 Preparing to unpack .../23-libxcb-randr0_1.17.0-2+b1_amd64.deb ...
+#6 9.662 Unpacking libxcb-randr0:amd64 (1.17.0-2+b1) ...
+#6 9.717 Selecting previously unselected package libxcb-sync1:amd64.
+#6 9.718 Preparing to unpack .../24-libxcb-sync1_1.17.0-2+b1_amd64.deb ...
+#6 9.725 Unpacking libxcb-sync1:amd64 (1.17.0-2+b1) ...
+#6 9.781 Selecting previously unselected package libxcb-xfixes0:amd64.
+#6 9.781 Preparing to unpack .../25-libxcb-xfixes0_1.17.0-2+b1_amd64.deb ...
+#6 9.787 Unpacking libxcb-xfixes0:amd64 (1.17.0-2+b1) ...
+#6 9.846 Selecting previously unselected package libxshmfence1:amd64.
+#6 9.847 Preparing to unpack .../26-libxshmfence1_1.3.3-1_amd64.deb ...
+#6 9.854 Unpacking libxshmfence1:amd64 (1.3.3-1) ...
+#6 9.904 Selecting previously unselected package mesa-libgallium:amd64.
+#6 9.904 Preparing to unpack .../27-mesa-libgallium_25.0.7-2+deb13u1_amd64.deb ...
+#6 9.912 Unpacking mesa-libgallium:amd64 (25.0.7-2+deb13u1) ...
+#6 10.40 Selecting previously unselected package libgbm1:amd64.
+#6 10.40 Preparing to unpack .../28-libgbm1_25.0.7-2+deb13u1_amd64.deb ...
+#6 10.41 Unpacking libgbm1:amd64 (25.0.7-2+deb13u1) ...
+#6 10.47 Selecting previously unselected package libglvnd0:amd64.
+#6 10.47 Preparing to unpack .../29-libglvnd0_1.7.0-1+b2_amd64.deb ...
+#6 10.47 Unpacking libglvnd0:amd64 (1.7.0-1+b2) ...
+#6 11.20 Selecting previously unselected package libxcb-glx0:amd64.
+#6 11.20 Preparing to unpack .../30-libxcb-glx0_1.17.0-2+b1_amd64.deb ...
+#6 11.21 Unpacking libxcb-glx0:amd64 (1.17.0-2+b1) ...
+#6 11.27 Selecting previously unselected package libxcb-shm0:amd64.
+#6 11.27 Preparing to unpack .../31-libxcb-shm0_1.17.0-2+b1_amd64.deb ...
+#6 11.28 Unpacking libxcb-shm0:amd64 (1.17.0-2+b1) ...
+#6 11.34 Selecting previously unselected package libxext6:amd64.
+#6 11.34 Preparing to unpack .../32-libxext6_2%3a1.3.4-1+b3_amd64.deb ...
+#6 11.35 Unpacking libxext6:amd64 (2:1.3.4-1+b3) ...
+#6 11.41 Selecting previously unselected package libxxf86vm1:amd64.
+#6 11.41 Preparing to unpack .../33-libxxf86vm1_1%3a1.1.4-1+b4_amd64.deb ...
+#6 11.42 Unpacking libxxf86vm1:amd64 (1:1.1.4-1+b4) ...
+#6 11.48 Selecting previously unselected package libvulkan1:amd64.
+#6 11.48 Preparing to unpack .../34-libvulkan1_1.4.309.0-1_amd64.deb ...
+#6 11.48 Unpacking libvulkan1:amd64 (1.4.309.0-1) ...
+#6 11.55 Selecting previously unselected package libgl1-mesa-dri:amd64.
+#6 11.55 Preparing to unpack .../35-libgl1-mesa-dri_25.0.7-2+deb13u1_amd64.deb ...
+#6 11.56 Unpacking libgl1-mesa-dri:amd64 (25.0.7-2+deb13u1) ...
+#6 11.62 Selecting previously unselected package libglx-mesa0:amd64.
+#6 11.62 Preparing to unpack .../36-libglx-mesa0_25.0.7-2+deb13u1_amd64.deb ...
+#6 11.63 Unpacking libglx-mesa0:amd64 (25.0.7-2+deb13u1) ...
+#6 11.70 Selecting previously unselected package libglx0:amd64.
+#6 11.70 Preparing to unpack .../37-libglx0_1.7.0-1+b2_amd64.deb ...
+#6 11.72 Unpacking libglx0:amd64 (1.7.0-1+b2) ...
+#6 11.78 Selecting previously unselected package libgl1:amd64.
+#6 11.78 Preparing to unpack .../38-libgl1_1.7.0-1+b2_amd64.deb ...
+#6 11.79 Unpacking libgl1:amd64 (1.7.0-1+b2) ...
+#6 11.86 Selecting previously unselected package libglib2.0-0t64:amd64.
+#6 11.86 Preparing to unpack .../39-libglib2.0-0t64_2.84.4-3~deb13u5_amd64.deb ...
+#6 11.87 Unpacking libglib2.0-0t64:amd64 (2.84.4-3~deb13u5) ...
+#6 12.01 Setting up libexpat1:amd64 (2.9.0-1~deb13u1) ...
+#6 12.04 Setting up libwayland-server0:amd64 (1.23.1-3) ...
+#6 12.08 Setting up libpciaccess0:amd64 (0.17-3+b3) ...
+#6 12.11 Setting up libxau6:amd64 (1:1.0.11-1) ...
+#6 12.15 Setting up libxdmcp6:amd64 (1:1.1.5-1) ...
+#6 12.18 Setting up libxcb1:amd64 (1.17.0-2+b1) ...
+#6 12.21 Setting up libxcb-xfixes0:amd64 (1.17.0-2+b1) ...
+#6 12.23 Setting up libglvnd0:amd64 (1.7.0-1+b2) ...
+#6 12.25 Setting up libxcb-glx0:amd64 (1.17.0-2+b1) ...
+#6 12.27 Setting up libedit2:amd64 (3.1-20250104-1) ...
+#6 12.29 Setting up libsensors-config (1:3.6.2-2) ...
+#6 12.34 Setting up libxcb-shm0:amd64 (1.17.0-2+b1) ...
+#6 12.36 Setting up libelf1t64:amd64 (0.192-4) ...
+#6 12.40 Setting up libxcb-present0:amd64 (1.17.0-2+b1) ...
+#6 12.42 Setting up libz3-4:amd64 (4.13.3-1) ...
+#6 12.45 Setting up libx11-data (2:1.8.12-1) ...
+#6 12.47 Setting up libxcb-sync1:amd64 (1.17.0-2+b1) ...
+#6 12.50 Setting up libatomic1:amd64 (14.2.0-19) ...
+#6 12.52 Setting up libsensors5:amd64 (1:3.6.2-2) ...
+#6 12.55 Setting up libvulkan1:amd64 (1.4.309.0-1) ...
+#6 12.57 Setting up libxshmfence1:amd64 (1.3.3-1) ...
+#6 12.59 Setting up libxcb-randr0:amd64 (1.17.0-2+b1) ...
+#6 12.61 Setting up libx11-6:amd64 (2:1.8.12-1) ...
+#6 12.64 Setting up libdrm-common (2.4.124-2) ...
+#6 12.66 Setting up libxml2:amd64 (2.12.7+dfsg+really2.9.14-2.1+deb13u3) ...
+#6 12.70 Setting up libxcb-dri3-0:amd64 (1.17.0-2+b1) ...
+#6 12.72 Setting up libllvm19:amd64 (1:19.1.7-3+b1) ...
+#6 12.75 Setting up libx11-xcb1:amd64 (2:1.8.12-1) ...
+#6 12.77 Setting up libxext6:amd64 (2:1.3.4-1+b3) ...
+#6 12.79 Setting up libxxf86vm1:amd64 (1:1.1.4-1+b4) ...
+#6 12.82 Setting up libglib2.0-0t64:amd64 (2.84.4-3~deb13u5) ...
+#6 12.84 No schema files found: doing nothing.
+#6 12.85 Setting up libdrm2:amd64 (2.4.124-2) ...
+#6 12.87 Setting up libdrm-amdgpu1:amd64 (2.4.124-2) ...
+#6 12.89 Setting up libdrm-intel1:amd64 (2.4.124-2) ...
+#6 12.91 Setting up mesa-libgallium:amd64 (25.0.7-2+deb13u1) ...
+#6 12.93 Setting up libgbm1:amd64 (25.0.7-2+deb13u1) ...
+#6 12.96 Setting up libgl1-mesa-dri:amd64 (25.0.7-2+deb13u1) ...
+#6 13.00 Setting up libglx-mesa0:amd64 (25.0.7-2+deb13u1) ...
+#6 13.02 Setting up libglx0:amd64 (1.7.0-1+b2) ...
+#6 13.04 Setting up libgl1:amd64 (1.7.0-1+b2) ...
+#6 13.06 Processing triggers for libc-bin (2.41-12+deb13u4) ...
+#6 DONE 15.8s
+
+#7 [dashboard  3/11] WORKDIR /app
+#7 DONE 0.3s
+
+#8 [dashboard  4/11] RUN pip install --no-cache-dir torch==2.8.0 torchvision==0.23.0       --index-url https://download.pytorch.org/whl/cpu
+#8 1.493 Looking in indexes: https://download.pytorch.org/whl/cpu
+#8 1.781 Collecting torch==2.8.0
+#8 2.373   Downloading https://download-r2.pytorch.org/whl/cpu/torch-2.8.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (29 kB)
+#8 2.454 Collecting torchvision==0.23.0
+#8 2.732   Downloading https://download-r2.pytorch.org/whl/cpu/torchvision-0.23.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (6.1 kB)
+#8 2.768 Collecting filelock (from torch==2.8.0)
+#8 17.84   WARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='files.pythonhosted.org', port=443): Read timed out. (read timeout=15)")': /packages/e0/1b/5e74289a1878e666bb4b65fe5805a04cafcac2aa5f519ef1ead67ef91c56/filelock-4.2.4-py3-none-any.whl.metadata
+#8 18.02   Downloading filelock-4.2.4-py3-none-any.whl.metadata (2.0 kB)
+#8 18.04 Collecting typing-extensions>=4.10.0 (from torch==2.8.0)
+#8 18.08   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+#8 18.10 Collecting setuptools (from torch==2.8.0)
+#8 18.10   Downloading https://download.pytorch.org/whl/setuptools-78.1.0-py3-none-any.whl.metadata (6.6 kB)
+#8 18.13 Collecting sympy>=1.13.3 (from torch==2.8.0)
+#8 18.18   Downloading sympy-1.14.0-py3-none-any.whl.metadata (12 kB)
+#8 18.21 Collecting networkx (from torch==2.8.0)
+#8 18.26   Downloading networkx-3.7-py3-none-any.whl.metadata (6.7 kB)
+#8 18.28 Collecting jinja2 (from torch==2.8.0)
+#8 18.29   Downloading https://download.pytorch.org/whl/jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+#8 18.32 Collecting fsspec (from torch==2.8.0)
+#8 18.36   Downloading fsspec-2026.9.0-py3-none-any.whl.metadata (10 kB)
+#8 18.73 Collecting numpy (from torchvision==0.23.0)
+#8 18.77   Downloading numpy-2.5.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+#8 19.04 Collecting pillow!=8.3.*,>=5.3.0 (from torchvision==0.23.0)
+#8 19.09   Downloading pillow-13.0.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+#8 19.11 Collecting mpmath<1.4,>=1.1.0 (from sympy>=1.13.3->torch==2.8.0)
+#8 19.16   Downloading mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+#8 19.19 Collecting MarkupSafe>=2.0 (from jinja2->torch==2.8.0)
+#8 19.19   Downloading https://download.pytorch.org/whl/markupsafe-3.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+#8 19.47 Downloading https://download-r2.pytorch.org/whl/cpu/torch-2.8.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl (183.9 MB)
+#8 20.00    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 183.9/183.9 MB 363.4 MB/s eta 0:00:00
+#8 20.27 Downloading https://download-r2.pytorch.org/whl/cpu/torchvision-0.23.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl (1.9 MB)
+#8 20.27    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.9/1.9 MB 393.6 MB/s eta 0:00:00
+#8 20.32 Downloading pillow-13.0.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (7.1 MB)
+#8 20.64    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 33.5 MB/s eta 0:00:00
+#8 20.68 Downloading sympy-1.14.0-py3-none-any.whl (6.3 MB)
+#8 20.71    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.3/6.3 MB 290.4 MB/s eta 0:00:00
+#8 20.75 Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+#8 20.80 Downloading filelock-4.2.4-py3-none-any.whl (162 kB)
+#8 20.84 Downloading fsspec-2026.9.0-py3-none-any.whl (221 kB)
+#8 20.85 Downloading https://download.pytorch.org/whl/jinja2-3.1.6-py3-none-any.whl (134 kB)
+#8 20.90 Downloading networkx-3.7-py3-none-any.whl (2.1 MB)
+#8 20.91    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 599.1 MB/s eta 0:00:00
+#8 20.95 Downloading numpy-2.5.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.7 MB)
+#8 21.03    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.7/16.7 MB 233.0 MB/s eta 0:00:00
+#8 21.04 Downloading https://download.pytorch.org/whl/setuptools-78.1.0-py3-none-any.whl (1.3 MB)
+#8 21.05    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 776.4 MB/s eta 0:00:00
+#8 21.06 Downloading https://download.pytorch.org/whl/markupsafe-3.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+#8 21.10 Downloading mpmath-1.3.0-py3-none-any.whl (536 kB)
+#8 21.10    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 536.2/536.2 kB 740.8 MB/s eta 0:00:00
+#8 21.52 Installing collected packages: mpmath, typing-extensions, sympy, setuptools, pillow, numpy, networkx, MarkupSafe, fsspec, filelock, jinja2, torch, torchvision
+#8 43.02 Successfully installed MarkupSafe-3.0.3 filelock-4.2.4 fsspec-2026.9.0 jinja2-3.1.6 mpmath-1.3.0 networkx-3.7 numpy-2.5.4 pillow-13.0.0 setuptools-78.1.0 sympy-1.14.0 torch-2.8.0+cpu torchvision-0.23.0+cpu typing-extensions-4.16.0
+#8 43.02 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#8 DONE 47.7s
+
+#9 [dashboard  5/11] COPY requirements.txt .
+#9 DONE 0.6s
+
+#10 [dashboard  6/11] RUN pip install --no-cache-dir -r requirements.txt
+#10 16.57 WARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='pypi.org', port=443): Read timed out. (read timeout=15)")': /simple/opencv-python/
+#10 16.86 Collecting opencv-python==4.11.0.86 (from -r requirements.txt (line 1))
+#10 17.03   Downloading opencv_python-4.11.0.86-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (20 kB)
+#10 17.05 Requirement already satisfied: numpy in /usr/local/lib/python3.12/site-packages (from -r requirements.txt (line 2)) (2.5.4)
+#10 17.13 Collecting pyyaml (from -r requirements.txt (line 3))
+#10 17.17   Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+#10 17.42 Collecting ultralytics==8.4.215 (from -r requirements.txt (line 4))
+#10 17.46   Downloading ultralytics-8.4.215-py3-none-any.whl.metadata (47 kB)
+#10 17.57 Collecting flask==3.1.3 (from -r requirements.txt (line 5))
+#10 17.62   Downloading flask-3.1.3-py3-none-any.whl.metadata (3.2 kB)
+#10 17.68 Collecting gunicorn==23.0.0 (from -r requirements.txt (line 6))
+#10 17.73   Downloading gunicorn-23.0.0-py3-none-any.whl.metadata (4.4 kB)
+#10 17.92 Collecting matplotlib>=3.3.0 (from ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 17.97   Downloading matplotlib-3.11.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (80 kB)
+#10 18.00 Requirement already satisfied: pillow>=7.1.2 in /usr/local/lib/python3.12/site-packages (from ultralytics==8.4.215->-r requirements.txt (line 4)) (13.0.0)
+#10 18.07 Collecting requests>=2.23.0 (from ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 18.12   Downloading requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)
+#10 18.12 Requirement already satisfied: torch>=1.8.0 in /usr/local/lib/python3.12/site-packages (from ultralytics==8.4.215->-r requirements.txt (line 4)) (2.8.0+cpu)
+#10 18.12 Requirement already satisfied: torchvision>=0.9.0 in /usr/local/lib/python3.12/site-packages (from ultralytics==8.4.215->-r requirements.txt (line 4)) (0.23.0+cpu)
+#10 18.22 Collecting psutil>=5.8.0 (from ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 18.27   Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl.metadata (22 kB)
+#10 18.46 Collecting polars>=0.20.0 (from ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 18.50   Downloading polars-2.1.0-py3-none-any.whl.metadata (11 kB)
+#10 18.57 Collecting nvidia-ml-py>=12.0.0 (from ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 18.61   Downloading nvidia_ml_py-13.615.71-py3-none-any.whl.metadata (9.7 kB)
+#10 18.67 Collecting ultralytics-thop>=2.2.4 (from ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 18.72   Downloading ultralytics_thop-2.2.5-py3-none-any.whl.metadata (14 kB)
+#10 18.78 Collecting ultralytics-platform>=0.1.102 (from ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 18.83   Downloading ultralytics_platform-0.1.111-py3-none-any.whl.metadata (18 kB)
+#10 18.88 Collecting blinker>=1.9.0 (from flask==3.1.3->-r requirements.txt (line 5))
+#10 18.93   Downloading blinker-1.9.0-py3-none-any.whl.metadata (1.6 kB)
+#10 18.99 Collecting click>=8.1.3 (from flask==3.1.3->-r requirements.txt (line 5))
+#10 19.03   Downloading click-8.5.1-py3-none-any.whl.metadata (2.6 kB)
+#10 19.09 Collecting itsdangerous>=2.2.0 (from flask==3.1.3->-r requirements.txt (line 5))
+#10 19.13   Downloading itsdangerous-2.2.0-py3-none-any.whl.metadata (1.9 kB)
+#10 19.13 Requirement already satisfied: jinja2>=3.1.2 in /usr/local/lib/python3.12/site-packages (from flask==3.1.3->-r requirements.txt (line 5)) (3.1.6)
+#10 19.13 Requirement already satisfied: markupsafe>=2.1.1 in /usr/local/lib/python3.12/site-packages (from flask==3.1.3->-r requirements.txt (line 5)) (3.0.3)
+#10 19.20 Collecting werkzeug>=3.1.0 (from flask==3.1.3->-r requirements.txt (line 5))
+#10 19.24   Downloading werkzeug-3.1.9-py3-none-any.whl.metadata (4.1 kB)
+#10 19.30 Collecting packaging (from gunicorn==23.0.0->-r requirements.txt (line 6))
+#10 19.34   Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+#10 19.49 Collecting contourpy>=1.0.1 (from matplotlib>=3.3.0->ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 19.53   Downloading contourpy-1.4.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (3.8 kB)
+#10 19.59 Collecting cycler>=0.10 (from matplotlib>=3.3.0->ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 19.63   Downloading cycler-0.12.1-py3-none-any.whl.metadata (3.8 kB)
+#10 19.87 Collecting fonttools>=4.28.2 (from matplotlib>=3.3.0->ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 19.92   Downloading fonttools-4.68.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (139 kB)
+#10 20.06 Collecting kiwisolver>=1.3.1 (from matplotlib>=3.3.0->ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 20.10   Downloading kiwisolver-1.5.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (5.2 kB)
+#10 20.18 Collecting pyparsing>=3 (from matplotlib>=3.3.0->ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 20.22   Downloading pyparsing-3.3.3-py3-none-any.whl.metadata (5.9 kB)
+#10 20.28 Collecting python-dateutil>=2.7 (from matplotlib>=3.3.0->ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 20.32   Downloading python_dateutil-4.0.0-py3-none-any.whl.metadata (7.3 kB)
+#10 20.39 Collecting polars-runtime-32==2.1.0 (from polars>=0.20.0->ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 20.44   Downloading polars_runtime_32-2.1.0-cp311-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.5 kB)
+#10 20.61 Collecting charset_normalizer<4,>=2 (from requests>=2.23.0->ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 20.65   Downloading charset_normalizer-3.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (46 kB)
+#10 20.71 Collecting idna<4,>=2.5 (from requests>=2.23.0->ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 20.76   Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+#10 20.83 Collecting urllib3<3,>=1.26 (from requests>=2.23.0->ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 20.87   Downloading urllib3-2.8.0-py3-none-any.whl.metadata (7.4 kB)
+#10 20.93 Collecting certifi>=2023.5.7 (from requests>=2.23.0->ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 20.98   Downloading certifi-2026.10.23-py3-none-any.whl.metadata (2.5 kB)
+#10 20.98 Requirement already satisfied: filelock in /usr/local/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics==8.4.215->-r requirements.txt (line 4)) (4.2.4)
+#10 20.98 Requirement already satisfied: typing-extensions>=4.10.0 in /usr/local/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics==8.4.215->-r requirements.txt (line 4)) (4.16.0)
+#10 20.98 Requirement already satisfied: setuptools in /usr/local/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics==8.4.215->-r requirements.txt (line 4)) (78.1.0)
+#10 20.98 Requirement already satisfied: sympy>=1.13.3 in /usr/local/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics==8.4.215->-r requirements.txt (line 4)) (1.14.0)
+#10 20.98 Requirement already satisfied: networkx in /usr/local/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics==8.4.215->-r requirements.txt (line 4)) (3.7)
+#10 20.99 Requirement already satisfied: fsspec in /usr/local/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics==8.4.215->-r requirements.txt (line 4)) (2026.9.0)
+#10 21.05 Collecting httpx<1,>=0.28 (from ultralytics-platform>=0.1.102->ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 21.09   Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+#10 21.16 Collecting anyio (from httpx<1,>=0.28->ultralytics-platform>=0.1.102->ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 21.21   Downloading anyio-4.16.0-py3-none-any.whl.metadata (4.7 kB)
+#10 21.27 Collecting httpcore==1.* (from httpx<1,>=0.28->ultralytics-platform>=0.1.102->ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 21.31   Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+#10 21.37 Collecting h11>=0.16 (from httpcore==1.*->httpx<1,>=0.28->ultralytics-platform>=0.1.102->ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 21.41   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+#10 21.47 Collecting tzdata (from python-dateutil>=2.7->matplotlib>=3.3.0->ultralytics==8.4.215->-r requirements.txt (line 4))
+#10 21.52   Downloading tzdata-2026.6-py2.py3-none-any.whl.metadata (1.4 kB)
+#10 21.52 Requirement already satisfied: mpmath<1.4,>=1.1.0 in /usr/local/lib/python3.12/site-packages (from sympy>=1.13.3->torch>=1.8.0->ultralytics==8.4.215->-r requirements.txt (line 4)) (1.3.0)
+#10 21.61 Downloading opencv_python-4.11.0.86-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (63.0 MB)
+#10 22.06    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 63.0/63.0 MB 145.2 MB/s eta 0:00:00
+#10 22.11 Downloading ultralytics-8.4.215-py3-none-any.whl (1.5 MB)
+#10 22.12    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.5/1.5 MB 371.5 MB/s eta 0:00:00
+#10 22.16 Downloading flask-3.1.3-py3-none-any.whl (103 kB)
+#10 22.21 Downloading gunicorn-23.0.0-py3-none-any.whl (85 kB)
+#10 22.25 Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+#10 22.26    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.9/807.9 kB 713.1 MB/s eta 0:00:00
+#10 22.30 Downloading blinker-1.9.0-py3-none-any.whl (8.5 kB)
+#10 22.35 Downloading click-8.5.1-py3-none-any.whl (126 kB)
+#10 22.39 Downloading itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+#10 22.45 Downloading matplotlib-3.11.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (9.9 MB)
+#10 22.51    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 9.9/9.9 MB 171.4 MB/s eta 0:00:00
+#10 22.55 Downloading nvidia_ml_py-13.615.71-py3-none-any.whl (58 kB)
+#10 22.60 Downloading packaging-26.3-py3-none-any.whl (129 kB)
+#10 22.64 Downloading polars-2.1.0-py3-none-any.whl (911 kB)
+#10 22.65    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 911.5/911.5 kB 745.4 MB/s eta 0:00:00
+#10 22.70 Downloading polars_runtime_32-2.1.0-cp311-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (53.9 MB)
+#10 22.91    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 53.9/53.9 MB 248.8 MB/s eta 0:00:00
+#10 22.96 Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl (155 kB)
+#10 23.01 Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+#10 23.05 Downloading ultralytics_platform-0.1.111-py3-none-any.whl (103 kB)
+#10 23.10 Downloading ultralytics_thop-2.2.5-py3-none-any.whl (32 kB)
+#10 23.14 Downloading werkzeug-3.1.9-py3-none-any.whl (228 kB)
+#10 23.19 Downloading certifi-2026.10.23-py3-none-any.whl (135 kB)
+#10 23.24 Downloading charset_normalizer-3.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (257 kB)
+#10 23.28 Downloading contourpy-1.4.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (383 kB)
+#10 23.33 Downloading cycler-0.12.1-py3-none-any.whl (8.3 kB)
+#10 23.38 Downloading fonttools-4.68.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (5.4 MB)
+#10 23.39    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.4/5.4 MB 398.7 MB/s eta 0:00:00
+#10 23.44 Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+#10 23.48 Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+#10 23.53 Downloading idna-3.20-py3-none-any.whl (69 kB)
+#10 23.57 Downloading kiwisolver-1.5.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.5 MB)
+#10 23.58    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.5/1.5 MB 780.4 MB/s eta 0:00:00
+#10 23.63 Downloading pyparsing-3.3.3-py3-none-any.whl (126 kB)
+#10 23.67 Downloading python_dateutil-4.0.0-py3-none-any.whl (92 kB)
+#10 23.72 Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+#10 23.76 Downloading anyio-4.16.0-py3-none-any.whl (134 kB)
+#10 23.81 Downloading tzdata-2026.6-py2.py3-none-any.whl (348 kB)
+#10 23.85 Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+#10 24.09 Installing collected packages: nvidia-ml-py, werkzeug, urllib3, tzdata, pyyaml, pyparsing, psutil, polars-runtime-32, packaging, opencv-python, kiwisolver, itsdangerous, idna, h11, fonttools, cycler, contourpy, click, charset_normalizer, certifi, blinker, requests, python-dateutil, polars, httpcore, gunicorn, flask, anyio, ultralytics-thop, matplotlib, httpx, ultralytics-platform, ultralytics
+#10 31.29 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#10 31.29 Successfully installed anyio-4.16.0 blinker-1.9.0 certifi-2026.10.23 charset_normalizer-3.5.2 click-8.5.1 contourpy-1.4.0 cycler-0.12.1 flask-3.1.3 fonttools-4.68.0 gunicorn-23.0.0 h11-0.16.0 httpcore-1.0.9 httpx-0.28.1 idna-3.20 itsdangerous-2.2.0 kiwisolver-1.5.1 matplotlib-3.11.2 nvidia-ml-py-13.615.71 opencv-python-4.11.0.86 packaging-26.3 polars-2.1.0 polars-runtime-32-2.1.0 psutil-7.2.2 pyparsing-3.3.3 python-dateutil-4.0.0 pyyaml-6.0.3 requests-2.34.2 tzdata-2026.6 ultralytics-8.4.215 ultralytics-platform-0.1.111 ultralytics-thop-2.2.5 urllib3-2.8.0 werkzeug-3.1.9
+#10 31.43 
+#10 31.43 [notice] A new release of pip is available: 25.0.1 -> 26.3
+#10 31.43 [notice] To update, run: pip install --upgrade pip
+#10 DONE 35.2s
+
+#11 [dashboard  7/11] RUN python -c "from ultralytics import YOLO; YOLO('yolov8n.pt')"
+#11 2.151 Creating new Ultralytics Settings v0.0.8 file ✅ 
+#11 2.151 View Ultralytics Settings with 'yolo settings' or at '/root/.config/Ultralytics/settings.json'
+#11 2.151 Update Settings with 'yolo settings key=value', i.e. 'yolo settings runs_dir=path/to/dir'. For help see https://docs.ultralytics.com/usage/settings
+#11 2.980 [KDownloading https://github.com/ultralytics/assets/releases/download/v8.4.0/yolov8n.pt to 'yolov8n.pt': 12% ━╸────────── 800.0KB/6.2MB 7.8MB/s 0.1s<0.7s[KDownloading https://github.com/ultralytics/assets/releases/download/v8.4.0/yolov8n.pt to 'yolov8n.pt': 100% ━━━━━━━━━━━━ 6.2MB 36.5MB/s 0.2s
+#11 DONE 3.8s
+
+#12 [dashboard  8/11] COPY app ./app
+#12 DONE 0.3s
+
+#13 [dashboard  9/11] COPY scripts ./scripts
+#13 DONE 0.2s
+
+#14 [dashboard 10/11] COPY videos ./videos
+#14 DONE 0.5s
+
+#15 [dashboard 11/11] COPY config.yaml .
+#15 DONE 0.2s
+
+#16 [dashboard] exporting to image
+#16 exporting layers
+#16 exporting layers 42.5s done
+#16 exporting manifest sha256:25aa7edff0e03187db6639cd42c74f5e13169d0a02f7e4fe917089cbdac3a86d 0.0s done
+#16 exporting config sha256:07ed081ade0072bb87e15ac46bcf471850700c40e375762a1fc9d96640630007 0.0s done
+#16 exporting attestation manifest sha256:9c47fe58e161c07495add35937fbca67d02d56ab38b89281c58d6a95822b720a
+#16 exporting attestation manifest sha256:9c47fe58e161c07495add35937fbca67d02d56ab38b89281c58d6a95822b720a 0.1s done
+#16 exporting manifest list sha256:3f8cd4feab9383fe797b977afd51e0695322e4ba33a78ed10f8e5b9c7d8e563f 0.0s done
+#16 naming to docker.io/library/multicam-dashboard:latest done
+#16 unpacking to docker.io/library/multicam-dashboard:latest
+#16 unpacking to docker.io/library/multicam-dashboard:latest 16.4s done
+#16 DONE 59.2s
+
+#17 [dashboard] resolving provenance for metadata file
+#17 DONE 0.0s
+ dashboard  Built
+ Network multi-camera-dashboard_default  Creating
+ Network multi-camera-dashboard_default  Created
+ Container multicam-dashboard  Creating
+ Container multicam-dashboard  Created
+ Container multicam-dashboard  Starting
+ Container multicam-dashboard  Started
+WARNING: This output is designed for human readability. For machine-readable output, please use --format.
+IMAGE                       ID             DISK USAGE   CONTENT SIZE   EXTRA
+multicam-dashboard:latest   3f8cd4feab93       2.41GB          560MB   U    
+
+===== 2026-11-17 18:18:09 4) Wait until the app answers /health =====
+waiting... (1)
+{"cameras_online":4,"cameras_total":4,"status":"ok","uptime_s":3}
+
+
+===== 2026-11-17 18:18:14 5) Status =====
+NAME                 IMAGE                COMMAND                  SERVICE     CREATED          STATUS                            PORTS
+multicam-dashboard   multicam-dashboard   "gunicorn --bind 0.0…"   dashboard   12 seconds ago   Up 5 seconds (health: starting)   0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+CONTAINER ID   NAME                 CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O     PIDS
+919d4f2e34cb   multicam-dashboard   155.92%   477.2MiB / 7.698GiB   6.05%     8.37kB / 3.89kB   0B / 53.2kB   14
+
+Dashboard: http://:8000

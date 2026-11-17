@@ -1,0 +1,45 @@
+# Azure VM creation log (2026-11-17 23:14 +05) - commands in scripts/azure_create_vm.sh
+
+## Allowed regions (subscription policy)
+denmarkeast
+centralindia
+indiasouthcentral
+norwayeast
+austriaeast
+
+## Attempt 1: Standard_D2als_v7 in centralindia -> FAILED: QuotaExceeded (StandardDalsv7Family limit 0)
+## Attempt 2: Standard_D2as_v4 in centralindia -> CREATED
+
+## VM
+disk: StandardSSD_LRS
+diskGB: null
+location: centralindia
+name: multicam-vm
+os: ubuntu-24_04-lts
+osSku: server
+power: VM running
+privateIp: 10.0.0.4
+publicIp: 20.197.25.248
+size: Standard_D2as_v4
+
+## Network security group rules
+Name               Port    Protocol    Access    Priority
+-----------------  ------  ----------  --------  ----------
+default-allow-ssh  22      Tcp         Allow     1000
+open-port-8000     8000    *           Allow     1010
+
+## Auto-shutdown
+status: Enabled
+time: '1900'
+timeZone: West Asia Standard Time
+
+## Resources in the resource group
+Name                                                   Location
+-----------------------------------------------------  ------------
+multicam-vmNSG                                         centralindia
+multicam-vmPublicIP                                    centralindia
+multicam-vmVNET                                        centralindia
+multicam-vmVMNic                                       centralindia
+multicam-vm                                            centralindia
+multicam-vm_OsDisk_1_6b0ddb0696914b7c8121ac6ce0dca115  centralindia
+shutdown-computevm-multicam-vm                         centralindia

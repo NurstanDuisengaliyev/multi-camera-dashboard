@@ -41,9 +41,12 @@ git log --oneline -1
 
 step "3) Settings (.env)"
 # Azure Instance Metadata Service: a local endpoint every Azure VM has.
-PUBLIC_IP=$(curl -fs -H Metadata:true --noproxy '*' \
+PUBLIC_IP=${PUBLIC_IP:-}; [ -n "$PUBLIC_IP" ] || PUBLIC_IP=$(curl -fs -H Metadata:true --noproxy '*' \
   "http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/publicIpAddress?api-version=2021-02-01&format=text" \
   || true)
+# A "Standard" public IP (the default today) is NOT listed by the metadata service,
+# so fall back to asking a public "what is my IP" service. PUBLIC_IP=... can also be passed in.
+[ -n "$PUBLIC_IP" ] || PUBLIC_IP=$(curl -fs -4 --max-time 10 https://api.ipify.org || true)
 if [ ! -f .env ]; then
   if [ -z "$PUBLIC_IP" ]; then echo "Could not find the public IP; create .env by hand (see .env.example)"; exit 1; fi
   # 20.1.2.3 -> 20-1-2-3.sslip.io: a free host name pointing to our IP, so Caddy can get
