@@ -53,6 +53,7 @@ app/
 deploy/
   Caddyfile             HTTPS front door settings
   azure_setup.sh        one-command deployment on an Azure Ubuntu VM
+  AZURE_VM_GUIDE.md     step-by-step VM instructions and troubleshooting
 scripts/                test scripts for steps 1 and 2
 videos/                 sample videos (credits in videos/SOURCES.md)
 config.yaml             cameras + analytics thresholds
@@ -76,6 +77,9 @@ To test with a phone on the same Wi-Fi, set `SITE_ADDRESS` to your computer's LA
 (e.g. `192.168.1.20`) and open `https://192.168.1.20/phone` on the phone.
 
 ## Deploy on Azure
+
+Short version below; the full guide (everyday commands, settings, troubleshooting) is
+[`deploy/AZURE_VM_GUIDE.md`](deploy/AZURE_VM_GUIDE.md).
 
 1. In the Azure portal, VM → *Networking* → add inbound rules allowing TCP **80** and **443**
    (or with the Azure CLI: `az vm open-port -g <resource-group> -n <vm-name> --port 80 --priority 1010`
