@@ -1,0 +1,19 @@
+# Cameras and analytics settings. Change this file instead of the code.
+
+analytics:
+  resize_width: 640          # frames are shrunk to this width before analysis (saves CPU)
+  offline_after_s: 5         # no new frame for this long -> camera is "offline"
+
+cameras:
+  - id: cam1
+    name: "Pedestrian Street"
+    source: videos/pedestrians.avi
+  - id: cam2
+    name: "Office Room"
+    source: videos/people-detection.mp4
+  - id: cam3
+    name: "Store Aisle"
+    source: videos/store-aisle-detection.mp4
+  - id: cam4
+    name: "Hallway"
+    source: videos/face-demographics-walking.mp4

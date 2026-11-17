@@ -1,0 +1,13 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Runtime data (exported to results/ when needed)
+data/
+
+# macOS
+.DS_Store
+
+# Model weights are downloaded automatically
+*.pt

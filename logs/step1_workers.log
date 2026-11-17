@@ -1,0 +1,65 @@
+2026-11-17 17:51:32,139 INFO    [cam1] worker started, source=videos/pedestrians.avi
+2026-11-17 17:51:32,139 INFO    [cam2] worker started, source=videos/people-detection.mp4
+2026-11-17 17:51:32,140 INFO    [cam3] worker started, source=videos/store-aisle-detection.mp4
+2026-11-17 17:51:32,140 INFO    [cam4] worker started, source=videos/face-demographics-walking.mp4
+2026-11-17 17:51:32,140 INFO    [broken] worker started, source=videos/does-not-exist.mp4
+2026-11-17 17:51:32,140 INFO    [main] started 5 workers, running for 30s
+2026-11-17 17:51:32,140 INFO    [cam1] source opened (10.0 fps)
+2026-11-17 17:51:32,144 INFO    [cam2] source opened (12.0 fps)
+2026-11-17 17:51:32,147 INFO    [cam4] source opened (12.0 fps)
+2026-11-17 17:51:32,151 INFO    [cam3] source opened (59.9 fps)
+2026-11-17 17:51:32,166 WARNING [broken] cannot open source, retrying in 2s
+2026-11-17 17:51:34,177 WARNING [broken] cannot open source, retrying in 2s
+2026-11-17 17:51:36,182 WARNING [broken] cannot open source, retrying in 2s
+2026-11-17 17:51:37,150 INFO    [main] cam1    Pedestrian Street              status=online  fps=10  frames=49
+2026-11-17 17:51:37,150 INFO    [main] cam2    Corridor                       status=online  fps=13  frames=60
+2026-11-17 17:51:37,150 INFO    [main] cam3    Store Aisle                    status=online  fps=60  frames=299
+2026-11-17 17:51:37,150 INFO    [main] cam4    Walkway                        status=online  fps=13  frames=59
+2026-11-17 17:51:37,150 INFO    [main] broken  Missing file (offline test)    status=offline fps=0   frames=0
+2026-11-17 17:51:38,188 WARNING [broken] cannot open source, retrying in 2s
+2026-11-17 17:51:40,199 WARNING [broken] cannot open source, retrying in 2s
+2026-11-17 17:51:42,150 INFO    [main] cam1    Pedestrian Street              status=online  fps=10  frames=100
+2026-11-17 17:51:42,151 INFO    [main] cam2    Corridor                       status=online  fps=13  frames=120
+2026-11-17 17:51:42,151 INFO    [main] cam3    Store Aisle                    status=online  fps=61  frames=598
+2026-11-17 17:51:42,151 INFO    [main] cam4    Walkway                        status=online  fps=13  frames=119
+2026-11-17 17:51:42,151 INFO    [main] broken  Missing file (offline test)    status=offline fps=0   frames=0
+2026-11-17 17:51:42,203 WARNING [broken] cannot open source, retrying in 2s
+2026-11-17 17:51:44,211 WARNING [broken] cannot open source, retrying in 2s
+2026-11-17 17:51:46,220 WARNING [broken] cannot open source, retrying in 2s
+2026-11-17 17:51:47,151 INFO    [main] cam1    Pedestrian Street              status=online  fps=10  frames=150
+2026-11-17 17:51:47,151 INFO    [main] cam2    Corridor                       status=online  fps=13  frames=179
+2026-11-17 17:51:47,151 INFO    [main] cam3    Store Aisle                    status=online  fps=60  frames=898
+2026-11-17 17:51:47,151 INFO    [main] cam4    Walkway                        status=online  fps=13  frames=180
+2026-11-17 17:51:47,151 INFO    [main] broken  Missing file (offline test)    status=offline fps=0   frames=0
+2026-11-17 17:51:48,228 WARNING [broken] cannot open source, retrying in 2s
+2026-11-17 17:51:50,237 WARNING [broken] cannot open source, retrying in 2s
+2026-11-17 17:51:52,160 INFO    [main] cam1    Pedestrian Street              status=online  fps=11  frames=200
+2026-11-17 17:51:52,160 INFO    [main] cam2    Corridor                       status=online  fps=13  frames=240
+2026-11-17 17:51:52,160 INFO    [main] cam3    Store Aisle                    status=online  fps=60  frames=1199
+2026-11-17 17:51:52,160 INFO    [main] cam4    Walkway                        status=online  fps=13  frames=240
+2026-11-17 17:51:52,160 INFO    [main] broken  Missing file (offline test)    status=offline fps=0   frames=0
+2026-11-17 17:51:52,241 WARNING [broken] cannot open source, retrying in 2s
+2026-11-17 17:51:54,245 WARNING [broken] cannot open source, retrying in 2s
+2026-11-17 17:51:56,256 WARNING [broken] cannot open source, retrying in 2s
+2026-11-17 17:51:57,167 INFO    [main] cam1    Pedestrian Street              status=online  fps=11  frames=250
+2026-11-17 17:51:57,167 INFO    [main] cam2    Corridor                       status=online  fps=12  frames=300
+2026-11-17 17:51:57,167 INFO    [main] cam3    Store Aisle                    status=online  fps=60  frames=1499
+2026-11-17 17:51:57,167 INFO    [main] cam4    Walkway                        status=online  fps=12  frames=300
+2026-11-17 17:51:57,167 INFO    [main] broken  Missing file (offline test)    status=offline fps=0   frames=0
+2026-11-17 17:51:58,265 WARNING [broken] cannot open source, retrying in 2s
+2026-11-17 17:52:00,276 WARNING [broken] cannot open source, retrying in 2s
+2026-11-17 17:52:02,177 INFO    [main] cam1    Pedestrian Street              status=online  fps=11  frames=300
+2026-11-17 17:52:02,178 INFO    [main] cam2    Corridor                       status=online  fps=13  frames=360
+2026-11-17 17:52:02,178 INFO    [main] cam3    Store Aisle                    status=online  fps=61  frames=1799
+2026-11-17 17:52:02,178 INFO    [main] cam4    Walkway                        status=online  fps=13  frames=360
+2026-11-17 17:52:02,178 INFO    [main] broken  Missing file (offline test)    status=offline fps=0   frames=0
+2026-11-17 17:52:02,187 INFO    [main] saved snapshot results/step1_cam1.jpg (640x480)
+2026-11-17 17:52:02,188 INFO    [main] saved snapshot results/step1_cam2.jpg (640x360)
+2026-11-17 17:52:02,189 INFO    [main] saved snapshot results/step1_cam3.jpg (640x359)
+2026-11-17 17:52:02,190 INFO    [main] saved snapshot results/step1_cam4.jpg (640x360)
+2026-11-17 17:52:02,190 INFO    [broken] worker stopped
+2026-11-17 17:52:02,203 INFO    [cam3] worker stopped
+2026-11-17 17:52:02,235 INFO    [cam2] worker stopped
+2026-11-17 17:52:02,240 INFO    [cam4] worker stopped
+2026-11-17 17:52:02,253 INFO    [cam1] worker stopped
+2026-11-17 17:52:02,253 INFO    [main] all workers stopped
