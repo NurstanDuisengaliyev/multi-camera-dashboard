@@ -22,6 +22,10 @@ analytics:
   alert_hold_s: 1.5          # a condition must last this long before it becomes an alert
   alert_cooldown_s: 30       # same alert for the same camera at most once per 30 s
 
+server:
+  stream_fps: 15             # max FPS sent to the browser (less bandwidth = lower cloud traffic cost)
+  jpeg_quality: 75           # 0-100, lower = smaller images
+
 database: data/events.db
 
 cameras:

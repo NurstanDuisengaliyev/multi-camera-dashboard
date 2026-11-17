@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Multi-Camera Monitor</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <h1>Multi-Camera Monitor</h1>
+      <span class="sub">Real-time video analytics</span>
+    </div>
+    <div class="tiles">
+      <div class="tile"><span class="tile-label">Cameras online</span><span class="tile-value" id="sum-online">–</span></div>
+      <div class="tile"><span class="tile-label">People in view</span><span class="tile-value" id="sum-people">–</span></div>
+      <div class="tile"><span class="tile-label">Active alerts</span><span class="tile-value" id="sum-alerts">–</span></div>
+      <div class="tile"><span class="tile-label">Server time</span><span class="tile-value small" id="clock">–</span></div>
+    </div>
+  </header>
+
+  <div class="banner hidden" id="conn-banner">⚠ Connection to server lost, retrying…</div>
+
+  <main class="layout">
+    <section class="cams" aria-label="Live cameras">
+      {% for cam in cameras %}
+      <article class="cam" id="card-{{ cam.id }}" data-series="{{ loop.index }}">
+        <div class="cam-head">
+          <span class="swatch series-{{ loop.index }}" aria-hidden="true"></span>
+          <h2>{{ cam.name }}</h2>
+          <span class="cam-id">{{ cam.id }}</span>
+          <span class="status" data-field="status"><span class="dot"></span><span class="status-text">…</span></span>
+        </div>
+        <div class="video-wrap">
+          <img src="{{ url_for('video', cam_id=cam.id) }}" alt="Live video from {{ cam.name }}">
+        </div>
+        <dl class="stats">
+          <div><dt>People</dt><dd data-field="people">–</dd></div>
+          <div><dt>Motion</dt><dd data-field="motion">–</dd></div>
+          <div><dt>FPS</dt><dd data-field="fps">–</dd></div>
+          <div><dt>Brightness</dt><dd data-field="brightness">–</dd></div>
+          <div><dt>Sharpness</dt><dd data-field="sharpness">–</dd></div>
+        </dl>
+        <div class="badges" data-field="alerts"></div>
+      </article>
+      {% endfor %}
+    </section>
+
+    <aside class="side">
+      <section class="panel">
+        <h3>Alerts &amp; events</h3>
+        <ol class="events" id="events"><li class="empty">No events yet</li></ol>
+      </section>
+      <section class="panel">
+        <h3>People in view <span class="muted">· last 5 min</span></h3>
+        <div class="chart-box"><canvas id="chart-people"></canvas></div>
+      </section>
+      <section class="panel">
+        <h3>Motion <span class="muted">· % of image, last 5 min</span></h3>
+        <div class="chart-box"><canvas id="chart-motion"></canvas></div>
+      </section>
+    </aside>
+  </main>
+
+  <script>window.CAMERAS = {{ cameras | tojson }};</script>
+  <script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html>

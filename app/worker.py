@@ -77,6 +77,8 @@ class CameraWorker(threading.Thread):
         self.analysis = {"people": 0, "motion_pct": 0.0, "brightness": 0.0,
                          "sharpness": 0.0, "alerts": []}
         self.timing_ms = {"motion": 0.0, "quality": 0.0, "people": 0.0}
+        self._jpeg = None              # cached JPEG of latest_frame (see get_jpeg)
+        self._jpeg_frame_no = -1
 
         # --- state used only inside this thread ---
         self.people_boxes = []
@@ -226,6 +228,18 @@ class CameraWorker(threading.Thread):
     def get_frame(self):
         with self.lock:
             return None if self.latest_frame is None else self.latest_frame.copy()
+
+    def get_jpeg(self, quality=75):
+        """Latest frame as JPEG bytes + its frame number.
+        Encoded at most once per frame, no matter how many browsers are watching."""
+        with self.lock:
+            if self.latest_frame is None:
+                return None, 0
+            if self._jpeg_frame_no != self.frames_total:
+                ok, buf = cv2.imencode(".jpg", self.latest_frame, [cv2.IMWRITE_JPEG_QUALITY, quality])
+                self._jpeg = buf.tobytes() if ok else None
+                self._jpeg_frame_no = self.frames_total
+            return self._jpeg, self._jpeg_frame_no
 
     def get_history(self):
         with self.lock:

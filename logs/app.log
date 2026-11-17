@@ -1,0 +1,202 @@
+2026-11-17 18:01:52,215 INFO    [cam1] worker started, source=videos/pedestrians.avi
+2026-11-17 18:01:52,215 INFO    [cam2] worker started, source=videos/people-detection.mp4
+2026-11-17 18:01:52,216 INFO    [cam3] worker started, source=videos/store-aisle-detection.mp4
+2026-11-17 18:01:52,216 INFO    [cam4] worker started, source=videos/face-demographics-walking.mp4
+2026-11-17 18:01:52,216 INFO    [server] started 4 camera workers: cam1, cam2, cam3, cam4
+2026-11-17 18:01:52,216 INFO    [cam1] source opened (10.0 fps)
+2026-11-17 18:01:52,216 WARNING [events] [system] system_start: Monitoring started with 4 cameras
+2026-11-17 18:02:16,548 INFO    [cam1] worker started, source=videos/pedestrians.avi
+2026-11-17 18:02:16,548 INFO    [cam2] worker started, source=videos/people-detection.mp4
+2026-11-17 18:02:16,548 INFO    [cam3] worker started, source=videos/store-aisle-detection.mp4
+2026-11-17 18:02:16,548 INFO    [cam4] worker started, source=videos/face-demographics-walking.mp4
+2026-11-17 18:02:16,548 INFO    [server] started 4 camera workers: cam1, cam2, cam3, cam4
+2026-11-17 18:02:16,549 WARNING [events] [system] system_start: Monitoring started with 4 cameras
+2026-11-17 18:02:16,550 INFO    [cam1] source opened (10.0 fps)
+2026-11-17 18:02:16,552 INFO    [werkzeug] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.70.60.157:8000
+2026-11-17 18:02:16,552 INFO    [werkzeug] [33mPress CTRL+C to quit[0m
+2026-11-17 18:02:16,552 INFO    [cam2] source opened (12.0 fps)
+2026-11-17 18:02:16,555 INFO    [cam4] source opened (12.0 fps)
+2026-11-17 18:02:16,560 INFO    [cam3] source opened (59.9 fps)
+2026-11-17 18:02:16,583 INFO    [cam3] camera online (receiving frames)
+2026-11-17 18:02:16,639 INFO    [cam4] camera online (receiving frames)
+2026-11-17 18:02:16,639 INFO    [cam2] camera online (receiving frames)
+2026-11-17 18:02:16,659 INFO    [cam1] camera online (receiving frames)
+2026-11-17 18:02:22,505 WARNING [events] [cam4] motion: Motion detected (5.7% of image)
+2026-11-17 18:02:24,543 WARNING [events] [cam1] motion: Motion detected (2.0% of image)
+2026-11-17 18:02:24,684 WARNING [events] [cam3] motion: Motion detected (2.3% of image)
+2026-11-17 18:02:30,248 WARNING [events] [cam1] crowd: Crowd: 7 people (limit 6)
+2026-11-17 18:02:30,881 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:02:30] "GET /health HTTP/1.1" 200 -
+2026-11-17 18:02:30,888 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:02:30] "GET /api/cameras HTTP/1.1" 200 -
+2026-11-17 18:02:30,909 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:02:30] "GET /api/events HTTP/1.1" 200 -
+2026-11-17 18:02:30,915 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:02:30] "GET /video/cam1 HTTP/1.1" 200 -
+2026-11-17 18:02:33,360 WARNING [events] [cam2] motion: Motion detected (9.8% of image)
+2026-11-17 18:02:47,173 WARNING [events] [cam3] crowd: Crowd: 5 people (limit 4)
+2026-11-17 18:02:47,610 WARNING [events] [cam2] crowd: Crowd: 3 people (limit 2)
+2026-11-17 18:02:52,496 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:02:52] "GET / HTTP/1.1" 200 -
+2026-11-17 18:02:52,514 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:02:52] "GET /static/style.css HTTP/1.1" 200 -
+2026-11-17 18:02:52,517 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:02:52] "GET /video/cam1 HTTP/1.1" 200 -
+2026-11-17 18:02:52,518 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:02:52] "GET /video/cam2 HTTP/1.1" 200 -
+2026-11-17 18:02:52,522 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:02:52] "GET /video/cam4 HTTP/1.1" 200 -
+2026-11-17 18:02:52,522 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:02:52] "GET /video/cam3 HTTP/1.1" 200 -
+2026-11-17 18:02:52,523 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:02:52] "GET /static/dashboard.js HTTP/1.1" 200 -
+2026-11-17 18:02:52,525 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:02:52] "GET /static/vendor/chart.umd.min.js HTTP/1.1" 200 -
+2026-11-17 18:02:52,560 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:02:52] "GET /api/cameras HTTP/1.1" 200 -
+2026-11-17 18:02:52,561 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:02:52] "GET /api/events?limit=50 HTTP/1.1" 200 -
+2026-11-17 18:02:52,561 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:02:52] "GET /api/history HTTP/1.1" 200 -
+2026-11-17 18:02:52,603 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:02:52] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-11-17 18:02:54,647 WARNING [events] [cam1] motion: Motion detected (2.2% of image)
+2026-11-17 18:02:55,876 WARNING [events] [cam4] motion: Motion detected (6.0% of image)
+2026-11-17 18:02:56,343 WARNING [events] [cam4] crowd: Crowd: 3 people (limit 2)
+2026-11-17 18:03:08,422 WARNING [events] [cam3] motion: Motion detected (2.7% of image)
+2026-11-17 18:03:09,711 WARNING [events] [cam2] motion: Motion detected (51.6% of image)
+2026-11-17 18:03:18,812 WARNING [events] [cam3] crowd: Crowd: 5 people (limit 4)
+2026-11-17 18:03:24,148 WARNING [events] [cam1] crowd: Crowd: 7 people (limit 6)
+2026-11-17 18:03:24,739 WARNING [events] [cam1] motion: Motion detected (3.7% of image)
+2026-11-17 18:03:25,918 WARNING [events] [cam4] motion: Motion detected (4.1% of image)
+2026-11-17 18:03:37,443 WARNING [events] [cam2] crowd: Crowd: 3 people (limit 2)
+2026-11-17 18:03:38,431 WARNING [events] [cam3] motion: Motion detected (3.1% of image)
+2026-11-17 18:03:39,766 WARNING [events] [cam2] motion: Motion detected (5.2% of image)
+2026-11-17 18:03:45,046 INFO    [cam1] worker started, source=videos/pedestrians.avi
+2026-11-17 18:03:45,046 INFO    [cam2] worker started, source=videos/people-detection.mp4
+2026-11-17 18:03:45,046 INFO    [cam3] worker started, source=videos/store-aisle-detection.mp4
+2026-11-17 18:03:45,046 INFO    [cam4] worker started, source=videos/face-demographics-walking.mp4
+2026-11-17 18:03:45,046 INFO    [cam5] worker started, source=videos/missing.mp4
+2026-11-17 18:03:45,046 INFO    [server] started 5 camera workers: cam1, cam2, cam3, cam4, cam5
+2026-11-17 18:03:45,046 WARNING [events] [system] system_start: Monitoring started with 5 cameras
+2026-11-17 18:03:45,048 INFO    [cam1] source opened (10.0 fps)
+2026-11-17 18:03:45,050 INFO    [cam2] source opened (12.0 fps)
+2026-11-17 18:03:45,051 INFO    [werkzeug] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.70.60.157:8000
+2026-11-17 18:03:45,051 INFO    [werkzeug] [33mPress CTRL+C to quit[0m
+2026-11-17 18:03:45,053 INFO    [cam4] source opened (12.0 fps)
+2026-11-17 18:03:45,058 INFO    [cam3] source opened (59.9 fps)
+2026-11-17 18:03:45,061 WARNING [cam5] camera offline (cannot open source), retrying every 2s
+2026-11-17 18:03:45,061 WARNING [events] [cam5] camera_offline: Camera offline: cannot open source
+2026-11-17 18:03:45,081 INFO    [cam3] camera online (receiving frames)
+2026-11-17 18:03:45,143 INFO    [cam2] camera online (receiving frames)
+2026-11-17 18:03:45,143 INFO    [cam4] camera online (receiving frames)
+2026-11-17 18:03:45,149 INFO    [cam1] camera online (receiving frames)
+2026-11-17 18:03:51,084 WARNING [events] [cam4] motion: Motion detected (5.7% of image)
+2026-11-17 18:03:53,119 WARNING [events] [cam1] motion: Motion detected (2.0% of image)
+2026-11-17 18:03:53,315 WARNING [events] [cam3] motion: Motion detected (2.2% of image)
+2026-11-17 18:03:58,721 WARNING [events] [cam1] crowd: Crowd: 7 people (limit 6)
+2026-11-17 18:04:01,933 WARNING [events] [cam2] motion: Motion detected (9.8% of image)
+2026-11-17 18:04:15,698 WARNING [events] [cam3] crowd: Crowd: 5 people (limit 4)
+2026-11-17 18:04:16,674 WARNING [events] [cam2] crowd: Crowd: 3 people (limit 2)
+2026-11-17 18:04:23,121 WARNING [events] [cam1] motion: Motion detected (2.3% of image)
+2026-11-17 18:04:24,503 WARNING [events] [cam4] motion: Motion detected (6.9% of image)
+2026-11-17 18:04:24,591 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:24] "GET / HTTP/1.1" 200 -
+2026-11-17 18:04:24,596 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:24] "GET /video/cam1 HTTP/1.1" 200 -
+2026-11-17 18:04:24,600 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:24] "GET /video/cam2 HTTP/1.1" 200 -
+2026-11-17 18:04:24,600 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:24] "GET /video/cam3 HTTP/1.1" 200 -
+2026-11-17 18:04:24,600 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:24] "GET /static/style.css HTTP/1.1" 200 -
+2026-11-17 18:04:24,600 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:24] "GET /video/cam5 HTTP/1.1" 200 -
+2026-11-17 18:04:24,601 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:24] "GET /video/cam4 HTTP/1.1" 200 -
+2026-11-17 18:04:24,602 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:24] "[36mGET /static/vendor/chart.umd.min.js HTTP/1.1[0m" 304 -
+2026-11-17 18:04:24,603 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:24] "GET /static/dashboard.js HTTP/1.1" 200 -
+2026-11-17 18:04:24,628 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:24] "GET /api/cameras HTTP/1.1" 200 -
+2026-11-17 18:04:24,630 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:24] "GET /api/events?limit=50 HTTP/1.1" 200 -
+2026-11-17 18:04:24,631 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:24] "GET /api/history HTTP/1.1" 200 -
+2026-11-17 18:04:24,748 WARNING [events] [cam4] crowd: Crowd: 3 people (limit 2)
+2026-11-17 18:04:25,612 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:25] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-11-17 18:04:25,631 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:25] "GET /api/cameras HTTP/1.1" 200 -
+2026-11-17 18:04:37,053 WARNING [events] [cam3] motion: Motion detected (2.7% of image)
+2026-11-17 18:04:38,180 WARNING [events] [cam2] motion: Motion detected (41.9% of image)
+2026-11-17 18:04:47,820 WARNING [events] [cam3] crowd: Crowd: 5 people (limit 4)
+2026-11-17 18:04:49,597 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:49] "GET / HTTP/1.1" 200 -
+2026-11-17 18:04:49,603 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:49] "GET /video/cam1 HTTP/1.1" 200 -
+2026-11-17 18:04:49,604 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:49] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-11-17 18:04:49,605 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:49] "GET /video/cam5 HTTP/1.1" 200 -
+2026-11-17 18:04:49,605 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:49] "GET /video/cam2 HTTP/1.1" 200 -
+2026-11-17 18:04:49,606 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:49] "GET /video/cam3 HTTP/1.1" 200 -
+2026-11-17 18:04:49,606 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:49] "GET /video/cam4 HTTP/1.1" 200 -
+2026-11-17 18:04:49,606 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:49] "[36mGET /static/vendor/chart.umd.min.js HTTP/1.1[0m" 304 -
+2026-11-17 18:04:49,608 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:49] "[36mGET /static/dashboard.js HTTP/1.1[0m" 304 -
+2026-11-17 18:04:49,630 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:49] "GET /api/cameras HTTP/1.1" 200 -
+2026-11-17 18:04:49,631 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:49] "GET /api/events?limit=50 HTTP/1.1" 200 -
+2026-11-17 18:04:49,632 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:49] "GET /api/history HTTP/1.1" 200 -
+2026-11-17 18:04:50,619 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:50] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-11-17 18:04:50,631 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:04:50] "GET /api/cameras HTTP/1.1" 200 -
+2026-11-17 18:04:53,246 WARNING [events] [cam1] motion: Motion detected (3.7% of image)
+2026-11-17 18:04:54,597 WARNING [events] [cam4] motion: Motion detected (4.3% of image)
+2026-11-17 18:04:55,918 WARNING [events] [cam1] crowd: Crowd: 8 people (limit 6)
+2026-11-17 18:05:06,781 WARNING [events] [cam2] crowd: Crowd: 3 people (limit 2)
+2026-11-17 18:05:07,062 WARNING [events] [cam3] motion: Motion detected (3.2% of image)
+2026-11-17 18:05:08,181 WARNING [events] [cam2] motion: Motion detected (6.6% of image)
+2026-11-17 18:05:22,549 WARNING [events] [cam3] crowd: Crowd: 5 people (limit 4)
+2026-11-17 18:05:23,317 WARNING [events] [cam1] motion: Motion detected (3.0% of image)
+2026-11-17 18:05:25,497 WARNING [events] [cam4] motion: Motion detected (7.4% of image)
+2026-11-17 18:05:25,578 WARNING [events] [cam4] crowd: Crowd: 3 people (limit 2)
+2026-11-17 18:05:29,420 WARNING [events] [cam1] crowd: Crowd: 7 people (limit 6)
+2026-11-17 18:05:39,031 WARNING [events] [cam3] motion: Motion detected (2.4% of image)
+2026-11-17 18:05:39,753 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:05:39] "GET /video/cam5 HTTP/1.1" 200 -
+2026-11-17 18:05:41,345 WARNING [events] [cam2] motion: Motion detected (10.4% of image)
+2026-11-17 18:05:42,113 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:05:42] "GET / HTTP/1.1" 200 -
+2026-11-17 18:05:42,119 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:05:42] "GET /video/cam1 HTTP/1.1" 200 -
+2026-11-17 18:05:42,121 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:05:42] "GET /static/style.css HTTP/1.1" 200 -
+2026-11-17 18:05:42,122 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:05:42] "GET /video/cam3 HTTP/1.1" 200 -
+2026-11-17 18:05:42,122 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:05:42] "GET /video/cam2 HTTP/1.1" 200 -
+2026-11-17 18:05:42,123 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:05:42] "GET /video/cam4 HTTP/1.1" 200 -
+2026-11-17 18:05:42,123 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:05:42] "GET /video/cam5 HTTP/1.1" 200 -
+2026-11-17 18:05:42,126 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:05:42] "[36mGET /static/vendor/chart.umd.min.js HTTP/1.1[0m" 304 -
+2026-11-17 18:05:42,128 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:05:42] "GET /static/dashboard.js HTTP/1.1" 200 -
+2026-11-17 18:05:42,150 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:05:42] "GET /api/cameras HTTP/1.1" 200 -
+2026-11-17 18:05:42,152 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:05:42] "GET /api/events?limit=50 HTTP/1.1" 200 -
+2026-11-17 18:05:42,153 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:05:42] "GET /api/history HTTP/1.1" 200 -
+2026-11-17 18:05:43,136 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:05:43] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-11-17 18:05:43,150 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:05:43] "GET /api/cameras HTTP/1.1" 200 -
+2026-11-17 18:05:53,318 WARNING [events] [cam1] motion: Motion detected (2.3% of image)
+2026-11-17 18:05:54,683 WARNING [events] [cam3] crowd: Crowd: 5 people (limit 4)
+2026-11-17 18:05:55,581 WARNING [events] [cam4] motion: Motion detected (3.6% of image)
+2026-11-17 18:05:55,848 WARNING [events] [cam2] crowd: Crowd: 3 people (limit 2)
+2026-11-17 18:06:07,119 WARNING [events] [cam1] crowd: Crowd: 7 people (limit 6)
+2026-11-17 18:06:07,142 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:07] "GET / HTTP/1.1" 200 -
+2026-11-17 18:06:07,149 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:07] "GET /video/cam1 HTTP/1.1" 200 -
+2026-11-17 18:06:07,150 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:07] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-11-17 18:06:07,152 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:07] "GET /video/cam5 HTTP/1.1" 200 -
+2026-11-17 18:06:07,152 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:07] "GET /video/cam2 HTTP/1.1" 200 -
+2026-11-17 18:06:07,152 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:07] "GET /video/cam3 HTTP/1.1" 200 -
+2026-11-17 18:06:07,152 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:07] "GET /video/cam4 HTTP/1.1" 200 -
+2026-11-17 18:06:07,153 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:07] "[36mGET /static/vendor/chart.umd.min.js HTTP/1.1[0m" 304 -
+2026-11-17 18:06:07,154 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:07] "[36mGET /static/dashboard.js HTTP/1.1[0m" 304 -
+2026-11-17 18:06:07,176 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:07] "GET /api/cameras HTTP/1.1" 200 -
+2026-11-17 18:06:07,178 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:07] "GET /api/events?limit=50 HTTP/1.1" 200 -
+2026-11-17 18:06:07,179 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:07] "GET /api/history HTTP/1.1" 200 -
+2026-11-17 18:06:08,163 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:08] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-11-17 18:06:08,179 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:08] "GET /api/cameras HTTP/1.1" 200 -
+2026-11-17 18:06:09,894 WARNING [events] [cam3] motion: Motion detected (3.6% of image)
+2026-11-17 18:06:17,615 WARNING [events] [cam2] motion: Motion detected (47.1% of image)
+2026-11-17 18:06:23,415 WARNING [events] [cam1] motion: Motion detected (4.0% of image)
+2026-11-17 18:06:26,413 WARNING [events] [cam4] motion: Motion detected (6.5% of image)
+2026-11-17 18:06:26,664 WARNING [events] [cam4] crowd: Crowd: 3 people (limit 2)
+2026-11-17 18:06:29,414 WARNING [events] [cam3] crowd: Crowd: 5 people (limit 4)
+2026-11-17 18:06:37,519 WARNING [events] [cam1] crowd: Crowd: 7 people (limit 6)
+2026-11-17 18:06:45,425 WARNING [events] [cam2] crowd: Crowd: 3 people (limit 2)
+2026-11-17 18:06:45,945 WARNING [events] [cam3] motion: Motion detected (2.4% of image)
+2026-11-17 18:06:47,705 WARNING [events] [cam2] motion: Motion detected (5.2% of image)
+2026-11-17 18:06:51,321 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:51] "GET / HTTP/1.1" 200 -
+2026-11-17 18:06:51,327 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:51] "GET /video/cam1 HTTP/1.1" 200 -
+2026-11-17 18:06:51,331 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:51] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-11-17 18:06:51,333 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:51] "GET /video/cam3 HTTP/1.1" 200 -
+2026-11-17 18:06:51,333 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:51] "GET /video/cam2 HTTP/1.1" 200 -
+2026-11-17 18:06:51,333 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:51] "GET /video/cam4 HTTP/1.1" 200 -
+2026-11-17 18:06:51,333 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:51] "GET /video/cam5 HTTP/1.1" 200 -
+2026-11-17 18:06:51,334 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:51] "[36mGET /static/vendor/chart.umd.min.js HTTP/1.1[0m" 304 -
+2026-11-17 18:06:51,336 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:51] "[36mGET /static/dashboard.js HTTP/1.1[0m" 304 -
+2026-11-17 18:06:51,355 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:51] "GET /api/cameras HTTP/1.1" 200 -
+2026-11-17 18:06:51,356 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:51] "GET /api/events?limit=50 HTTP/1.1" 200 -
+2026-11-17 18:06:51,357 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:51] "GET /api/history HTTP/1.1" 200 -
+2026-11-17 18:06:52,343 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:52] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-11-17 18:06:52,359 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:06:52] "GET /api/cameras HTTP/1.1" 200 -
+2026-11-17 18:06:53,429 WARNING [events] [cam1] motion: Motion detected (2.4% of image)
+2026-11-17 18:06:56,425 WARNING [events] [cam4] motion: Motion detected (3.5% of image)
+2026-11-17 18:07:01,577 WARNING [events] [cam3] crowd: Crowd: 5 people (limit 4)
+2026-11-17 18:07:16,807 WARNING [events] [cam3] motion: Motion detected (3.7% of image)
+2026-11-17 18:07:20,644 WARNING [events] [cam2] motion: Motion detected (10.7% of image)
+2026-11-17 18:07:23,473 WARNING [events] [cam1] motion: Motion detected (3.7% of image)
+2026-11-17 18:07:26,105 INFO    [werkzeug] 127.0.0.1 - - [17/Nov/2026 18:07:26] "GET /static/style.css HTTP/1.1" 200 -
