@@ -33,7 +33,7 @@ sudo docker --version
 sudo docker compose version
 
 step "2) Get the latest code"
-git pull --ff-only || true
+git pull --ff-only
 git log --oneline -1
 
 step "3) Build the image and start the container"

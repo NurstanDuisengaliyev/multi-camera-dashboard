@@ -16,3 +16,9 @@ data/
 .claude/
 CLAUDE.md
 PLAN.md
+
+# Live log files written by the running app / deploy script. They change on every run,
+# so they are not tracked (otherwise `git pull` on the VM would fail).
+# Copies for submission are saved under other names (local_app.log, step5_azure_*.log).
+logs/app.log
+logs/azure_deploy.log
