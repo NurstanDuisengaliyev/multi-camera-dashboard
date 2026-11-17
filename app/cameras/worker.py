@@ -23,8 +23,6 @@ HISTORY_SECONDS = 300  # keep 5 minutes of one-per-second samples for the charts
 
 GREEN = (80, 200, 60)
 YELLOW = (0, 215, 255)
-RED = (40, 40, 230)
-WHITE = (255, 255, 255)
 
 
 class HeldCondition:
@@ -84,7 +82,10 @@ class CameraWorker(threading.Thread):
         self.frame_times = deque()     # timestamps of frames in the last second (for FPS)
         self.history = deque(maxlen=HISTORY_SECONDS)
         self.analysis = {"people": 0, "motion_pct": 0.0, "brightness": 0.0,
-                         "sharpness": 0.0, "alerts": []}
+                         "sharpness": 0.0, "alerts": [], "alert_age_s": {}}
+        # Phone cameras only: set by the web server from the upload requests.
+        self.device = None             # "iPhone", "Android", ...
+        self.phone_rtt_ms = None       # upload round trip measured by the phone
         self.timing_ms = {"motion": 0.0, "quality": 0.0, "people": 0.0}
         self._jpeg = None              # cached JPEG of latest_frame (see get_jpeg)
         self._jpeg_frame_no = -1
@@ -154,9 +155,11 @@ class CameraWorker(threading.Thread):
             "blurry": sharpness < self.blur_threshold and not is_dark,
         }
         alerts = [name for name, is_on in active.items() if self.conditions[name].update(is_on, now)]
-        self._send_alerts(alerts, people, motion_ratio, brightness, sharpness)
+        # How long each alert has been on (the dashboard shows "camera covered for 41 s").
+        alert_age = {name: round(now - self.conditions[name].since) for name in alerts}
 
-        annotated = self._draw(frame, motion_boxes, people, motion_ratio, alerts)
+        annotated = self._draw(frame, motion_boxes)
+        self._send_alerts(alerts, people, motion_ratio, brightness, sharpness, annotated)
 
         # 5) Publish results for other threads.
         self.frame_times.append(now)
@@ -168,15 +171,20 @@ class CameraWorker(threading.Thread):
             self.frames_total += 1
             self.analysis = {"people": people, "motion_pct": round(motion_ratio * 100, 1),
                              "brightness": round(brightness), "sharpness": round(sharpness),
-                             "alerts": alerts}
+                             "alerts": alerts, "alert_age_s": alert_age}
             if now - self.last_history >= 1.0:  # one chart sample per second
                 self.history.append({"t": round(time.time()), "people": people,
                                      "motion_pct": round(motion_ratio * 100, 1)})
                 self.last_history = now
 
-    def _send_alerts(self, alerts, people, motion_ratio, brightness, sharpness):
+    def _send_alerts(self, alerts, people, motion_ratio, brightness, sharpness, annotated):
         if self.events is None:
             return
+
+        def snapshot():  # only called when the event is really saved (not in cooldown)
+            ok, buf = cv2.imencode(".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, 80])
+            return buf.tobytes() if ok else None
+
         messages = {
             "motion": ("motion", "Motion detected (%.1f%% of image)" % (motion_ratio * 100), motion_ratio * 100),
             "crowd": ("crowd", "Crowd: %d people (limit %d)" % (people, self.crowd_limit), people),
@@ -185,7 +193,7 @@ class CameraWorker(threading.Thread):
         }
         for name in alerts:
             event_type, message, value = messages[name]
-            self.events.add(self.cam_id, self.cam_name, event_type, message, round(value, 1))
+            self.events.add(self.cam_id, self.cam_name, event_type, message, round(value, 1), snapshot=snapshot)
 
     def _set_online(self, online, reason):
         if online == self.online or self.stop_event.is_set():
@@ -225,7 +233,8 @@ class CameraWorker(threading.Thread):
         ms = (time.perf_counter() - start) * 1000
         self.timing_ms[name] = round(0.9 * self.timing_ms[name] + 0.1 * ms, 1) if self.timing_ms[name] else round(ms, 1)
 
-    def _draw(self, frame, motion_boxes, people, motion_ratio, alerts):
+    def _draw(self, frame, motion_boxes):
+        """Boxes only: names, counts and alerts are shown by the dashboard around the video."""
         img = frame.copy()
         for (x, y, w, h) in motion_boxes:
             cv2.rectangle(img, (x, y), (x + w, y + h), YELLOW, 1)
@@ -233,15 +242,6 @@ class CameraWorker(threading.Thread):
             cv2.rectangle(img, (x1, y1), (x2, y2), GREEN, 2)
             cv2.putText(img, "person %.2f" % conf, (x1, max(12, y1 - 5)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.45, GREEN, 1, cv2.LINE_AA)
-
-        # Info bar at the top.
-        cv2.rectangle(img, (0, 0), (img.shape[1], 24), (0, 0, 0), -1)
-        text = "%s | people: %d | motion: %.1f%%" % (self.cam_name, people, motion_ratio * 100)
-        cv2.putText(img, text, (6, 17), cv2.FONT_HERSHEY_SIMPLEX, 0.5, WHITE, 1, cv2.LINE_AA)
-        if alerts:
-            label = " ".join(a.upper() for a in alerts)
-            (tw, _), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
-            cv2.putText(img, label, (img.shape[1] - tw - 6, 17), cv2.FONT_HERSHEY_SIMPLEX, 0.5, RED, 1, cv2.LINE_AA)
         return img
 
     # ================= used by other threads =================
@@ -289,9 +289,14 @@ class CameraWorker(threading.Thread):
                 "frames_total": self.frames_total,
                 "last_frame_age_s": None if age is None else round(age, 2),
                 "crowd_limit": self.crowd_limit,
+                "dark_threshold": self.dark_threshold,
+                "blur_threshold": self.blur_threshold,
                 "timing_ms": dict(self.timing_ms),
+                "device": self.device,
+                "rtt_ms": self.phone_rtt_ms,
             }
             stats.update(self.analysis)
             if not online:
                 stats["alerts"] = []
+                stats["alert_age_s"] = {}
             return stats

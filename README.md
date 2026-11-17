@@ -2,8 +2,26 @@
 
 Real-time monitoring of several camera feeds in one web dashboard, with video analytics:
 camera status, FPS, motion detection, tampering detection (dark/blurry), people counting
-(YOLOv8n), crowd alerts, history charts and an SQLite event log. Any phone can join as
-a live camera from its browser.
+(YOLOv8n), crowd alerts, history charts and an SQLite event log with snapshots. Any phone
+can join as a live camera from its browser by scanning a QR code.
+
+![Dashboard](results/screenshots/step7_dashboard.png)
+
+## The dashboard
+
+- **Camera cards**: live video with person boxes; LIVE, people count and alert chips on top.
+  The card itself shows the state: orange glow = crowd, red glow + "Camera covered?" /
+  "Lens dirty?" = tampering, red "No signal" = video camera offline, dashed grey "Waiting for
+  phone" = a phone that paused (normal, no alarm). Phone cards show connection quality.
+  Each card has a 5-minute sparkline of people in view.
+- **Header**: one status pill ("All clear" or "N active alerts"), cameras online, people, time.
+- **Alerts**: newest first with a snapshot of the moment, filters (tampering, crowd, motion,
+  phones), click to open that camera; **Download CSV** exports the whole log.
+- **Spotlight**: click a camera to see it large, with people / motion / FPS / YOLO time,
+  image-health bars with the tampering thresholds, its people chart with the crowd limit,
+  its own alerts, a **Save snapshot** button and full screen. Esc goes back.
+- **Add phone camera**: a QR code to scan with the phone (link with the phone token inside);
+  the dialog shows "… connected" when the phone starts streaming.
 
 Built with Python, OpenCV, ultralytics YOLO, Flask, Caddy, Docker; deployed on an Azure VM.
 CSCI 436 Introduction to Cloud Computing final project.
@@ -49,7 +67,7 @@ app/
     phone.py            phone page and phone upload API
     auth.py             dashboard password
   templates/            dashboard.html, phone.html
-  static/               dashboard.js, phone.js, CSS, Chart.js
+  static/               dashboard.js, phone.js, style.css, phone.css (no frameworks; charts are SVG)
 deploy/
   Caddyfile             HTTPS front door settings
   azure_setup.sh        one-command deployment on an Azure Ubuntu VM
@@ -98,11 +116,11 @@ Short version below; the full guide (everyday commands, settings, troubleshootin
 
 ## Stream from a phone
 
-1. On the dashboard, tap **📱 Add a phone camera**. The link already contains the phone
-   token, so you can open it on your phone or send it to someone (it gives streaming rights only,
-   not the dashboard password).
-   Or open `https://<server>/phone` and type the token.
-2. Enter a camera name (e.g. "Front door"), tap **Start streaming** and allow the camera.
+1. On the dashboard, click **Add phone camera** and scan the QR code with the phone (or copy
+   the link and send it). The link contains the phone token: it gives streaming rights only,
+   not the dashboard password. Or open `https://<server>/phone` and type the token.
+2. Enter a camera name (e.g. "Front door"), pick a quality (Data saver / Balanced / Sharp),
+   tap the red button and allow the camera.
 3. The phone appears on the dashboard within a second, with the same analytics as the other
    cameras. **Stop streaming** removes it; a phone that loses its connection shows
    "Waiting for phone" and is removed after `remove_after_s` (60 s).
@@ -110,8 +128,8 @@ Short version below; the full guide (everyday commands, settings, troubleshootin
 The page draws each camera frame on a canvas, encodes it as JPEG and uploads it. It sends the
 next frame only after the previous one arrived, so a slow network lowers the FPS instead of
 adding delay. Keep the browser in the foreground with the phone unlocked: phones pause the
-camera in the background. At 640 px a phone uses roughly 2–7 Mbit/s; choose 480 px and
-5–10 FPS on the page to save mobile data.
+camera in the background. "Balanced" (640 px, 15 FPS) uses roughly 2–7 Mbit/s; "Data saver"
+(480 px, 8 FPS) is better on mobile data.
 
 ## Run without Docker (development)
 
@@ -153,13 +171,17 @@ Also supported: `PORT` (local port, default 8000), `CONFIG_PATH`, `LOG_DIR`, `DA
 |---|---|---|
 | `/` | password | Dashboard |
 | `/video/<cam_id>` | password | Live MJPEG stream |
+| `/snapshot/<cam_id>.jpg` | password | Current picture (`?download=1` to save it as a file) |
 | `/api/cameras` | password | Stats of all cameras + summary |
 | `/api/history` | password | Last 5 min of people / motion per camera |
 | `/api/events?limit=50` | password | Latest alerts |
+| `/api/events/<id>/snapshot.jpg` | password | Picture saved when that alert fired |
+| `/api/events.csv` | password | Whole event log as CSV |
+| `/api/phone-link` | password | Phone link + QR code (SVG) for the "Add phone camera" dialog |
 | `/health` | – | Health check |
 | `/phone` | – | Phone streaming page |
 | `POST /api/phone/start` | token | `{"name": ...}` → `{"camera_id": ...}`: create a phone camera |
-| `POST /api/phone/<id>/frame` | token | upload one JPEG frame |
+| `POST /api/phone/<id>/frame` | token | upload one JPEG frame (header `X-Phone-RTT`: last round trip, ms) |
 | `POST /api/phone/<id>/stop` | token | remove the phone camera |
 
 "password" = dashboard user/password (HTTP Basic auth); "token" = header `X-Phone-Token: <PHONE_TOKEN>`.
