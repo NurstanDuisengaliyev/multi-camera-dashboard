@@ -4,4 +4,3 @@ pyyaml
 ultralytics==8.4.215
 flask==3.1.3
 gunicorn==23.0.0
-cryptography==46.0.3

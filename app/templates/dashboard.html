@@ -12,7 +12,7 @@
       <h1>Multi-Camera Monitor</h1>
       <span class="sub">Real-time video analytics</span>
     </div>
-    <a class="push-link" href="{{ url_for('push_page') }}">📱 Stream from phone</a>
+    <a class="phone-link" href="{{ phone_link }}">📱 Add a phone camera</a>
     <div class="tiles">
       <div class="tile"><span class="tile-label">Cameras online</span><span class="tile-value" id="sum-online">–</span></div>
       <div class="tile"><span class="tile-label">People in view</span><span class="tile-value" id="sum-people">–</span></div>
@@ -24,29 +24,9 @@
   <div class="banner hidden" id="conn-banner">⚠ Connection to server lost, retrying…</div>
 
   <main class="layout">
-    <section class="cams" aria-label="Live cameras">
-      {% for cam in cameras %}
-      <article class="cam" id="card-{{ cam.id }}" data-series="{{ loop.index }}">
-        <div class="cam-head">
-          <span class="swatch series-{{ loop.index }}" aria-hidden="true"></span>
-          <h2>{{ cam.name }}</h2>
-          <span class="cam-id">{{ cam.id }}</span>
-          <span class="status" data-field="status"><span class="dot"></span><span class="status-text">…</span></span>
-        </div>
-        <div class="video-wrap">
-          <img src="{{ url_for('video', cam_id=cam.id) }}" alt="Live video from {{ cam.name }}">
-        </div>
-        <dl class="stats">
-          <div><dt>People</dt><dd data-field="people">–</dd></div>
-          <div><dt>Motion</dt><dd data-field="motion">–</dd></div>
-          <div><dt>FPS</dt><dd data-field="fps">–</dd></div>
-          <div><dt>Brightness</dt><dd data-field="brightness">–</dd></div>
-          <div><dt>Sharpness</dt><dd data-field="sharpness">–</dd></div>
-        </dl>
-        <div class="badges" data-field="alerts"></div>
-      </article>
-      {% endfor %}
-    </section>
+    <!-- One card per camera, created by dashboard.js from /api/cameras
+         (phone cameras appear and disappear while the page is open). -->
+    <section class="cams" id="cams" aria-label="Live cameras"></section>
 
     <aside class="side">
       <section class="panel">
@@ -64,7 +44,27 @@
     </aside>
   </main>
 
-  <script>window.CAMERAS = {{ cameras | tojson }};</script>
+  <!-- Card layout, copied by dashboard.js for each camera -->
+  <template id="cam-template">
+    <article class="cam">
+      <div class="cam-head">
+        <span class="swatch" aria-hidden="true"></span>
+        <h2 data-field="name"></h2>
+        <span class="cam-id" data-field="id"></span>
+        <span class="status" data-field="status"><span class="dot"></span><span class="status-text">…</span></span>
+      </div>
+      <div class="video-wrap"><img alt=""></div>
+      <dl class="stats">
+        <div><dt>People</dt><dd data-field="people">–</dd></div>
+        <div><dt>Motion</dt><dd data-field="motion">–</dd></div>
+        <div><dt>FPS</dt><dd data-field="fps">–</dd></div>
+        <div><dt>Brightness</dt><dd data-field="brightness">–</dd></div>
+        <div><dt>Sharpness</dt><dd data-field="sharpness">–</dd></div>
+      </dl>
+      <div class="badges" data-field="alerts"></div>
+    </article>
+  </template>
+
   <script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}"></script>
   <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
 </body>

@@ -22,3 +22,6 @@ PLAN.md
 # Copies for submission are saved under other names (local_app.log, step5_azure_*.log).
 logs/app.log
 logs/azure_deploy.log
+
+# Secrets for docker compose (template: .env.example)
+.env

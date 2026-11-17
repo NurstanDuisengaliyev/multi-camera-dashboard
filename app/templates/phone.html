@@ -3,33 +3,30 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#111110">
   <title>Phone Camera</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='push.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='phone.css') }}">
 </head>
-<body class="push">
-  <header class="push-head">
+<body class="phone">
+  <header class="phone-head">
     <h1>Phone camera</h1>
-    <a href="{{ url_for('index') }}" class="link">Dashboard →</a>
+    <a href="{{ url_for('dashboard.index') }}" class="link">Dashboard →</a>
   </header>
 
-  <main class="push-main">
-    <div class="notice critical hidden" id="insecure">
-      <strong>Camera needs HTTPS.</strong>
-      Safari only allows the camera on secure pages.
-      <a id="https-link" href="#">Open the HTTPS version of this page</a>.
-      The first time, Safari warns that the connection is not private: tap
-      <em>Show Details</em> → <em>visit this website</em>.
-    </div>
-
-    {% if not cameras %}
+  <main class="phone-main">
+    {% if not enabled %}
     <div class="notice critical">
-      No camera accepts pushed video. Add one to <code>config.yaml</code> with
-      <code>source: push</code> and restart the server.
+      <strong>Phone streaming is switched off on this server.</strong>
+      The server owner has to set <code>PHONE_TOKEN</code> (see README).
     </div>
     {% endif %}
+
+    <div class="notice critical hidden" id="insecure">
+      <strong>The camera needs HTTPS.</strong>
+      Phones only allow the camera on secure pages.
+      <a id="https-link" href="#">Open the HTTPS version of this page</a>.
+    </div>
 
     <div class="preview">
       <video id="preview" playsinline muted autoplay></video>
@@ -38,11 +35,11 @@
     </div>
 
     <div class="controls">
-      <button id="btn-start" class="primary" {% if not cameras %}disabled{% endif %}>Start streaming</button>
+      <button id="btn-start" class="primary" {% if not enabled %}disabled{% endif %}>Start streaming</button>
       <button id="btn-flip" title="Switch front / back camera">Flip camera</button>
     </div>
 
-    <dl class="stats push-stats">
+    <dl class="stats phone-stats">
       <div><dt>Status</dt><dd id="st-status">Idle</dd></div>
       <div><dt>Sent FPS</dt><dd id="st-fps">–</dd></div>
       <div><dt>Frame</dt><dd id="st-size">–</dd></div>
@@ -50,15 +47,16 @@
     </dl>
 
     <form class="settings" onsubmit="return false">
-      <label>Camera on dashboard
-        <select id="cam">
-          {% for cam in cameras %}<option value="{{ cam.id }}">{{ cam.name }} ({{ cam.id }})</option>{% endfor %}
-        </select>
+      <label class="wide">Camera name on the dashboard
+        <input id="name" maxlength="40" placeholder="e.g. Front door" autocomplete="off">
+      </label>
+      <label class="wide">Phone token
+        <input id="token" type="password" autocomplete="off" placeholder="Ask the dashboard owner">
       </label>
       <label>Resolution
         <select id="width">
-          <option value="480">480 px (low data)</option>
-          <option value="640" selected>640 px (= analytics size)</option>
+          <option value="480">480 px (less data)</option>
+          <option value="640" selected>640 px</option>
           <option value="960">960 px</option>
           <option value="1280">1280 px</option>
         </select>
@@ -68,7 +66,6 @@
           <option value="5">5</option>
           <option value="10">10</option>
           <option value="15" selected>15</option>
-          <option value="24">24</option>
         </select>
       </label>
       <label>JPEG quality
@@ -78,17 +75,12 @@
           <option value="0.85">High</option>
         </select>
       </label>
-      {% if need_token %}
-      <label>Push token
-        <input id="token" type="password" autocomplete="current-password" placeholder="PUSH_TOKEN of the server">
-      </label>
-      {% endif %}
     </form>
     <p class="hint">Keep this page open and the phone unlocked while streaming:
-      iOS pauses the camera when Safari goes to the background.</p>
+      phones pause the camera when the browser goes to the background.
+      Your camera disappears from the dashboard a minute after you stop.</p>
   </main>
 
-  <script>window.PUSH = {{ {"httpsPort": https_port, "needToken": need_token} | tojson }};</script>
-  <script src="{{ url_for('static', filename='push.js') }}"></script>
+  <script src="{{ url_for('static', filename='phone.js') }}"></script>
 </body>
 </html>
