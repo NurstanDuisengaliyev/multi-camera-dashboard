@@ -55,3 +55,5 @@ PUBLIC_IP=$(curl -fs -H Metadata:true --noproxy '*' \
   || echo "<VM public IP>")
 echo
 echo "Dashboard: http://$PUBLIC_IP:8000"
+echo "Phone camera (open on the iPhone in Safari): https://$PUBLIC_IP:8443/push"
+echo "  (Azure: allow inbound TCP 8443 in the VM's network security group, like 8000)"

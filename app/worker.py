@@ -13,7 +13,7 @@ import cv2
 
 from app.analytics.motion import MotionDetector
 from app.analytics.quality import measure
-from app.sources import make_source
+from app.sources import is_push, make_source
 
 RECONNECT_DELAY_S = 2
 HISTORY_SECONDS = 300  # keep 5 minutes of one-per-second samples for the charts
@@ -91,13 +91,14 @@ class CameraWorker(threading.Thread):
     def run(self):
         self.log.info("worker started, source=%s", self.source_spec)
         while not self.stop_event.is_set():
-            source = make_source(self.source_spec, self.max_fps)
+            source = make_source(self.source_spec, self.max_fps, self.cam_id, self.offline_after_s)
             if not source.open():
-                self._set_online(False, "cannot open source")
+                self._set_online(False, "waiting for phone stream" if is_push(self.source_spec)
+                                 else "cannot open source")
                 self.stop_event.wait(RECONNECT_DELAY_S)
                 continue
 
-            self.log.info("source opened (%.1f fps)", source.fps)
+            self.log.info("source opened (%s)", "%.1f fps" % source.fps if source.fps else "pushed frames")
             while not self.stop_event.is_set():
                 frame = source.read()
                 if frame is None:

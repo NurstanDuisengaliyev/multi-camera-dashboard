@@ -46,3 +46,10 @@ cameras:
     name: "Hallway"
     source: videos/face-demographics-walking.mp4
     crowd_limit: 2
+  # Live camera pushed from a phone: open https://<server>:8443/push on the phone.
+  # "source: push" = frames come over the network instead of from a file.
+  # Add more push cameras the same way (cam6, cam7, ...) to stream from several phones.
+  - id: cam5
+    name: "iPhone Live"
+    source: push
+    crowd_limit: 3
