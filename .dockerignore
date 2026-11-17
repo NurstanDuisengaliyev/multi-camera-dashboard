@@ -8,3 +8,5 @@ data
 logs
 results
 .DS_Store
+.env
+deploy

@@ -14,7 +14,7 @@ import time
 import cv2
 
 from app.config import load_config, setup_logging
-from app.worker import CameraWorker
+from app.cameras.worker import CameraWorker
 
 
 def main():

@@ -20,7 +20,7 @@ import cv2
 from app.analytics.people import PeopleDetector
 from app.config import load_config, setup_logging
 from app.events import EventStore
-from app.worker import CameraWorker
+from app.cameras.worker import CameraWorker
 
 TAMPER_VIDEO = "data/tamper_test.mp4"
 

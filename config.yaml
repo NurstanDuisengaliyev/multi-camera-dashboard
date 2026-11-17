@@ -1,4 +1,5 @@
 # Cameras and analytics settings. Change this file instead of the code.
+# Secrets (passwords, tokens) are NOT here: they go in the .env file (see .env.example).
 # Thresholds were chosen from measurements on our videos (results/step2_calibration.txt).
 
 analytics:
@@ -46,10 +47,10 @@ cameras:
     name: "Hallway"
     source: videos/face-demographics-walking.mp4
     crowd_limit: 2
-  # Live camera pushed from a phone: open https://<server>:8443/push on the phone.
-  # "source: push" = frames come over the network instead of from a file.
-  # Add more push cameras the same way (cam6, cam7, ...) to stream from several phones.
-  - id: cam5
-    name: "iPhone Live"
-    source: push
-    crowd_limit: 3
+
+# Phone cameras are not listed here: any phone with the PHONE_TOKEN can open
+# https://<server>/phone and becomes a camera on the dashboard while it streams.
+phones:
+  max_cameras: 4             # at most this many phones at once (each one costs CPU for analytics)
+  crowd_limit: 3             # crowd alert above this many people
+  remove_after_s: 60         # a phone that stopped sending is removed from the dashboard after this

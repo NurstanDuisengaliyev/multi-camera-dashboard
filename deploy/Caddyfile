@@ -1,0 +1,28 @@
+# Caddy = the HTTPS front door of the dashboard.
+#
+# SITE_ADDRESS (from .env) is the address people open:
+#   a domain name, e.g. 20-1-2-3.sslip.io  -> Caddy gets a free, trusted Let's Encrypt
+#                                            certificate and renews it automatically
+#                                            (ports 80 and 443 must be open to the internet)
+#   localhost or an IP address             -> Caddy makes its own certificate; browsers show
+#                                            a warning once ("connection not private")
+#
+# HTTPS matters because phones only allow the camera on secure pages, and because the
+# dashboard password must not travel over the network in plain text.
+
+{
+	# Browsers don't say which site they want when the address is an IP; this tells Caddy
+	# which certificate to use then. (Only needed for IPs; harmless for domain names.)
+	default_sni {$SITE_ADDRESS}
+}
+
+{$SITE_ADDRESS} {
+	# Normal HTTPS settings, written out so that default_sni above takes effect.
+	tls {
+		protocols tls1.2 tls1.3
+	}
+	reverse_proxy dashboard:8000 {
+		# Pass every video frame on immediately instead of buffering the MJPEG streams.
+		flush_interval -1
+	}
+}

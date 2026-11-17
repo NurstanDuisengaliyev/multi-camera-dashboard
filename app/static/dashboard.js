@@ -1,15 +1,17 @@
-// Dashboard logic: the videos are plain <img> MJPEG streams (no JS needed).
-// This file polls the JSON API and updates stats, alert badges, the events panel and charts.
+// Dashboard logic. Polls the JSON API and keeps the page up to date:
+//   /api/cameras  every second  -> camera cards (added/removed as phones come and go), top tiles
+//   /api/events   every 3 s     -> alerts panel
+//   /api/history  every 3 s     -> charts
+// The videos themselves are plain <img> tags showing MJPEG streams (no JS needed).
 
 const POLL_STATS_MS = 1000;
 const POLL_SLOW_MS = 3000;   // events + charts change slowly
 
 const css = getComputedStyle(document.documentElement);
 const color = (name) => css.getPropertyValue(name).trim();
-// One fixed color per camera (same order as the swatches on the cards). Up to 8 cameras.
-const SERIES = [1, 2, 3, 4, 5, 6, 7, 8].map((i) => color(`--series-${i}`));
+const SERIES_COUNT = 8;      // --series-1 ... --series-8 in style.css
 
-// Alert name -> label + severity (severity picks the status color; the text label is always shown)
+// Alert name -> label + severity (severity picks the color; the text label is always shown)
 const ALERTS = {
   motion: { label: "Motion", level: "warning" },
   crowd: { label: "Crowd", level: "serious" },
@@ -23,8 +25,11 @@ const EVENT_TYPES = {
   camera_blurry: { label: "Camera blurry", level: "critical" },
   camera_offline: { label: "Camera offline", level: "critical" },
   camera_online: { label: "Camera online", level: "good" },
+  phone_connected: { label: "Phone live", level: "good" },
+  phone_disconnected: { label: "Phone stopped", level: "none" },
   system_start: { label: "System", level: "good" },
 };
+const STATUS_TEXT = { online: "Online", offline: "Offline", waiting: "Waiting for phone" };
 
 const $ = (sel, root = document) => root.querySelector(sel);
 // 24-hour clock everywhere (same format as the event log).
@@ -44,19 +49,59 @@ function setConnection(ok) {
   $("#conn-banner").classList.toggle("hidden", ok);
 }
 
-// ---------------- camera stats ----------------
+// ---------------- camera cards ----------------
+// cam_id -> { card, series }  (series = color number 1..8, kept while the camera exists)
+const cards = new Map();
+
+function freeSeries() {
+  const used = new Set([...cards.values()].map((c) => c.series));
+  for (let i = 1; i <= SERIES_COUNT; i++) if (!used.has(i)) return i;
+  return (cards.size % SERIES_COUNT) + 1;
+}
+
+function addCard(cam) {
+  const card = $("#cam-template").content.firstElementChild.cloneNode(true);
+  const series = freeSeries();
+  card.id = `card-${cam.id}`;
+  $(".swatch", card).classList.add(`series-${series}`);
+  $('[data-field="name"]', card).textContent = cam.name;
+  $('[data-field="id"]', card).textContent = cam.kind === "phone" ? "📱 phone" : cam.id;
+  const img = $("img", card);
+  img.src = `/video/${encodeURIComponent(cam.id)}`;
+  img.alt = `Live video from ${cam.name}`;
+  $("#cams").appendChild(card);
+  cards.set(cam.id, { card, series });
+  rebuildChartSeries();
+}
+
+function removeCard(camId) {
+  const { card } = cards.get(camId);
+  $("img", card).src = "";  // closes the video stream connection
+  card.remove();
+  cards.delete(camId);
+  rebuildChartSeries();
+}
+
+// Make the cards match the camera list from the server.
+function syncCards(cameras) {
+  const ids = new Set(cameras.map((c) => c.id));
+  [...cards.keys()].filter((id) => !ids.has(id)).forEach(removeCard);
+  cameras.filter((c) => !cards.has(c.id)).forEach(addCard);
+}
+
 function renderCamera(cam) {
-  const card = document.getElementById(`card-${cam.id}`);
-  if (!card) return;
+  const { card } = cards.get(cam.id);
   const online = cam.status === "online";
-  card.classList.toggle("offline", !online);
+  card.classList.toggle("offline", cam.status === "offline");
+  card.classList.toggle("waiting", cam.status === "waiting");
   card.classList.toggle("has-alert", online && cam.alerts.length > 0);
 
+  const set = (field, html) => { $(`[data-field="${field}"]`, card).innerHTML = html; };
+  set("name", escapeHtml(cam.name));
   const status = $('[data-field="status"]', card);
   status.className = `status ${cam.status}`;
-  $(".status-text", status).textContent = online ? "Online" : "Offline";
+  $(".status-text", status).textContent = STATUS_TEXT[cam.status] || cam.status;
 
-  const set = (field, html) => { $(`[data-field="${field}"]`, card).innerHTML = html; };
   if (online) {
     set("people", `${cam.people}<span class="limit"> / ${cam.crowd_limit}</span>`);
     set("motion", `${cam.motion_pct.toFixed(1)}%`);
@@ -71,13 +116,15 @@ function renderCamera(cam) {
     const info = ALERTS[a] || { label: a, level: "warning" };
     return `<span class="badge ${info.level}">▲ ${info.label}</span>`;
   });
-  if (!online) badges.push('<span class="badge critical">■ No signal</span>');
+  if (cam.status === "offline") badges.push('<span class="badge critical">■ No signal</span>');
+  if (cam.status === "waiting") badges.push('<span class="badge none">Phone not streaming</span>');
   set("alerts", badges.length ? badges.join("") : '<span class="badge none">No alerts</span>');
 }
 
 async function pollCameras() {
   try {
     const data = await getJSON("/api/cameras");
+    syncCards(data.cameras);
     data.cameras.forEach(renderCamera);
     const s = data.summary;
     $("#sum-online").textContent = `${s.online} / ${s.total}`;
@@ -99,7 +146,7 @@ async function pollEvents() {
     const events = await getJSON("/api/events?limit=50");
     const list = $("#events");
     if (!events.length) return;
-    const firstKey = (e) => `${e.time}|${e.camera_id}|${e.type}`;
+    const firstKey = (e) => `${e.ts}|${e.camera_id}|${e.type}`;
     const prevNewest = newestEvent;
     newestEvent = firstKey(events[0]);
     if (prevNewest === newestEvent) return; // nothing new
@@ -119,23 +166,12 @@ async function pollEvents() {
 }
 
 // ---------------- charts ----------------
-function makeChart(canvasId, yTitle) {
+function makeChart(canvasId) {
   const grid = color("--border");
   const text = color("--text-2");
   return new Chart(document.getElementById(canvasId), {
     type: "line",
-    data: {
-      datasets: window.CAMERAS.map((cam, i) => ({
-        label: cam.name,
-        data: [],
-        borderColor: SERIES[i % SERIES.length],
-        backgroundColor: SERIES[i % SERIES.length],
-        borderWidth: 2,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-        tension: 0.25,
-      })),
-    },
+    data: { datasets: [] },
     options: {
       animation: false,
       maintainAspectRatio: false,
@@ -144,11 +180,7 @@ function makeChart(canvasId, yTitle) {
       interaction: { mode: "index", intersect: false },
       plugins: {
         legend: { labels: { color: text, boxWidth: 10, boxHeight: 10, font: { size: 11 } } },
-        tooltip: {
-          callbacks: {
-            title: (items) => fmtTime(items[0].parsed.x),
-          },
-        },
+        tooltip: { callbacks: { title: (items) => fmtTime(items[0].parsed.x) } },
       },
       scales: {
         x: {
@@ -161,7 +193,6 @@ function makeChart(canvasId, yTitle) {
         },
         y: {
           beginAtZero: true,
-          title: { display: false, text: yTitle },
           ticks: { color: text, font: { size: 10 }, precision: 0 },
           grid: { color: grid, drawTicks: false },
         },
@@ -170,26 +201,44 @@ function makeChart(canvasId, yTitle) {
   });
 }
 
-const peopleChart = makeChart("chart-people", "people");
-const motionChart = makeChart("chart-motion", "% of image");
+const peopleChart = makeChart("chart-people");
+const motionChart = makeChart("chart-motion");
+
+// One line per camera, in the camera's card color.
+function rebuildChartSeries() {
+  [peopleChart, motionChart].forEach((chart) => {
+    const old = new Map(chart.data.datasets.map((d) => [d.camId, d.data]));
+    chart.data.datasets = [...cards.entries()].map(([camId, { card, series }]) => ({
+      camId,
+      label: $('[data-field="name"]', card).textContent || camId,
+      data: old.get(camId) || [],
+      borderColor: color(`--series-${series}`),
+      backgroundColor: color(`--series-${series}`),
+      borderWidth: 2,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      tension: 0.25,
+    }));
+    chart.update();
+  });
+}
 
 async function pollHistory() {
   try {
     const history = await getJSON("/api/history");
-    window.CAMERAS.forEach((cam, i) => {
-      const rows = history[cam.id] || [];
-      peopleChart.data.datasets[i].data = rows.map((r) => ({ x: r.t * 1000, y: r.people }));
-      motionChart.data.datasets[i].data = rows.map((r) => ({ x: r.t * 1000, y: r.motion_pct }));
+    [[peopleChart, "people"], [motionChart, "motion_pct"]].forEach(([chart, field]) => {
+      chart.data.datasets.forEach((d) => {
+        d.label = $(`#card-${CSS.escape(d.camId)} [data-field="name"]`)?.textContent || d.camId;
+        d.data = (history[d.camId] || []).map((r) => ({ x: r.t * 1000, y: r[field] }));
+      });
+      chart.update();
     });
-    peopleChart.update();
-    motionChart.update();
   } catch (e) { /* ignore, retried on next poll */ }
 }
 
 // ---------------- start polling ----------------
-pollCameras();
+pollCameras().then(pollHistory);
 pollEvents();
-pollHistory();
 setInterval(pollCameras, POLL_STATS_MS);
 setInterval(pollEvents, POLL_SLOW_MS);
 setInterval(pollHistory, POLL_SLOW_MS);

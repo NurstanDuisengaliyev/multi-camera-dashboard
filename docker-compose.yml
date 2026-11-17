@@ -1,24 +1,52 @@
-# Start everything with:   docker compose up -d --build
-# Stop:                    docker compose down
-# Logs:                    docker compose logs -f
+# Two containers:
+#   dashboard  the Python app (cameras + analytics + web server), plain HTTP on port 8000
+#   caddy      the HTTPS front door: gets a free certificate and forwards requests to the dashboard
+#
+#   phone / browser --HTTPS (443)--> caddy --HTTP--> dashboard:8000
+#
+# Settings and secrets come from the .env file next to this one (copy .env.example).
+# Start:  docker compose up -d --build      Stop: docker compose down      Logs: docker compose logs -f
 services:
   dashboard:
     build: .
     image: multicam-dashboard
     container_name: multicam-dashboard
-    ports:
-      - "${PORT:-8000}:8000"          # host port (change with PORT=80 docker compose up)
-      - "${HTTPS_PORT:-8443}:8443"    # HTTPS: phones stream their camera here (/push)
     environment:
-      - PUSH_TOKEN=${PUSH_TOKEN:-}     # optional password for pushing video (empty = open)
+      - DASHBOARD_USER=${DASHBOARD_USER:-admin}
+      - DASHBOARD_PASSWORD=${DASHBOARD_PASSWORD:-}
+      - PHONE_TOKEN=${PHONE_TOKEN:-}
+    ports:
+      # Only reachable from this machine (http://localhost:8000, for testing).
+      # Everyone else comes in through Caddy over HTTPS.
+      - "127.0.0.1:${PORT:-8000}:8000"
     volumes:
       - ./config.yaml:/app/config.yaml:ro   # edit cameras/thresholds without rebuilding
       - ./data:/app/data                    # SQLite event log survives restarts
       - ./logs:/app/logs                    # logs visible on the host (for submission)
-    restart: unless-stopped              # come back after a crash or a VM reboot
+    restart: unless-stopped                 # come back after a crash or a VM reboot
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=4)"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 60s
+
+  caddy:
+    image: caddy:2.10
+    container_name: multicam-caddy
+    depends_on:
+      - dashboard
+    environment:
+      - SITE_ADDRESS=${SITE_ADDRESS:-localhost}   # the address people type, see deploy/Caddyfile
+    ports:
+      - "80:80"     # needed to get the certificate, and redirects http:// to https://
+      - "443:443"   # HTTPS
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data       # certificates: kept so they are not requested again on every restart
+      - caddy-config:/config
+    restart: unless-stopped
+
+volumes:
+  caddy-data:
+  caddy-config:
