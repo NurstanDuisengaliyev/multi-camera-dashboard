@@ -2,7 +2,7 @@
 
   /phone                         page that opens the phone camera and uploads frames (static/phone.js)
   POST /api/phone/start          {"name": "Front door", "camera_id": optional old id} -> {"camera_id": ...}
-  POST /api/phone/<id>/frame     body = one JPEG image
+  POST /api/phone/<id>/frame     body = one JPEG image (+ header X-Phone-RTT: last round trip in ms)
   POST /api/phone/<id>/stop      the phone tapped "Stop": remove its camera
 
 Every API call needs the header  X-Phone-Token: <PHONE_TOKEN>.
@@ -17,6 +17,15 @@ from app.web.auth import same
 bp = Blueprint("phone", __name__)
 
 MAX_NAME_LENGTH = 40
+
+
+def device_name():
+    """A short label for the dashboard card, from the browser's User-Agent."""
+    ua = request.headers.get("User-Agent", "")
+    for marker, label in (("iPhone", "iPhone"), ("iPad", "iPad"), ("Android", "Android")):
+        if marker in ua:
+            return label
+    return "Phone"
 
 
 def check_token():
@@ -42,7 +51,7 @@ def start():
     data = request.get_json(silent=True) or {}
     name = " ".join(str(data.get("name", "")).split())[:MAX_NAME_LENGTH] or "Phone"
     try:
-        worker = current_app.config["CAMERAS"].add_phone(name, data.get("camera_id"))
+        worker = current_app.config["CAMERAS"].add_phone(name, data.get("camera_id"), device_name())
     except TooManyPhones as e:
         return jsonify({"error": str(e)}), 429
     return jsonify({"camera_id": worker.cam_id, "name": worker.cam_name})
@@ -60,7 +69,9 @@ def frame(cam_id):
     jpeg = request.get_data()
     if not jpeg.startswith(b"\xff\xd8"):  # every JPEG file starts with these two bytes
         return jsonify({"error": "Body must be a JPEG image"}), 400
-    cameras.receive_frame(cam_id, jpeg)
+    # The phone reports how long its previous upload took (shown as connection quality).
+    rtt = request.headers.get("X-Phone-RTT", type=int)
+    cameras.receive_frame(cam_id, jpeg, rtt)
     return jsonify({"ok": True})
 
 

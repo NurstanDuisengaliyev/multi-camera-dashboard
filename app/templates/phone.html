@@ -3,84 +3,108 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#111110">
+  <meta name="theme-color" content="#000000">
   <title>Phone Camera</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='phone.css') }}">
 </head>
 <body class="phone">
-  <header class="phone-head">
-    <h1>Phone camera</h1>
-    <a href="{{ url_for('dashboard.index') }}" class="link">Dashboard →</a>
-  </header>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="i-flip" viewBox="0 0 24 24"><path d="M20 7h-3l-2-3H9L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M9 13.5a3 3 0 0 1 5.2-2M15 12.5a3 3 0 0 1-5.2 2M14 10v1.5h-1.5M10 16v-1.5h1.5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
+  </svg>
 
-  <main class="phone-main">
-    {% if not enabled %}
-    <div class="notice critical">
-      <strong>Phone streaming is switched off on this server.</strong>
-      The server owner has to set <code>PHONE_TOKEN</code> (see README).
-    </div>
-    {% endif %}
-
-    <div class="notice critical hidden" id="insecure">
-      <strong>The camera needs HTTPS.</strong>
-      Phones only allow the camera on secure pages.
-      <a id="https-link" href="#">Open the HTTPS version of this page</a>.
+  <div class="stage">
+    <video id="preview" playsinline muted autoplay></video>
+    <div class="placeholder" id="placeholder">
+      <svg class="ic"><use href="#i-camera"/></svg>
+      <span>The camera preview appears here</span>
     </div>
 
-    <div class="preview">
-      <video id="preview" playsinline muted autoplay></video>
-      <div class="live hidden" id="live-badge"><span class="dot"></span>LIVE</div>
-      <div class="placeholder" id="placeholder">Camera off</div>
+    <!-- top: address, flip, live status -->
+    <div class="top">
+      <div class="top-row">
+        <span class="pill" id="host-pill"><svg class="ic sm"><use href="#i-lock"/></svg><span id="host"></span></span>
+        <span class="pill live hidden" id="live-pill"><span class="rec"></span>LIVE <span class="mono" id="live-timer">00:00</span></span>
+        <button type="button" class="round-btn" id="btn-flip-top" aria-label="Flip camera"><svg class="ic"><use href="#i-flip"/></svg></button>
+      </div>
+      <div class="banner-ok hidden" id="live-banner">
+        <svg class="ic"><use href="#i-check"/></svg>
+        <span>Live on the dashboard as <strong id="live-name"></strong></span>
+      </div>
+      {% if not enabled %}
+      <div class="notice"><span><strong>Phone streaming is switched off on this server.</strong>
+        The server owner has to set <code>PHONE_TOKEN</code>.</span></div>
+      {% endif %}
+      <div class="notice hidden" id="insecure"><span><strong>The camera needs HTTPS.</strong>
+        Phones only allow the camera on secure pages. <a id="https-link" href="#">Open the HTTPS version of this page</a>.</span></div>
+      <div class="notice hidden" id="toast" role="status"></div>
     </div>
 
-    <div class="controls">
-      <button id="btn-start" class="primary" {% if not enabled %}disabled{% endif %}>Start streaming</button>
-      <button id="btn-flip" title="Switch front / back camera">Flip camera</button>
-    </div>
+    <!-- bottom sheet: setup before streaming, quality settings while streaming -->
+    <section class="sheet" id="sheet">
+      <div class="handle"></div>
+      <div class="setup-only">
+        <h1>Stream this phone</h1>
+        <p class="sub">It shows up on the dashboard as a live camera, with people and motion detection.</p>
+      </div>
+      <h2 class="settings-only">Quality</h2>
 
-    <dl class="stats phone-stats">
-      <div><dt>Status</dt><dd id="st-status">Idle</dd></div>
-      <div><dt>Sent FPS</dt><dd id="st-fps">–</dd></div>
-      <div><dt>Frame</dt><dd id="st-size">–</dd></div>
-      <div><dt>Round trip</dt><dd id="st-rtt">–</dd></div>
-    </dl>
-
-    <form class="settings" onsubmit="return false">
-      <label class="wide">Camera name on the dashboard
+      <label class="field setup-only">Camera name
         <input id="name" maxlength="40" placeholder="e.g. Front door" autocomplete="off">
       </label>
-      <label class="wide">Phone token
-        <input id="token" type="password" autocomplete="off" placeholder="Ask the dashboard owner">
-      </label>
-      <label>Resolution
-        <select id="width">
-          <option value="480">480 px (less data)</option>
-          <option value="640" selected>640 px</option>
-          <option value="960">960 px</option>
-          <option value="1280">1280 px</option>
-        </select>
-      </label>
-      <label>Max FPS
-        <select id="fps">
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="15" selected>15</option>
-        </select>
-      </label>
-      <label>JPEG quality
-        <select id="quality">
-          <option value="0.5">Low</option>
-          <option value="0.7" selected>Medium</option>
-          <option value="0.85">High</option>
-        </select>
-      </label>
-    </form>
-    <p class="hint">Keep this page open and the phone unlocked while streaming:
-      phones pause the camera when the browser goes to the background.
-      Your camera disappears from the dashboard a minute after you stop.</p>
-  </main>
 
+      <div class="field">
+        <span class="setup-only">Quality</span>
+        <div class="segmented" role="radiogroup" aria-label="Quality" id="quality">
+          <button type="button" role="radio" data-q="saver">Data saver<small>480 · 8 fps</small></button>
+          <button type="button" role="radio" data-q="balanced">Balanced<small>640 · 15 fps</small></button>
+          <button type="button" role="radio" data-q="sharp">Sharp<small>960 · 15 fps</small></button>
+        </div>
+      </div>
+
+      <div class="setup-only">
+        <div class="token-ok hidden" id="token-ok">
+          <svg class="ic sm"><use href="#i-check"/></svg>Phone token saved
+          <button type="button" class="text-btn" id="btn-change-token">Change</button>
+        </div>
+        <label class="field" id="token-field">Phone token
+          <input id="token" type="password" autocomplete="off" placeholder="Ask the dashboard owner">
+        </label>
+      </div>
+
+      <p class="status-line" id="status-line" role="status"></p>
+
+      <div class="setup-only record-wrap">
+        <button type="button" class="record" id="btn-start" aria-label="Start streaming" {% if not enabled %}disabled{% endif %}><span></span></button>
+        <span class="record-label">Start streaming</span>
+      </div>
+      <button type="button" class="btn settings-only" id="btn-done">Done</button>
+    </section>
+
+    <!-- controls while streaming -->
+    <section class="live-bar hidden" id="live-bar">
+      <dl class="live-stats">
+        <div><dd class="mono" id="st-fps">–</dd><dt>frames/s</dt></div>
+        <div><dd class="mono" id="st-rtt">–</dd><dt>round trip</dt></div>
+        <div><dd class="mono" id="st-size">–</dd><dt>per frame</dt></div>
+      </dl>
+      <div class="live-buttons">
+        <button type="button" class="round-btn big" id="btn-settings" aria-label="Quality settings"><svg class="ic"><use href="#i-sliders"/></svg></button>
+        <button type="button" class="record stop" id="btn-stop" aria-label="Stop streaming"><span></span></button>
+        <button type="button" class="round-btn big" id="btn-flip" aria-label="Flip camera"><svg class="ic"><use href="#i-flip"/></svg></button>
+      </div>
+      <span class="hint">Keep this screen open · the phone won't lock while streaming</span>
+    </section>
+  </div>
+
+  <script>window.PHONE_ENABLED = {{ enabled | tojson }};</script>
   <script src="{{ url_for('static', filename='phone.js') }}"></script>
 </body>
 </html>

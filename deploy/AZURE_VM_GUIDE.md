@@ -82,7 +82,8 @@ sudo docker compose restart dashboard   # restart the app (e.g. after editing co
 sudo docker compose down                # stop everything
 sudo docker compose up -d               # start again (no rebuild)
 ```
-Logs are also in `logs/app.log`, the event database is `data/events.db`.
+Logs are also in `logs/app.log`, the event database is `data/events.db` and alert pictures
+are in `data/snapshots/` (the newest 500 are kept).
 The containers restart by themselves after a crash or a VM reboot.
 
 ## 3. Updating to a newer version of the code

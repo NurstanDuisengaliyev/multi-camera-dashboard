@@ -18,6 +18,7 @@ import os
 import time
 
 from flask import Flask
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from app.analytics.people import PeopleDetector
 from app.cameras.manager import CameraManager
@@ -54,6 +55,9 @@ def create_app():
     app = Flask(__name__)
     app.config.update(SETTINGS=settings, CAMERAS=cameras, EVENTS=events,
                       STARTED_AT=time.time(), MAX_CONTENT_LENGTH=MAX_UPLOAD_BYTES)
+    # Behind Caddy: trust its X-Forwarded-Proto/Host headers, so links the app builds
+    # (the phone QR code) use https:// and the public name. Port 8000 is not public.
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
     app.register_blueprint(dashboard.bp)
     app.register_blueprint(phone.bp)
     auth.protect_with_password(app, settings["dashboard_user"], settings["dashboard_password"])

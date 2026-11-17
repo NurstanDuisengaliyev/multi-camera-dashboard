@@ -61,7 +61,7 @@ class CameraManager:
         return worker if worker is not None and worker.is_phone else None
 
     # ---------- phone cameras ----------
-    def add_phone(self, name, wanted_id=None):
+    def add_phone(self, name, wanted_id=None, device="Phone"):
         """Create a camera for a phone and return its worker.
         A phone that streamed before sends its old id back, so it keeps the same camera
         (same color on the charts, same name in the event log)."""
@@ -69,6 +69,7 @@ class CameraManager:
             existing = self.workers.get(wanted_id)
             if existing is not None and existing.is_phone:
                 existing.cam_name = name
+                existing.device = device
                 return existing
             if sum(w.is_phone for w in self.workers.values()) >= self.max_phones:
                 raise TooManyPhones("At most %d phones can stream at the same time" % self.max_phones)
@@ -77,6 +78,7 @@ class CameraManager:
             timeout_s = self.analytics.get("offline_after_s", 5)
             worker = CameraWorker(cam, self.analytics, self.detector, self.events,
                                   new_source=lambda: PhoneSource(cam_id, self.inbox, timeout_s))
+            worker.device = device
             self.workers[cam_id] = worker  # registered inside the lock: no duplicate ids
         worker.start()
         log.info("phone camera %s (%s) added", cam_id, name)
@@ -93,8 +95,14 @@ class CameraManager:
         log.info("phone camera %s (%s) removed", cam_id, worker.cam_name)
         return True
 
-    def receive_frame(self, cam_id, jpeg):
+    def phone_count(self):
+        return sum(w.is_phone for w in self.all())
+
+    def receive_frame(self, cam_id, jpeg, rtt_ms=None):
         self.inbox.put(cam_id, jpeg)
+        worker = self.get(cam_id)
+        if worker is not None and rtt_ms is not None:
+            worker.phone_rtt_ms = rtt_ms
 
     # ---------- internals ----------
     def _start_worker(self, worker):
