@@ -93,14 +93,18 @@ class CameraWorker(threading.Thread):
         self.created_at = time.monotonic()
 
         # --- state used only inside this thread ---
-        self.people_boxes = []
+        self.people_boxes = []         # written by the detection thread, read by the frame loop
         self.last_detect = 0.0
+        self.detect_frame = None       # frame waiting for people detection
+        self.detect_wakeup = threading.Event()
         self.last_history = 0.0
         self.online = None             # None = not known yet, True/False after that
 
     # ================= main loop (runs inside the thread) =================
     def run(self):
         self.log.info("worker started, source=%s", self.source_label)
+        if self.detector is not None:
+            threading.Thread(target=self._detect_loop, name=self.cam_id + "-yolo", daemon=True).start()
         while not self.stop_event.is_set():
             source = self.new_source()
             if not source.open():
@@ -122,6 +126,21 @@ class CameraWorker(threading.Thread):
             self.stop_event.wait(source.retry_delay_s)
         self.log.info("worker stopped")
 
+    def _detect_loop(self):
+        """Second thread of this camera: runs YOLO on the newest frame it was given.
+        If YOLO is busy with other cameras, this thread waits, not the video."""
+        while not self.stop_event.is_set():
+            if not self.detect_wakeup.wait(timeout=1.0):
+                continue
+            self.detect_wakeup.clear()
+            frame, self.detect_frame = self.detect_frame, None
+            if frame is None:
+                continue
+            t = time.perf_counter()
+            boxes = self.detector.detect(frame)
+            self._timing("people", t)
+            self.people_boxes = boxes  # replacing the whole list at once is thread-safe
+
     def _process(self, frame):
         frame = self._resize(frame)
         now = time.monotonic()
@@ -136,13 +155,15 @@ class CameraWorker(threading.Thread):
         brightness, sharpness = measure(frame)
         self._timing("quality", t)
 
-        # 3) People: YOLO is expensive, so only every `detect_interval_s` seconds.
-        #    Between detections we keep showing the last boxes.
+        # 3) People: YOLO is expensive, so only every `detect_interval_s` seconds, and NOT in
+        #    this loop: the frame goes to this camera's detection thread (_detect_loop). All
+        #    cameras share one YOLO model that serves one camera at a time; if we waited for
+        #    it here, the video would freeze whenever another camera is being analyzed.
+        #    Until a new result arrives we keep showing the last boxes.
         if self.detector is not None and now - self.last_detect >= self.detect_interval_s:
-            t = time.perf_counter()
-            self.people_boxes = self.detector.detect(frame)
-            self._timing("people", t)
             self.last_detect = now
+            self.detect_frame = frame      # always the newest frame; an older one is skipped
+            self.detect_wakeup.set()
         people = len(self.people_boxes)
 
         # 4) Alerts: each condition must hold for a moment before it fires.
