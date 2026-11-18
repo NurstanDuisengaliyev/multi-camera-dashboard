@@ -14,7 +14,7 @@ analytics:
   # People (YOLOv8n)
   model: yolov8n.pt
   person_confidence: 0.4     # keep detections the model is at least 40% sure about
-  detect_interval_s: 0.5     # run people detection twice per second per camera
+  detect_interval_s: 1.0     # people detection once per second per camera (0.5 overloads a 2-vCPU VM with 5 cameras)
 
   # Tampering (image quality)
   dark_threshold: 40         # average brightness below this = covered / too dark (normal: 104-148)

@@ -14,6 +14,13 @@
 	# Browsers don't say which site they want when the address is an IP; this tells Caddy
 	# which certificate to use then. (Only needed for IPs; harmless for domain names.)
 	default_sni {$SITE_ADDRESS}
+
+	# HTTP/1.1 only. Safari does not play MJPEG video (<img> streams) over HTTP/2 or HTTP/3:
+	# the picture stays broken. dashboard.js knows HTTP/1.1 allows only ~6 connections per
+	# site, so it streams video to 4 tiles and shows refreshing still pictures in the others.
+	servers {
+		protocols h1
+	}
 }
 
 {$SITE_ADDRESS} {

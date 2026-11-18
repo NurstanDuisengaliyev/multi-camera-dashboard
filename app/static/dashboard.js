@@ -497,12 +497,17 @@ document.addEventListener("keydown", (ev) => {
 let phonesBeforeDialog = null;  // phone camera ids that existed when the dialog opened
 let phoneLink = "";
 
+// The link + QR code never change while the server runs, so they are loaded once when the
+// page opens: the dialog then appears instantly instead of waiting for a round trip to the server.
+let phoneInfo = null;
+const phoneInfoReady = getJSON("/api/phone-link").then((info) => (phoneInfo = info)).catch(() => null);
+
 async function openPhoneDialog() {
   const dialog = $("#phone-dialog");
   phonesBeforeDialog = new Set(state.cameras.filter((c) => c.kind === "phone").map((c) => c.id));
   setQrStatus(false);
   try {
-    const info = await getJSON("/api/phone-link");
+    const info = phoneInfo || (await phoneInfoReady) || (await getJSON("/api/phone-link"));
     $("#dialog-off").classList.toggle("hidden", info.enabled);
     $("#dialog-on").classList.toggle("hidden", !info.enabled);
     $("#qr-status").classList.toggle("hidden", !info.enabled);

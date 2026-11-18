@@ -25,7 +25,9 @@ COLUMNS = ("id", "ts", "time", "camera_id", "camera_name", "type", "message", "v
 class EventStore:
     def __init__(self, db_path="data/events.db", cooldown_s=30):
         os.makedirs(os.path.dirname(db_path) or ".", exist_ok=True)
-        self.snapshot_dir = os.path.join(os.path.dirname(db_path) or ".", "snapshots")
+        # Absolute path: Flask's send_file() treats relative paths as relative to the app's
+        # code folder, not the working directory, so a relative path would always give 404.
+        self.snapshot_dir = os.path.abspath(os.path.join(os.path.dirname(db_path) or ".", "snapshots"))
         os.makedirs(self.snapshot_dir, exist_ok=True)
         # check_same_thread=False: all camera threads share this connection; the lock keeps it safe.
         self.db = sqlite3.connect(db_path, check_same_thread=False)
