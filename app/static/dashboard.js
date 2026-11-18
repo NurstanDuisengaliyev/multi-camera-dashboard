@@ -2,7 +2,8 @@
 //   /api/cameras  every second  -> camera cards (added/removed as phones come and go), header
 //   /api/events   every 3 s     -> alerts panel
 //   /api/history  every 3 s     -> sparklines and charts
-// The videos are plain <img> tags showing MJPEG streams; the boxes are drawn by the server,
+// The videos are <img> tags fed by playStream(), which reads the MJPEG streams with fetch();
+// the boxes are drawn by the server,
 // everything written on top of the video (LIVE, people, alerts) is HTML from this file.
 
 const POLL_STATS_MS = 1000;
@@ -26,9 +27,80 @@ const snapshotUrl = (id) => `/snapshot/${encodeURIComponent(id)}.jpg?t=${Date.no
 // (stats, alerts) could load. So there, only MAX_STREAMS tiles stream video and the others
 // show still pictures refreshed several times a second. Through Caddy (HTTPS + HTTP/2) all
 // requests share one connection, so every tile streams.
-const HTTP2 = ["h2", "h3"].includes(performance.getEntriesByType("navigation")[0]?.nextHopProtocol);
+// (Safari doesn't report nextHopProtocol, so HTTPS counts as "behind Caddy" too.)
+const HTTP2 = location.protocol === "https:" ||
+  ["h2", "h3"].includes(performance.getEntriesByType("navigation")[0]?.nextHopProtocol);
 const MAX_STREAMS = HTTP2 ? Infinity : 4;
 const STILL_REFRESH_MS = 250;
+
+// ---- Video: the MJPEG stream is read with fetch() instead of <img src="/video/...">.
+// Two reasons: (1) Safari can't show MJPEG in an <img> over HTTP/2; (2) when an <img> gets a
+// new src, Safari does NOT close the old stream, so every switch leaked a connection until
+// the page froze. With fetch + AbortController we close a stream exactly when we want.
+// Each "part" the server sends is "--frame / headers / Content-Length: N / blank line / N bytes
+// of JPEG" (see mjpeg_stream() in app/web/dashboard.py); we cut out the JPEG and show it.
+const liveStreams = new WeakMap();  // <img> -> AbortController of its running stream
+const CRLFCRLF = [13, 10, 13, 10];
+const ascii = new TextDecoder("ascii");
+
+function indexOfSeq(buf, seq, from = 0) {
+  outer: for (let i = from; i <= buf.length - seq.length; i++) {
+    for (let j = 0; j < seq.length; j++) if (buf[i + j] !== seq[j]) continue outer;
+    return i;
+  }
+  return -1;
+}
+
+function stopStream(img) {
+  liveStreams.get(img)?.abort();
+  liveStreams.delete(img);
+}
+
+function playStream(img, id) {
+  stopStream(img);
+  const ctrl = new AbortController();
+  liveStreams.set(img, ctrl);
+  let shownUrl = null;
+  const show = (jpeg) => {  // newest frame wins; the previous picture's memory is freed
+    const url = URL.createObjectURL(new Blob([jpeg], { type: "image/jpeg" }));
+    img.src = url;
+    if (shownUrl) URL.revokeObjectURL(shownUrl);
+    shownUrl = url;
+  };
+  (async () => {
+    while (!ctrl.signal.aborted) {
+      try {
+        const res = await fetch(videoUrl(id), { signal: ctrl.signal, cache: "no-store" });
+        if (!res.ok || !res.body) throw new Error(`video ${res.status}`);
+        const reader = res.body.getReader();
+        let buf = new Uint8Array(0);
+        for (;;) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          const joined = new Uint8Array(buf.length + value.length);
+          joined.set(buf); joined.set(value, buf.length); buf = joined;
+          let latest = null;
+          for (;;) {  // cut out every complete JPEG in the buffer, keep only the newest
+            const end = indexOfSeq(buf, CRLFCRLF);
+            if (end < 0) break;
+            const m = /Content-Length:\s*(\d+)/i.exec(ascii.decode(buf.subarray(0, end)));
+            const start = end + 4;
+            if (!m) { buf = buf.subarray(start); continue; }
+            const len = Number(m[1]);
+            if (buf.length < start + len) break;  // the rest of this JPEG hasn't arrived yet
+            latest = buf.slice(start, start + len);
+            buf = buf.subarray(start + len);
+          }
+          if (latest) show(latest);
+        }
+      } catch (e) {
+        if (ctrl.signal.aborted) break;
+      }
+      await new Promise((r) => setTimeout(r, 2000));  // stream ended (e.g. server restart): retry
+    }
+    if (shownUrl) URL.revokeObjectURL(shownUrl);
+  })();
+}
 
 // Set innerHTML only when it changed: no flicker, and hover states survive the 1 s refresh.
 function setHtml(el, html) {
@@ -93,9 +165,10 @@ function startFeeds() {
     const img = $(".feed", card);
     const mode = streams < MAX_STREAMS ? "video" : "still";
     if (mode === "video") streams++;
-    if (img.dataset.mode === mode && img.getAttribute("src")) continue;
+    if (img.dataset.mode === mode && (mode === "video" ? liveStreams.has(img) : img.getAttribute("src"))) continue;
     img.dataset.mode = mode;
-    img.src = mode === "video" ? videoUrl(id) : snapshotUrl(id);
+    if (mode === "video") playStream(img, id);
+    else { stopStream(img); img.src = snapshotUrl(id); }
   }
 }
 
@@ -115,7 +188,8 @@ function removeCard(id) {  // (startFeeds() runs after removals, see syncCards)
   const { card } = cards.get(id);
   cards.delete(id);
   const img = $(".feed", card);
-  img.removeAttribute("src");  // closes the video stream
+  stopStream(img);
+  img.removeAttribute("src");
   img.dataset.mode = "";
   card.classList.add("leaving");
   setTimeout(() => card.remove(), 300);
@@ -373,6 +447,7 @@ function pauseGrid(paused) {
   if (!paused) { startFeeds(); return; }
   for (const { card } of cards.values()) {  // no video streams while the grid is hidden
     const img = $(".feed", card);
+    stopStream(img);
     img.removeAttribute("src");
     img.dataset.mode = "";
   }
@@ -384,7 +459,7 @@ function openSpotlight(id) {
   if (!switching) pauseGrid(true);
   $("#overview").classList.add("hidden");
   $("#spotlight").classList.remove("hidden");
-  $("#spot-img").src = videoUrl(id);
+  playStream($("#spot-img"), id);
   $("#spot-save").href = `/snapshot/${encodeURIComponent(id)}.jpg?download=1`;
   renderSpotlight();
   renderSpotlightChart();
@@ -396,6 +471,7 @@ function openSpotlight(id) {
 function closeSpotlight() {
   if (!state.spotlight) return;
   state.spotlight = null;
+  stopStream($("#spot-img"));
   $("#spot-img").removeAttribute("src");
   $("#spotlight").classList.add("hidden");
   $("#overview").classList.remove("hidden");

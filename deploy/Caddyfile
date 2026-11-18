@@ -15,11 +15,13 @@
 	# which certificate to use then. (Only needed for IPs; harmless for domain names.)
 	default_sni {$SITE_ADDRESS}
 
-	# HTTP/1.1 only. Safari does not play MJPEG video (<img> streams) over HTTP/2 or HTTP/3:
-	# the picture stays broken. dashboard.js knows HTTP/1.1 allows only ~6 connections per
-	# site, so it streams video to 4 tiles and shows refreshing still pictures in the others.
+	# HTTP/1.1 and HTTP/2 (no HTTP/3: the Azure firewall only opens TCP, HTTP/3 needs UDP).
+	# HTTP/2 puts all requests on ONE connection, so the 6-connections-per-site limit of
+	# HTTP/1.1 doesn't apply and every camera tile can stream video at once. dashboard.js
+	# reads the MJPEG streams with fetch(), which works in Safari over HTTP/2 (an <img>
+	# pointed at the stream does not).
 	servers {
-		protocols h1
+		protocols h1 h2
 	}
 }
 
