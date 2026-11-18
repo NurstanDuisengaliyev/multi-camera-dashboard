@@ -61,7 +61,8 @@ class CameraWorker(threading.Thread):
         self.resize_width = a.get("resize_width", 640)
         self.offline_after_s = a.get("offline_after_s", 5)
         self.motion_threshold = a.get("motion_threshold", 0.02)
-        self.detect_interval_s = a.get("detect_interval_s", 0.5)
+        self.people_idle_s = a.get("people_idle_s", 5)          # no motion this long -> skip YOLO
+        self.people_refresh_s = a.get("people_refresh_s", 30)   # ...but re-check at least this often
         self.dark_threshold = a.get("dark_threshold", 40)
         self.blur_threshold = a.get("blur_threshold", 8)
         hold = a.get("alert_hold_s", 1.5)
@@ -95,16 +96,13 @@ class CameraWorker(threading.Thread):
         # --- state used only inside this thread ---
         self.people_boxes = []         # written by the detection thread, read by the frame loop
         self.last_detect = 0.0
-        self.detect_frame = None       # frame waiting for people detection
-        self.detect_wakeup = threading.Event()
+        self.last_motion = time.monotonic()  # "moving" at start, so the first seconds are analyzed
         self.last_history = 0.0
         self.online = None             # None = not known yet, True/False after that
 
     # ================= main loop (runs inside the thread) =================
     def run(self):
         self.log.info("worker started, source=%s", self.source_label)
-        if self.detector is not None:
-            threading.Thread(target=self._detect_loop, name=self.cam_id + "-yolo", daemon=True).start()
         while not self.stop_event.is_set():
             source = self.new_source()
             if not source.open():
@@ -126,20 +124,12 @@ class CameraWorker(threading.Thread):
             self.stop_event.wait(source.retry_delay_s)
         self.log.info("worker stopped")
 
-    def _detect_loop(self):
-        """Second thread of this camera: runs YOLO on the newest frame it was given.
-        If YOLO is busy with other cameras, this thread waits, not the video."""
-        while not self.stop_event.is_set():
-            if not self.detect_wakeup.wait(timeout=1.0):
-                continue
-            self.detect_wakeup.clear()
-            frame, self.detect_frame = self.detect_frame, None
-            if frame is None:
-                continue
-            t = time.perf_counter()
-            boxes = self.detector.detect(frame)
-            self._timing("people", t)
-            self.people_boxes = boxes  # replacing the whole list at once is thread-safe
+    def _on_people(self, boxes, ms):
+        """Called by the shared detection thread (app/analytics/people.py) with our result."""
+        self.people_boxes = boxes  # replacing the whole list at once is thread-safe
+        self.last_detect = time.monotonic()
+        self.timing_ms["people"] = round(0.9 * self.timing_ms["people"] + 0.1 * ms, 1) \
+            if self.timing_ms["people"] else round(ms, 1)
 
     def _process(self, frame):
         frame = self._resize(frame)
@@ -155,15 +145,22 @@ class CameraWorker(threading.Thread):
         brightness, sharpness = measure(frame)
         self._timing("quality", t)
 
-        # 3) People: YOLO is expensive, so only every `detect_interval_s` seconds, and NOT in
-        #    this loop: the frame goes to this camera's detection thread (_detect_loop). All
-        #    cameras share one YOLO model that serves one camera at a time; if we waited for
-        #    it here, the video would freeze whenever another camera is being analyzed.
+        # 3) People: YOLO is expensive, so
+        #    - once per `detect_interval_s` seconds (all cameras together, see people.py),
+        #    - only while something moves: with no motion for `people_idle_s` seconds nobody
+        #      came or left, so the last count is still right (re-checked every
+        #      `people_refresh_s` seconds anyway, e.g. for people standing very still),
+        #    - and NOT in this loop: the frame is handed to the shared detection thread, which
+        #      analyzes the newest frames of all cameras in one batch. The video never waits.
         #    Until a new result arrives we keep showing the last boxes.
-        if self.detector is not None and now - self.last_detect >= self.detect_interval_s:
-            self.last_detect = now
-            self.detect_frame = frame      # always the newest frame; an older one is skipped
-            self.detect_wakeup.set()
+        if motion_boxes:
+            self.last_motion = now
+        if self.detector is not None:
+            moving = now - self.last_motion <= self.people_idle_s
+            if moving or now - self.last_detect >= self.people_refresh_s:
+                # Only replaces our waiting frame; the detection thread decides when it runs
+                # (once per detect_interval_s, all cameras in one batch).
+                self.detector.request(self.cam_id, frame, self._on_people)
         people = len(self.people_boxes)
 
         # 4) Alerts: each condition must hold for a moment before it fires.
@@ -268,6 +265,8 @@ class CameraWorker(threading.Thread):
     # ================= used by other threads =================
     def stop(self):
         self.stop_event.set()
+        if self.detector is not None:
+            self.detector.cancel(self.cam_id)  # don't analyze a frame of a removed camera
 
     @property
     def stopped(self):

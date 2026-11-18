@@ -45,7 +45,8 @@ def create_app():
     # 1) Shared services, then the cameras.
     events = EventStore(os.environ.get("DATABASE", config.get("database", "data/events.db")),
                         cooldown_s=a.get("alert_cooldown_s", 30))
-    detector = PeopleDetector(a.get("model", "yolov8n.pt"), a.get("person_confidence", 0.4))
+    detector = PeopleDetector(a.get("model", "yolov8n.pt"), a.get("person_confidence", 0.4),
+                              a.get("detect_imgsz", 640), a.get("detect_interval_s", 1.0))
     cameras = CameraManager(config, detector, events)
     cameras.start()
     events.add("system", "System", "system_start",

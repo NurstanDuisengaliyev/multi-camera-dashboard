@@ -14,7 +14,10 @@ analytics:
   # People (YOLOv8n)
   model: yolov8n.pt
   person_confidence: 0.4     # keep detections the model is at least 40% sure about
-  detect_interval_s: 1.0     # people detection once per second per camera (0.5 overloads a 2-vCPU VM with 5 cameras)
+  detect_interval_s: 1.0     # people detection at most once per second per camera
+  detect_imgsz: 480          # YOLO input size (640 = default). 480 is ~1.5x faster, same counts on our videos
+  people_idle_s: 5           # no motion for this long -> skip YOLO, keep the last count (saves CPU)
+  people_refresh_s: 30       # ...but check again at least this often (people standing very still)
 
   # Tampering (image quality)
   dark_threshold: 40         # average brightness below this = covered / too dark (normal: 104-148)

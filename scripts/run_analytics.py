@@ -61,7 +61,8 @@ def main():
     if os.path.exists(db_path):
         os.remove(db_path)
     events = EventStore(db_path, cooldown_s=a["alert_cooldown_s"])
-    detector = PeopleDetector(a["model"], a["person_confidence"])
+    detector = PeopleDetector(a["model"], a["person_confidence"], a.get("detect_imgsz", 640),
+                              a.get("detect_interval_s", 1.0))
 
     cameras = config["cameras"] + [
         {"id": "tamper", "name": "Tamper test", "source": TAMPER_VIDEO, "crowd_limit": 10},
