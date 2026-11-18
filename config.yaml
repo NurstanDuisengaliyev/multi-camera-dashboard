@@ -38,6 +38,7 @@ cameras:
     name: "Pedestrian Street"
     source: videos/pedestrians.avi
     crowd_limit: 6
+    speed: 0.6               # this clip looks too fast at its own 10 fps: play at 6 fps (1.0 = normal)
   - id: cam2
     name: "Office Room"
     source: videos/people-detection.mp4

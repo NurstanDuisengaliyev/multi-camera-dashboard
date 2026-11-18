@@ -22,9 +22,10 @@ class FileSource:
 
     retry_delay_s = 2
 
-    def __init__(self, path, max_fps=None):
+    def __init__(self, path, max_fps=None, speed=1.0):
         self.path = path
         self.max_fps = max_fps
+        self.speed = speed  # 1.0 = the file's own frame rate; 0.7 = 30% slower (see config.yaml)
         self.cap = None
         self.fps = 25.0
         self.skip = 1
@@ -34,8 +35,9 @@ class FileSource:
         self.cap = cv2.VideoCapture(self.path)
         if not self.cap.isOpened():
             return False
-        # Use the file's own frame rate so playback looks like real time.
-        file_fps = self.cap.get(cv2.CAP_PROP_FPS) or 25.0
+        # Use the file's own frame rate so playback looks like real time. Some clips were
+        # recorded with frames left out and look too fast at that rate: `speed` corrects it.
+        file_fps = (self.cap.get(cv2.CAP_PROP_FPS) or 25.0) * self.speed
         # A 60 fps video with max_fps=15 -> use every 4th frame. Monitoring doesn't need
         # 60 fps, and every frame we skip saves analytics CPU time.
         if self.max_fps and file_fps > self.max_fps:

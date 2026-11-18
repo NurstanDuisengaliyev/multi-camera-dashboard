@@ -56,7 +56,8 @@ class CameraWorker(threading.Thread):
         self.is_phone = new_source is not None
         self.source_label = "phone" if self.is_phone else cam_config["source"]
         self.max_fps = a.get("max_fps", 15)
-        self.new_source = new_source or (lambda: FileSource(cam_config["source"], self.max_fps))
+        speed = cam_config.get("speed", 1.0)
+        self.new_source = new_source or (lambda: FileSource(cam_config["source"], self.max_fps, speed))
 
         self.resize_width = a.get("resize_width", 640)
         self.offline_after_s = a.get("offline_after_s", 5)
