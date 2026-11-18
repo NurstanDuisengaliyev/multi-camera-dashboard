@@ -1,0 +1,3 @@
+NAME                 IMAGE                COMMAND                  SERVICE     CREATED          STATUS                    PORTS
+multicam-caddy       caddy:2.10           "caddy run --config …"   caddy       49 seconds ago   Up 48 seconds             0.0.0.0:80->80/tcp, [::]:80->80/tcp, 0.0.0.0:443->443/tcp, [::]:443->443/tcp, 443/udp, 2019/tcp
+multicam-dashboard   multicam-dashboard   "gunicorn --bind 0.0…"   dashboard   55 seconds ago   Up 48 seconds (healthy)   127.0.0.1:8000->8000/tcp

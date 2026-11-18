@@ -1,0 +1,3 @@
+CONTAINER ID   NAME                 CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O       PIDS
+32dd9c764433   multicam-caddy       0.00%     12.63MiB / 7.698GiB   0.16%     86kB / 105kB      0B / 69.6kB     9
+7664856bab56   multicam-dashboard   142.10%   486.9MiB / 7.698GiB   6.18%     22.6kB / 28.8kB   4.1kB / 393kB   14

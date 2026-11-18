@@ -1,0 +1,45 @@
+multicam-caddy  | {"level":"info","ts":1795026345.340965,"msg":"maxprocs: Leaving GOMAXPROCS=2: CPU quota undefined"}
+multicam-caddy  | {"level":"info","ts":1795026345.3414748,"msg":"GOMEMLIMIT is updated","package":"github.com/KimMachineGun/automemlimit/memlimit","GOMEMLIMIT":7438852915,"previous":9223372036854775807}
+multicam-caddy  | {"level":"info","ts":1795026345.3416069,"msg":"using config from file","file":"/etc/caddy/Caddyfile"}
+multicam-caddy  | {"level":"info","ts":1795026345.4136536,"msg":"adapted config to JSON","adapter":"caddyfile"}
+multicam-caddy  | {"level":"warn","ts":1795026345.4140558,"msg":"Caddyfile input is not formatted; run 'caddy fmt --overwrite' to fix inconsistencies","adapter":"caddyfile","file":"/etc/caddy/Caddyfile","line":12}
+multicam-caddy  | {"level":"info","ts":1795026345.4158423,"logger":"admin","msg":"admin endpoint started","address":"localhost:2019","enforce_origin":false,"origins":["//localhost:2019","//[::1]:2019","//127.0.0.1:2019"]}
+multicam-caddy  | {"level":"info","ts":1795026345.416304,"logger":"http.auto_https","msg":"enabling automatic HTTP->HTTPS redirects","server_name":"srv0"}
+multicam-caddy  | {"level":"info","ts":1795026345.416499,"logger":"tls.cache.maintenance","msg":"started background certificate maintenance","cache":"0xc000413c80"}
+multicam-caddy  | {"level":"warn","ts":1795026345.4171627,"logger":"http","msg":"HTTP/2 skipped because it requires TLS","network":"tcp","addr":":80"}
+multicam-caddy  | {"level":"warn","ts":1795026345.4173138,"logger":"http","msg":"HTTP/3 skipped because it requires TLS","network":"tcp","addr":":80"}
+multicam-caddy  | {"level":"info","ts":1795026345.417428,"logger":"http.log","msg":"server running","name":"remaining_auto_https_redirects","protocols":["h1","h2","h3"]}
+multicam-caddy  | {"level":"info","ts":1795026345.4176068,"logger":"http","msg":"enabling HTTP/3 listener","addr":":443"}
+multicam-caddy  | {"level":"info","ts":1795026345.4178786,"msg":"failed to sufficiently increase receive buffer size (was: 1024 kiB, wanted: 7168 kiB, got: 2048 kiB). See https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes for details."}
+multicam-caddy  | {"level":"info","ts":1795026345.4181523,"logger":"http.log","msg":"server running","name":"srv0","protocols":["h1","h2","h3"]}
+multicam-caddy  | {"level":"info","ts":1795026345.4183123,"logger":"http","msg":"enabling automatic TLS certificate management","domains":["20-197-25-248.sslip.io"]}
+multicam-caddy  | {"level":"info","ts":1795026345.4189415,"msg":"autosaved config (load with --resume flag)","file":"/config/caddy/autosave.json"}
+multicam-caddy  | {"level":"info","ts":1795026345.4190428,"msg":"serving initial configuration"}
+multicam-caddy  | {"level":"info","ts":1795026345.426446,"logger":"tls.obtain","msg":"acquiring lock","identifier":"20-197-25-248.sslip.io"}
+multicam-caddy  | {"level":"info","ts":1795026345.4329526,"logger":"tls","msg":"cleaning storage unit","storage":"FileStorage:/data/caddy"}
+multicam-caddy  | {"level":"info","ts":1795026345.4352245,"logger":"tls.obtain","msg":"lock acquired","identifier":"20-197-25-248.sslip.io"}
+multicam-caddy  | {"level":"info","ts":1795026345.4355621,"logger":"tls.obtain","msg":"obtaining certificate","identifier":"20-197-25-248.sslip.io"}
+multicam-caddy  | {"level":"info","ts":1795026345.4364827,"logger":"http","msg":"creating new account because no account for configured email is known to us","email":"","ca":"https://acme-v02.api.letsencrypt.org/directory","error":"open /data/caddy/acme/acme-v02.api.letsencrypt.org-directory/users/default/default.json: no such file or directory"}
+multicam-caddy  | {"level":"info","ts":1795026345.4365387,"logger":"http","msg":"ACME account has empty status; registering account with ACME server","contact":[],"location":""}
+multicam-caddy  | {"level":"info","ts":1795026345.44023,"logger":"tls","msg":"finished cleaning storage units"}
+multicam-caddy  | {"level":"info","ts":1795026345.4443684,"logger":"http","msg":"creating new account because no account for configured email is known to us","email":"","ca":"https://acme-v02.api.letsencrypt.org/directory","error":"open /data/caddy/acme/acme-v02.api.letsencrypt.org-directory/users/default/default.json: no such file or directory"}
+multicam-caddy  | {"level":"info","ts":1795026346.807392,"logger":"http","msg":"new ACME account registered","contact":[],"status":"valid"}
+multicam-caddy  | {"level":"info","ts":1795026346.820599,"logger":"http","msg":"waiting on internal rate limiter","identifiers":["20-197-25-248.sslip.io"],"ca":"https://acme-v02.api.letsencrypt.org/directory","account":""}
+multicam-caddy  | {"level":"info","ts":1795026346.8208852,"logger":"http","msg":"done waiting on internal rate limiter","identifiers":["20-197-25-248.sslip.io"],"ca":"https://acme-v02.api.letsencrypt.org/directory","account":""}
+multicam-caddy  | {"level":"info","ts":1795026346.821082,"logger":"http","msg":"using ACME account","account_id":"https://acme-v02.api.letsencrypt.org/acme/acct/4014532462","account_contact":[]}
+multicam-caddy  | {"level":"info","ts":1795026347.3588827,"msg":"trying to solve challenge","identifier":"20-197-25-248.sslip.io","challenge_type":"tls-alpn-01","ca":"https://acme-v02.api.letsencrypt.org/directory"}
+multicam-caddy  | {"level":"info","ts":1795026347.8716006,"logger":"tls","msg":"served key authentication certificate","server_name":"20-197-25-248.sslip.io","challenge":"tls-alpn-01","remote":"23.178.112.210:62951","distributed":false}
+multicam-caddy  | {"level":"info","ts":1795026348.1696362,"logger":"tls","msg":"served key authentication certificate","server_name":"20-197-25-248.sslip.io","challenge":"tls-alpn-01","remote":"52.77.253.72:39588","distributed":false}
+multicam-caddy  | {"level":"info","ts":1795026348.3195863,"logger":"tls","msg":"served key authentication certificate","server_name":"20-197-25-248.sslip.io","challenge":"tls-alpn-01","remote":"52.11.200.97:17300","distributed":false}
+multicam-caddy  | {"level":"info","ts":1795026348.3669913,"logger":"tls","msg":"served key authentication certificate","server_name":"20-197-25-248.sslip.io","challenge":"tls-alpn-01","remote":"18.117.164.12:56712","distributed":false}
+multicam-caddy  | {"level":"info","ts":1795026348.4749289,"logger":"tls","msg":"served key authentication certificate","server_name":"20-197-25-248.sslip.io","challenge":"tls-alpn-01","remote":"13.53.190.254:53712","distributed":false}
+multicam-caddy  | {"level":"info","ts":1795026348.527915,"logger":"tls","msg":"served key authentication certificate","server_name":"20-197-25-248.sslip.io","challenge":"tls-alpn-01","remote":"13.247.179.116:25784","distributed":false}
+multicam-caddy  | {"level":"info","ts":1795026348.6930716,"logger":"tls","msg":"served key authentication certificate","server_name":"20-197-25-248.sslip.io","challenge":"tls-alpn-01","remote":"56.125.99.254:23836","distributed":false}
+multicam-caddy  | {"level":"info","ts":1795026349.773674,"msg":"authorization finalized","identifier":"20-197-25-248.sslip.io","authz_status":"valid"}
+multicam-caddy  | {"level":"info","ts":1795026349.7737184,"msg":"validations succeeded; finalizing order","order":"https://acme-v02.api.letsencrypt.org/acme/order/4014532462/584019469532"}
+multicam-caddy  | {"level":"info","ts":1795026350.9453576,"msg":"got renewal info","names":["20-197-25-248.sslip.io"],"window_start":1800130283,"window_end":1800285733,"selected_time":1800250173,"recheck_after":1795047822.9453475,"explanation_url":""}
+multicam-caddy  | {"level":"info","ts":1795026351.4711041,"msg":"got renewal info","names":["20-197-25-248.sslip.io"],"window_start":1800130283,"window_end":1800285733,"selected_time":1800197763,"recheck_after":1795045433.4710946,"explanation_url":""}
+multicam-caddy  | {"level":"info","ts":1795026352.0245512,"msg":"got renewal info","names":["20-197-25-248.sslip.io"],"window_start":1800130283,"window_end":1800285733,"selected_time":1800162528,"recheck_after":1795046390.0245414,"explanation_url":""}
+multicam-caddy  | {"level":"info","ts":1795026352.0246155,"msg":"successfully downloaded available certificate chains","count":3,"first_url":"https://acme-v02.api.letsencrypt.org/acme/cert/069d42c77482ce408970fd077df19b45539e"}
+multicam-caddy  | {"level":"info","ts":1795026352.035107,"logger":"tls.obtain","msg":"certificate obtained successfully","identifier":"20-197-25-248.sslip.io","issuer":"acme-v02.api.letsencrypt.org-directory"}
+multicam-caddy  | {"level":"info","ts":1795026352.0354712,"logger":"tls.obtain","msg":"releasing lock","identifier":"20-197-25-248.sslip.io"}

@@ -1,0 +1,45 @@
+multicam-dashboard  | [2026-11-18 18:25:45 +0000] [1] [INFO] Starting gunicorn 23.0.0
+multicam-dashboard  | [2026-11-18 18:25:45 +0000] [1] [INFO] Listening at: http://0.0.0.0:8000 (1)
+multicam-dashboard  | [2026-11-18 18:25:45 +0000] [1] [INFO] Using worker: gthread
+multicam-dashboard  | [2026-11-18 18:25:45 +0000] [7] [INFO] Booting worker with pid: 7
+multicam-dashboard  | 2026-11-18 18:25:47,255 INFO    [cam1] worker started, source=videos/pedestrians.avi
+multicam-dashboard  | 2026-11-18 18:25:47,256 INFO    [cam2] worker started, source=videos/people-detection.mp4
+multicam-dashboard  | 2026-11-18 18:25:47,256 INFO    [cam3] worker started, source=videos/store-aisle-detection.mp4
+multicam-dashboard  | 2026-11-18 18:25:47,257 INFO    [cam4] worker started, source=videos/face-demographics-walking.mp4
+multicam-dashboard  | 2026-11-18 18:25:47,258 INFO    [cameras] started 4 video cameras: cam1, cam2, cam3, cam4
+multicam-dashboard  | 2026-11-18 18:25:47,259 INFO    [cam1] source opened (10.0 fps)
+multicam-dashboard  | 2026-11-18 18:25:47,268 INFO    [cam2] source opened (12.0 fps)
+multicam-dashboard  | 2026-11-18 18:25:47,272 WARNING [events] [system] system_start: Monitoring started with 4 cameras
+multicam-dashboard  | 2026-11-18 18:25:47,284 INFO    [cam3] source opened (15.0 fps)
+multicam-dashboard  | 2026-11-18 18:25:47,294 INFO    [cam4] source opened (12.0 fps)
+multicam-dashboard  | 2026-11-18 18:25:47,351 INFO    [cam3] camera online (receiving frames)
+multicam-dashboard  | 2026-11-18 18:25:47,351 INFO    [cam2] camera online (receiving frames)
+multicam-dashboard  | 2026-11-18 18:25:47,359 INFO    [cam1] camera online (receiving frames)
+multicam-dashboard  | 2026-11-18 18:25:47,379 INFO    [cam4] camera online (receiving frames)
+multicam-dashboard  | 172.18.0.1 - - [18/Nov/2026:18:25:50 +0000] "GET /health HTTP/1.1" 200 66 "-" "curl/8.5.0"
+multicam-dashboard  | 127.0.0.1 - - [18/Nov/2026:18:25:50 +0000] "GET /health HTTP/1.1" 200 66 "-" "Python-urllib/3.12"
+multicam-dashboard  | 45.148.10.165 - - [18/Nov/2026:18:25:54 +0000] "GET / HTTP/1.1" 401 14 "-" "Go-http-client/1.1"
+multicam-dashboard  | 2026-11-18 18:25:55,060 WARNING [events] [cam4] motion: Motion detected (5.3% of image)
+multicam-dashboard  | 20.197.25.248 - - [18/Nov/2026:18:25:55 +0000] "GET /health HTTP/1.1" 200 66 "-" "curl/8.5.0"
+multicam-dashboard  | 2026-11-18 18:25:57,111 WARNING [events] [cam1] motion: Motion detected (2.0% of image)
+multicam-dashboard  | 2026-11-18 18:25:57,666 WARNING [events] [cam3] motion: Motion detected (6.9% of image)
+multicam-dashboard  | 91.218.50.21 - - [18/Nov/2026:18:25:58 +0000] "GET / HTTP/1.1" 401 14 "-" "Mozilla/5.0 (compatible; OusanBot/1.0; +https://ousan.io/bot)"
+multicam-dashboard  | 91.218.50.21 - - [18/Nov/2026:18:25:59 +0000] "GET /favicon.ico HTTP/1.1" 401 14 "-" "Mozilla/5.0 (compatible; OusanBot/1.0; +https://ousan.io/bot)"
+multicam-dashboard  | 185.48.148.185 - - [18/Nov/2026:18:25:59 +0000] "GET / HTTP/1.1" 401 14 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Safari/605.1.15"
+multicam-dashboard  | 185.48.148.185 - - [18/Nov/2026:18:26:00 +0000] "GET / HTTP/1.1" 401 14 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Safari/605.1.15"
+multicam-dashboard  | 185.48.148.185 - - [18/Nov/2026:18:26:00 +0000] "GET / HTTP/1.1" 401 14 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Safari/605.1.15"
+multicam-dashboard  | 2026-11-18 18:26:03,271 WARNING [events] [cam1] crowd: Crowd: 8 people (limit 6)
+multicam-dashboard  | 2026-11-18 18:26:06,476 WARNING [events] [cam2] motion: Motion detected (10.5% of image)
+multicam-dashboard  | 57.129.136.57 - - [18/Nov/2026:18:26:07 +0000] "GET / HTTP/1.1" 401 14 "http://20-197-25-248.sslip.io/" "-"
+multicam-dashboard  | 185.48.148.185 - - [18/Nov/2026:18:26:10 +0000] "GET /health HTTP/1.1" 200 67 "-" "curl/8.7.1"
+multicam-dashboard  | 185.48.148.185 - - [18/Nov/2026:18:26:10 +0000] "GET / HTTP/1.1" 401 14 "-" "curl/8.7.1"
+multicam-dashboard  | 185.48.148.185 - - [18/Nov/2026:18:26:11 +0000] "GET /api/cameras HTTP/1.1" 401 14 "-" "curl/8.7.1"
+multicam-dashboard  | 185.48.148.185 - - [18/Nov/2026:18:26:12 +0000] "GET /video/cam1 HTTP/1.1" 401 14 "-" "curl/8.7.1"
+multicam-dashboard  | 185.48.148.185 - - [18/Nov/2026:18:26:13 +0000] "GET /phone HTTP/1.1" 200 5811 "-" "curl/8.7.1"
+multicam-dashboard  | 127.0.0.1 - - [18/Nov/2026:18:26:21 +0000] "GET /health HTTP/1.1" 200 67 "-" "Python-urllib/3.12"
+multicam-dashboard  | 2026-11-18 18:26:22,521 WARNING [events] [cam2] crowd: Crowd: 3 people (limit 2)
+multicam-dashboard  | 2026-11-18 18:26:27,130 WARNING [events] [cam3] crowd: Crowd: 5 people (limit 4)
+multicam-dashboard  | 2026-11-18 18:26:27,272 WARNING [events] [cam1] motion: Motion detected (2.6% of image)
+multicam-dashboard  | 2026-11-18 18:26:27,908 WARNING [events] [cam3] motion: Motion detected (12.7% of image)
+multicam-dashboard  | 2026-11-18 18:26:30,544 WARNING [events] [cam4] motion: Motion detected (5.9% of image)
+multicam-dashboard  | 2026-11-18 18:26:30,799 WARNING [events] [cam4] crowd: Crowd: 3 people (limit 2)
