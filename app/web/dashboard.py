@@ -77,8 +77,13 @@ def index():
 def video(cam_id):
     s = current_app.config["SETTINGS"]
     worker = current_app.config["CAMERAS"].get(cam_id) or abort(404)
+    # ?raw=1 (used by dashboard.js, which reads the stream with fetch()): same bytes, but sent
+    # as plain binary. With the multipart type, Safari splits the stream into parts itself and
+    # hides the part headers from JavaScript, so the page could not find where a JPEG ends.
+    raw = request.args.get("raw") == "1"
     return Response(mjpeg_stream(worker, s["stream_fps"], s["jpeg_quality"]),
-                    mimetype="multipart/x-mixed-replace; boundary=frame")
+                    mimetype="application/octet-stream" if raw else "multipart/x-mixed-replace; boundary=frame",
+                    headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
 
 
 @bp.route("/snapshot/<cam_id>.jpg")

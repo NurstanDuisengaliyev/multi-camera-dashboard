@@ -70,7 +70,7 @@ function playStream(img, id) {
   (async () => {
     while (!ctrl.signal.aborted) {
       try {
-        const res = await fetch(videoUrl(id), { signal: ctrl.signal, cache: "no-store" });
+        const res = await fetch(`${videoUrl(id)}?raw=1`, { signal: ctrl.signal, cache: "no-store" });
         if (!res.ok || !res.body) throw new Error(`video ${res.status}`);
         const reader = res.body.getReader();
         let buf = new Uint8Array(0);
