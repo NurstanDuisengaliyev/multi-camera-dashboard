@@ -17,6 +17,7 @@ Environment variables:
 import os
 import time
 
+import cv2
 from flask import Flask
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -30,6 +31,10 @@ MAX_UPLOAD_BYTES = 2 * 1024 * 1024  # one phone frame is ~20-300 KB; refuse anyt
 
 
 def create_app():
+    # Each camera already has its own thread. If OpenCV ALSO splits every operation over all
+    # cores, its helper threads mostly wait for each other on a 2-vCPU VM (measured: ~0.25
+    # cores wasted with 4 cameras). One OpenCV thread per camera thread is enough.
+    cv2.setNumThreads(1)
     setup_logging("app.log")
     config = load_config()
     a = config["analytics"]
