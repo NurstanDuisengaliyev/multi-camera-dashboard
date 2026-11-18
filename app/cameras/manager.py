@@ -40,6 +40,8 @@ class CameraManager:
         self.inbox = FrameInbox()  # phone uploads land here, phone workers read from here
         self.workers = {}          # cam_id -> CameraWorker (in the order they were added)
         self.lock = threading.Lock()
+        self.newest_seq = {}       # cam_id -> capture time of the newest phone frame received
+        self.seq_lock = threading.Lock()
 
     def start(self):
         for cam in self.file_cameras:
@@ -98,7 +100,14 @@ class CameraManager:
     def phone_count(self):
         return sum(w.is_phone for w in self.all())
 
-    def receive_frame(self, cam_id, jpeg, rtt_ms=None):
+    def receive_frame(self, cam_id, jpeg, rtt_ms=None, seq=None):
+        # The phone uploads several frames at once, so an older one can arrive after a newer
+        # one. seq = capture time on the phone: drop late frames so video never goes backwards.
+        if seq is not None:
+            with self.seq_lock:
+                if seq <= self.newest_seq.get(cam_id, -1):
+                    return
+                self.newest_seq[cam_id] = seq
         self.inbox.put(cam_id, jpeg)
         worker = self.get(cam_id)
         if worker is not None and rtt_ms is not None:

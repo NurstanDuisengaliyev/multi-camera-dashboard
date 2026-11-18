@@ -2,7 +2,8 @@
 
   /phone                         page that opens the phone camera and uploads frames (static/phone.js)
   POST /api/phone/start          {"name": "Front door", "camera_id": optional old id} -> {"camera_id": ...}
-  POST /api/phone/<id>/frame     body = one JPEG image (+ header X-Phone-RTT: last round trip in ms)
+  POST /api/phone/<id>/frame     body = one JPEG image (+ headers X-Phone-RTT: last round trip in ms,
+                                 X-Phone-Seq: capture time, so frames that arrive late are dropped)
   POST /api/phone/<id>/stop      the phone tapped "Stop": remove its camera
 
 Every API call needs the header  X-Phone-Token: <PHONE_TOKEN>.
@@ -71,7 +72,8 @@ def frame(cam_id):
         return jsonify({"error": "Body must be a JPEG image"}), 400
     # The phone reports how long its previous upload took (shown as connection quality).
     rtt = request.headers.get("X-Phone-RTT", type=int)
-    cameras.receive_frame(cam_id, jpeg, rtt)
+    seq = request.headers.get("X-Phone-Seq", type=int)  # capture time, to drop late frames
+    cameras.receive_frame(cam_id, jpeg, rtt, seq)
     return jsonify({"ok": True})
 
 

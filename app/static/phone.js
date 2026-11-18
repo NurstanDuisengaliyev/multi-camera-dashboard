@@ -2,8 +2,12 @@
 //   1. Start: POST /api/phone/start {name}  -> the server creates a camera and returns its id
 //   2. Loop:  draw the current video frame on a canvas -> JPEG -> POST /api/phone/<id>/frame
 //   3. Stop:  POST /api/phone/<id>/stop     -> the camera disappears from the dashboard
-// The next frame is sent only after the server answered the previous one, so a slow
-// network lowers the FPS instead of building up delay (the dashboard always shows "now").
+// Up to MAX_IN_FLIGHT frames are on the way at the same time. With only one, the FPS could
+// never be higher than 1 / round trip: phone -> cloud VM and back takes ~300 ms on mobile data,
+// which gave only ~3 fps. If the network can't keep up, new frames are skipped (never queued),
+// so the delay stays low. Each frame carries its capture time (X-Phone-Seq): a frame that
+// arrives after a newer one is dropped by the server, so the picture never jumps backwards.
+const MAX_IN_FLIGHT = 3;
 
 const $ = (id) => document.getElementById(id);
 const video = $("preview");
@@ -48,8 +52,8 @@ class ServerError extends Error {
   constructor(status, message) { super(message); this.status = status; }
 }
 
-async function api(path, body, contentType = "application/json") {
-  const headers = { "Content-Type": contentType, "X-Phone-Token": $("token").value.trim() };
+async function api(path, body, contentType = "application/json", extraHeaders = {}) {
+  const headers = { "Content-Type": contentType, "X-Phone-Token": $("token").value.trim(), ...extraHeaders };
   if (lastRtt !== null) headers["X-Phone-RTT"] = String(lastRtt);
   const res = await fetch(path, {
     method: "POST", headers, cache: "no-store",
@@ -106,27 +110,42 @@ function grabJpeg() {
 }
 
 // ---------------- sending loop ----------------
+let inFlight = 0;           // uploads that haven't been answered yet
+let pausedUntil = 0;        // after an error: wait a moment before sending again
+let registering = null;     // a running re-register, so parallel uploads don't all start one
+
 async function sendLoop() {
   while (running) {
     const started = performance.now();
-    try {
+    if (inFlight < MAX_IN_FLIGHT && started >= pausedUntil) {
+      const seq = Date.now();  // capture time: always increases, even after a page reload
       const jpeg = await grabJpeg();
-      if (jpeg) {
-        const t0 = performance.now();
-        await api(`/api/phone/${cameraId}/frame`, jpeg, "image/jpeg");
-        lastRtt = Math.round(performance.now() - t0);
-        showStats(jpeg);
-        toast("");
-      }
-    } catch (e) {
-      if (e.status === 404) {
-        // The server forgot this camera (restart, or we were silent too long): register again.
-        try { await register(); } catch (e2) { await handleError(e2); }
-      } else {
-        await handleError(e);
-      }
+      if (jpeg) sendFrame(jpeg, seq);  // not awaited: the next frame can go out meanwhile
     }
     await sleep(Math.max(0, 1000 / QUALITY[quality].fps - (performance.now() - started)));
+  }
+}
+
+async function sendFrame(jpeg, seq) {
+  inFlight++;
+  const t0 = performance.now();
+  try {
+    await api(`/api/phone/${cameraId}/frame`, jpeg, "image/jpeg", { "X-Phone-Seq": String(seq) });
+    lastRtt = Math.round(performance.now() - t0);
+    showStats(jpeg);
+    toast("");
+  } catch (e) {
+    if (!running) return;
+    pausedUntil = performance.now() + 1000;
+    if (e.status === 404) {
+      // The server forgot this camera (restart, or we were silent too long): register again.
+      registering = registering || register().catch(handleError).finally(() => { registering = null; });
+      await registering;
+    } else {
+      await handleError(e);
+    }
+  } finally {
+    inFlight--;
   }
 }
 

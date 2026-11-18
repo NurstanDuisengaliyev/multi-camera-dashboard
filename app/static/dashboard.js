@@ -84,9 +84,12 @@ function addCard(cam) {
 }
 
 // Give each tile a video stream, or a refreshing still picture once MAX_STREAMS are in use.
+// Phones get the video slots first: a live phone is what people watch, the files just loop.
 function startFeeds() {
   let streams = 0;
-  for (const [id, { card }] of cards) {
+  const isPhone = (id) => (state.cameras.find((c) => c.id === id)?.kind === "phone" ? 1 : 0);
+  const ordered = [...cards].sort(([a], [b]) => isPhone(b) - isPhone(a));
+  for (const [id, { card }] of ordered) {
     const img = $(".feed", card);
     const mode = streams < MAX_STREAMS ? "video" : "still";
     if (mode === "video") streams++;
@@ -469,14 +472,33 @@ function renderSpotlightEvents() {
 }
 
 // Small previews of the other cameras (still pictures refreshed every 3 s, not video streams).
+// The buttons are built once (rebuilt only when cameras come or go). A new picture is loaded
+// in the background and swapped in when it is complete, so the previews never flash empty.
 function renderStrip() {
   const strip = $("#spot-strip");
-  const stamp = Math.floor(Date.now() / POLL_SLOW_MS);
-  strip.innerHTML = state.cameras.map((c) => {
-    const bad = c.status === "offline" || (c.status === "online" && isTamper(c));
-    const img = c.status === "online" ? `<img src="/snapshot/${encodeURIComponent(c.id)}.jpg?t=${stamp}" alt="">` : "";
-    return `<button type="button" data-id="${escapeHtml(c.id)}" class="${c.id === state.spotlight ? "current" : ""} ${bad ? "bad" : ""}" aria-label="Show ${escapeHtml(c.name)}">${img}<span>${escapeHtml(c.name)}</span></button>`;
-  }).join("");
+  const key = state.cameras.map((c) => c.id).join(",");
+  if (strip.dataset.key !== key) {
+    strip.dataset.key = key;
+    strip.innerHTML = state.cameras.map((c) =>
+      `<button type="button" data-id="${escapeHtml(c.id)}" aria-label="Show ${escapeHtml(c.name)}"><img alt=""><span>${escapeHtml(c.name)}</span></button>`
+    ).join("");
+  }
+  const stamp = String(Math.floor(Date.now() / POLL_SLOW_MS));
+  for (const c of state.cameras) {
+    const btn = strip.querySelector(`button[data-id="${CSS.escape(c.id)}"]`);
+    if (!btn) continue;
+    const online = c.status === "online";
+    btn.classList.toggle("current", c.id === state.spotlight);
+    btn.classList.toggle("bad", c.status === "offline" || (online && isTamper(c)));
+    $("img", btn).style.visibility = online ? "" : "hidden";
+    if (online && btn.dataset.stamp !== stamp) {
+      btn.dataset.stamp = stamp;
+      const next = new Image();
+      next.alt = "";
+      next.onload = () => $("img", btn)?.replaceWith(next);
+      next.src = `/snapshot/${encodeURIComponent(c.id)}.jpg?t=${stamp}`;
+    }
+  }
 }
 
 $("#spot-strip").addEventListener("click", (ev) => {
