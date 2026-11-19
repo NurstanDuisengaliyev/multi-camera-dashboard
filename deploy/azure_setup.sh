@@ -71,8 +71,12 @@ else
 fi
 SITE_ADDRESS=$(grep '^SITE_ADDRESS=' .env | cut -d= -f2-)
 
-step "4) Build the image and start the containers (dashboard + caddy)"
+step "4) Build the image and start the containers (dashboard + mediamtx + caddy)"
 sudo docker compose up -d --build
+# The Caddyfile is mounted as a single file. `git pull` replaces it with a NEW file, and a
+# running container keeps seeing the old one: recreate Caddy so it reads the current file.
+# (A few seconds without HTTPS; the certificate is kept in the caddy-data volume.)
+sudo docker compose up -d --force-recreate caddy
 sudo docker images multicam-dashboard
 
 step "5) Wait until the app answers /health"

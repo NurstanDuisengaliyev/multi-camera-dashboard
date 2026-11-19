@@ -1,0 +1,19 @@
+# Step 11: WebRTC test from the laptop against the Azure VM (Austria East)
+# Client: aiortc (Python WebRTC), the same WHEP/WHIP requests as dashboard.js / phone.js
+WebRTC test, laptop -> Azure VM (Austria East), 2026-11-19 22:18:16
+1) Dashboard viewers (WHEP), all 4 cameras at the same time, 10 s:
+   cam1:  6.1 fps, 640x480, first picture after 1.47 s, gap p90 217 ms
+   cam2: 12.1 fps, 640x360, first picture after 2.03 s, gap p90 136 ms
+   cam3: 14.8 fps, 640x358, first picture after 2.09 s, gap p90 124 ms
+   cam4: 12.2 fps, 640x360, first picture after 2.14 s, gap p90 139 ms
+2) Simulated phone (WHIP, 15 fps) -> server analytics -> viewer (WHEP):
+   phone-8220dc: server sees the phone after 3.6 s, analyzes 16 fps (motion 2.0 ms/frame), people 0
+   viewer: 15.1 fps, 640x360, gap p90 108 ms
+   delay phone camera -> screen: median 247 ms, p90 392 ms (145 frames)
+
+3) Server while 4 WebRTC viewers watch (measured on the VM):
+   VM upload: 1671 kbit/s for all 4 cameras (JPEG frames needed ~10000 kbit/s)
+   CPU: 77% idle; each ffmpeg H.264 encoder 1.7-4.0% CPU; mediamtx 2%
+
+Before (JPEG frames, logs/step9_frame_pull_test.log + phone simulation):
+   cameras 9-11 fps, gap p90 250-330 ms; phone 7-10 fps shown, delay 230-290 ms
