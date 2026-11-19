@@ -1,8 +1,8 @@
 """Dashboard pages and data.
 
   /                              dashboard page (HTML; cameras are drawn by static/dashboard.js)
-  /frame/<cam_id>?after=N        the next frame (JPEG) newer than frame N: dashboard.js asks for
-                                 frame after frame, which gives the live video in the dashboard
+  /frame/<cam_id>?viewer=V       the next frame (JPEG) this viewer hasn't got yet: dashboard.js
+                                 asks for frame after frame, which gives the live video
   /video/<cam_id>                live MJPEG stream of one camera (for opening a camera directly)
   /snapshot/<cam_id>.jpg         the current picture of one camera (?download=1: as a file)
   /api/cameras                   JSON: stats of all cameras + summary (tells the page which cameras exist)
@@ -14,6 +14,7 @@
   /health                        JSON: is the service alive? (Docker health check, no password)
 """
 import io
+import threading
 import time
 from functools import lru_cache
 
@@ -25,6 +26,12 @@ from flask import (Blueprint, Response, abort, current_app, jsonify, render_temp
                    send_file)
 
 bp = Blueprint("dashboard", __name__)
+
+# Which frame each open video tile got last: (viewer id, camera worker) -> frame number.
+# A tile keeps a few requests open at once (see playStream() in dashboard.js); this makes
+# sure each request gets a DIFFERENT, newer frame instead of all of them the same one.
+sent_to_viewer = {}
+sent_lock = threading.Lock()
 
 
 @lru_cache(maxsize=64)  # same arguments -> same picture: draw it once, not on every request
@@ -83,21 +90,30 @@ def index():
 @bp.route("/frame/<cam_id>")
 def frame(cam_id):
     """The live video of the dashboard, one frame per request.
-    The browser asks for the next frame only after the previous one has arrived, so at most
-    ONE frame per camera is on its way. With a pushed stream (/video) the server keeps sending
-    even when the viewer's connection is slower than the video: the frames pile up in network
-    buffers and the picture falls seconds behind. Here a slow connection only lowers the FPS,
-    the picture you see is always the newest one."""
+    Why not a pushed stream (/video)? It keeps sending even when the viewer's connection is
+    slower than the video: frames pile up in network buffers and the picture falls seconds
+    behind. Here the browser has only a few requests open per camera (dashboard.js), so at
+    most that many frames are on the way: a slow connection lowers the FPS, never adds delay.
+    Each request waits (max 2 s) for a frame this viewer hasn't received yet."""
     s = current_app.config["SETTINGS"]
     worker = current_app.config["CAMERAS"].get(cam_id) or abort(404)
-    after = request.args.get("after", 0, type=int)  # number of the frame the browser already has
     if worker.get_stats()["status"] != "online":
         jpeg, frame_no = placeholder_for(worker), 0  # 0 = "placeholder, ask again in a second"
     else:
-        # Wait until the camera has a newer frame (at most 2 s), then send it at once.
-        jpeg, frame_no = worker.wait_jpeg(after, 2.0, s["jpeg_quality"])
-        if jpeg is None or frame_no <= after:
-            return "", 204  # nothing new yet: the browser simply asks again
+        key = (request.args.get("viewer", ""), id(worker))
+        deadline = time.monotonic() + 2.0
+        while True:
+            with sent_lock:
+                after = sent_to_viewer.get(key, 0)
+            jpeg, frame_no = worker.wait_jpeg(after, deadline - time.monotonic(), s["jpeg_quality"])
+            if jpeg is None or frame_no <= after:
+                return "", 204  # nothing new within 2 s: the browser simply asks again
+            with sent_lock:
+                if frame_no > sent_to_viewer.get(key, 0):  # not taken by a parallel request
+                    if len(sent_to_viewer) > 2000:
+                        sent_to_viewer.clear()  # old viewers (closed tabs): just start over
+                    sent_to_viewer[key] = frame_no
+                    break
     return Response(jpeg, mimetype="image/jpeg",
                     headers={"Cache-Control": "no-store", "X-Frame-No": str(frame_no),
                              "X-Stream-Fps": str(s["stream_fps"])})

@@ -19,7 +19,7 @@ const fmtTime = (ms, seconds = true) => new Date(ms).toLocaleTimeString([], {
 const escapeHtml = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const icon = (name, cls = "ic") => `<svg class="${cls}"><use href="#i-${name}"/></svg>`;
-const frameUrl = (id, after) => `/frame/${encodeURIComponent(id)}?after=${after}`;
+const frameUrl = (id, viewer) => `/frame/${encodeURIComponent(id)}?viewer=${viewer}`;
 const snapshotUrl = (id) => `/snapshot/${encodeURIComponent(id)}.jpg?t=${Date.now()}`;
 
 // Over HTTP/1.1 (e.g. http://localhost:8000) a browser opens at most 6 connections to one
@@ -33,13 +33,15 @@ const HTTP2 = location.protocol === "https:" ||
 const MAX_STREAMS = HTTP2 ? Infinity : 4;
 const STILL_REFRESH_MS = 250;
 
-// ---- Video: a loop per <img> that asks the server for the next frame as soon as the previous
-// one has arrived (see frame() in app/web/dashboard.py). Only one frame per camera is on the
-// way at any time, so frames can't pile up in the network when the connection is slow: the
-// FPS drops a little instead, and the picture stays live (well under a second behind).
-// (A pushed MJPEG stream fell seconds behind on a slow link.) An AbortController stops the
-// loop exactly when a tile or the spotlight closes.
-const liveStreams = new WeakMap();  // <img> -> AbortController of its running loop
+// ---- Video: each <img> has IN_FLIGHT request loops; each loop asks the server for the next
+// frame and, once it has arrived, asks again (see frame() in app/web/dashboard.py).
+// Why several? The VM is ~220 ms away: with one request at a time we'd get only ~4 fps.
+// Why not a pushed stream? It falls seconds behind when the connection is slower than the
+// video, because frames pile up in network buffers. Here at most IN_FLIGHT frames per camera
+// are on the way: a slow connection lowers the FPS, but the picture stays live.
+// An AbortController stops all loops of a tile at once when it (or the spotlight) closes.
+const IN_FLIGHT = HTTP2 ? 4 : 1;  // HTTP/1.1 (localhost): few connections, but no distance either
+const liveStreams = new WeakMap();  // <img> -> AbortController of its running loops
 const sleep = (ms) => new Promise((r) => setTimeout(r, Math.max(0, ms)));
 
 function stopStream(img) {
@@ -51,35 +53,44 @@ function playStream(img, id) {
   stopStream(img);
   const ctrl = new AbortController();
   liveStreams.set(img, ctrl);
+  const viewer = Math.random().toString(36).slice(2);  // the server tracks what we already got
+  let shownNo = -1;     // number of the frame on screen (frames can arrive out of order)
   let shownUrl = null;
-  let after = 0;  // number of the frame we are showing; the server answers with a newer one
-  (async () => {
+
+  const show = (jpeg, no) => {
+    if (no !== 0 && no <= shownNo) return;  // an older frame overtaken by a newer one: skip
+    const url = URL.createObjectURL(jpeg);
+    img.src = url;
+    if (shownUrl) URL.revokeObjectURL(shownUrl);  // free the previous picture
+    shownUrl = url;
+    shownNo = no;
+  };
+
+  const loop = async (startDelay) => {
+    await sleep(startDelay);  // spread the loops out, so frames arrive evenly
     while (!ctrl.signal.aborted) {
       const started = performance.now();
       let pause = 2000;  // after an error (e.g. server restart): try again in 2 s
       try {
-        const res = await fetch(frameUrl(id, after), { signal: ctrl.signal, cache: "no-store" });
+        const res = await fetch(frameUrl(id, viewer), { signal: ctrl.signal, cache: "no-store" });
         if (res.status === 204) {
           pause = 0;  // no new frame within 2 s: just ask again
         } else if (res.ok) {
-          const jpeg = await res.blob();
-          const url = URL.createObjectURL(jpeg);
-          img.src = url;
-          if (shownUrl) URL.revokeObjectURL(shownUrl);  // free the previous picture
-          shownUrl = url;
-          after = Number(res.headers.get("X-Frame-No")) || 0;
-          // 0 = "NO SIGNAL" picture: check again in a second. Otherwise: at most stream_fps
-          // frames per second (config.yaml), which keeps cloud traffic in check.
+          const no = Number(res.headers.get("X-Frame-No")) || 0;
+          show(await res.blob(), no);
+          // 0 = "NO SIGNAL" picture: check again in a second. Otherwise all loops together
+          // fetch at most stream_fps frames per second (config.yaml): limits cloud traffic.
           const fps = Number(res.headers.get("X-Stream-Fps")) || 15;
-          pause = after === 0 ? 1000 : 1000 / fps - (performance.now() - started);
+          pause = no === 0 ? 1000 : IN_FLIGHT * 1000 / fps - (performance.now() - started);
         }
       } catch (e) {
         if (ctrl.signal.aborted) break;
       }
       await sleep(pause);
     }
-    if (shownUrl) URL.revokeObjectURL(shownUrl);
-  })();
+  };
+  for (let i = 0; i < IN_FLIGHT; i++) loop(i * 1000 / 15);
+  ctrl.signal.addEventListener("abort", () => { if (shownUrl) URL.revokeObjectURL(shownUrl); });
 }
 
 // Set innerHTML only when it changed: no flicker, and hover states survive the 1 s refresh.
