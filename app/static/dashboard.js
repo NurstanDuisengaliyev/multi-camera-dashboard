@@ -42,7 +42,9 @@ const STILL_REFRESH_MS = 250;
 //     (local run without MediaMTX, a network that blocks it) and while a camera is offline
 //     (the server's "NO SIGNAL" picture). WebRTC is tried again every RTC_RETRY_MS.
 // stopStream(img) stops both. An AbortController per <img> ends everything at once.
-const RTC_RETRY_MS = 4000;
+// { jpeg: false }: no JPEG fallback (the small previews under the spotlight: without WebRTC
+// they stay still pictures, refreshed by renderStrip(), so they don't eat the bandwidth).
+const RTC_RETRY_MS = 2000;   // e.g. a phone that just started: its video appears within ~2 s
 const RTC_CONNECT_MS = 8000;   // no picture within this time: use JPEG frames
 const RTC_STALL_MS = 4000;     // picture frozen this long (stream ended): reconnect
 const liveStreams = new WeakMap();  // <img> -> AbortController
@@ -64,11 +66,11 @@ function videoFor(img) {  // the <video> that sits on top of an <img>, created o
   return img._video;
 }
 
-function playStream(img, id) {
+function playStream(img, id, { jpeg: useJpeg = true } = {}) {
   stopStream(img);
   const ctrl = new AbortController();
   liveStreams.set(img, ctrl);
-  if (!window.WEBRTC) { playJpeg(img, id, ctrl.signal); return; }
+  if (!window.WEBRTC) { if (useJpeg) playJpeg(img, id, ctrl.signal); return; }
 
   const video = videoFor(img);
   const showVideo = (on) => { video.classList.toggle("hidden", !on); img.classList.toggle("hidden", on); };
@@ -85,7 +87,7 @@ function playStream(img, id) {
       } catch (e) { /* no WebRTC right now */ }
       if (ctrl.signal.aborted) break;
       showVideo(false);
-      if (!jpeg) {
+      if (!jpeg && useJpeg) {
         jpeg = new AbortController();
         ctrl.signal.addEventListener("abort", () => jpeg?.abort());
         playJpeg(img, id, jpeg.signal);
@@ -572,6 +574,7 @@ function closeSpotlight() {
   if (!state.spotlight) return;
   state.spotlight = null;
   stopStream($("#spot-img"));
+  stopStrip();
   $("#spot-img").removeAttribute("src");
   $("#spotlight").classList.add("hidden");
   $("#overview").classList.remove("hidden");
@@ -650,10 +653,14 @@ function renderSpotlightEvents() {
 // Small previews of the other cameras (still pictures refreshed every 3 s, not video streams).
 // The buttons are built once (rebuilt only when cameras come or go). A new picture is loaded
 // in the background and swapped in when it is complete, so the previews never flash empty.
+// Small previews of the other cameras under the spotlight: live WebRTC video (light: ~0.3-0.5
+// Mbit/s each, and the server compresses each camera only once however many watch).
+// Without WebRTC: still pictures refreshed every few seconds.
 function renderStrip() {
   const strip = $("#spot-strip");
   const key = state.cameras.map((c) => c.id).join(",");
   if (strip.dataset.key !== key) {
+    stopStrip();  // the old previews are about to be replaced
     strip.dataset.key = key;
     strip.innerHTML = state.cameras.map((c) =>
       `<button type="button" data-id="${escapeHtml(c.id)}" aria-label="Show ${escapeHtml(c.name)}"><img alt=""><span>${escapeHtml(c.name)}</span></button>`
@@ -663,18 +670,25 @@ function renderStrip() {
   for (const c of state.cameras) {
     const btn = strip.querySelector(`button[data-id="${CSS.escape(c.id)}"]`);
     if (!btn) continue;
+    const img = $("img", btn);
     const online = c.status === "online";
     btn.classList.toggle("current", c.id === state.spotlight);
     btn.classList.toggle("bad", c.status === "offline" || (online && isTamper(c)));
-    $("img", btn).style.visibility = online ? "" : "hidden";
-    if (online && btn.dataset.stamp !== stamp) {
+    img.style.visibility = online ? "" : "hidden";
+    // Live video for every online camera except the big one (it is already playing above).
+    const live = window.WEBRTC && state.spotlight && online && c.id !== state.spotlight;
+    if (live && !liveStreams.has(img)) playStream(img, c.id, { jpeg: false });
+    if (!live && liveStreams.has(img)) stopStream(img);
+    const playing = img._video && !img._video.classList.contains("hidden");
+    if (online && !playing && btn.dataset.stamp !== stamp) {  // still picture meanwhile
       btn.dataset.stamp = stamp;
-      const next = new Image();
-      next.alt = "";
-      next.onload = () => $("img", btn)?.replaceWith(next);
-      next.src = `/snapshot/${encodeURIComponent(c.id)}.jpg?t=${stamp}`;
+      img.src = `/snapshot/${encodeURIComponent(c.id)}.jpg?t=${stamp}`;
     }
   }
+}
+
+function stopStrip() {
+  document.querySelectorAll("#spot-strip img").forEach((img) => stopStream(img));
 }
 
 $("#spot-strip").addEventListener("click", (ev) => {

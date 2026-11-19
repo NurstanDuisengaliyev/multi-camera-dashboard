@@ -112,7 +112,11 @@ class RtspSource:
 
     def open(self):
         try:
-            self.container = av.open(self.url, timeout=(2.0, self.TIMEOUT_S), options={
+            # Open timeout 10 s: decoding can only start at the phone's next complete picture
+            # (keyframe), which can take 2-3 s. A short timeout gave up just before it and
+            # started waiting all over again (phones appeared only after 5-11 s). "No stream
+            # yet" (phone not connected) still fails at once, so this doesn't slow anything.
+            self.container = av.open(self.url, timeout=(10.0, self.TIMEOUT_S), options={
                 "rtsp_transport": "tcp",
                 "fflags": "nobuffer", "flags": "low_delay",          # no buffering
                 "analyzeduration": "500000", "probesize": "100000"})  # start within ~0.5 s
