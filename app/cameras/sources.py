@@ -11,15 +11,12 @@ Three kinds of source:
     RtspSource   a phone's WebRTC video, read from MediaMTX (which offers it as RTSP)
     PhoneSource  JPEG frames uploaded by a phone over HTTPS (fallback when WebRTC is not possible)
 """
-import os
 import threading
 import time
 
-# Read live RTSP streams with as little buffering as possible: always the newest frame.
-os.environ.setdefault("OPENCV_FFMPEG_CAPTURE_OPTIONS", "rtsp_transport;tcp|fflags;nobuffer|flags;low_delay")
-
-import cv2  # noqa: E402 (must come after the environment variable above)
-import numpy as np  # noqa: E402
+import av
+import cv2
+import numpy as np
 
 
 class FileSource:
@@ -84,28 +81,60 @@ class FileSource:
 
 class RtspSource:
     """A phone's WebRTC video. The phone sends it to MediaMTX (WHIP, see static/phone.js);
-    MediaMTX offers every stream as RTSP too, and OpenCV reads RTSP like a video file."""
+    MediaMTX offers every stream as RTSP too, and we decode it with PyAV (Python + ffmpeg).
+
+    Why not cv2.VideoCapture like the video files? WebRTC changes the resolution while
+    streaming (the phone sends a smaller picture when the connection gets worse, or it was
+    rotated). OpenCV can't handle that: it kept returning the last good picture forever
+    (a frozen image at 16 fps). PyAV decodes every frame at its own size.
+    """
 
     retry_delay_s = 1  # the phone may not be connected yet: try again soon
 
     def __init__(self, url):
         self.url = url
-        self.cap = None
-        self.fps = None  # decided by the phone
+        self.container = None
+        self.packets = None
+        self.size = None   # (width, height) we deliver; stays the same while streaming
+        self.fps = None    # decided by the phone
 
     def open(self):
-        self.cap = cv2.VideoCapture(self.url, cv2.CAP_FFMPEG, [
-            cv2.CAP_PROP_OPEN_TIMEOUT_MSEC, 2000,   # no stream yet -> fail fast, worker says "waiting"
-            cv2.CAP_PROP_READ_TIMEOUT_MSEC, 3000])  # phone stopped -> read() returns None
-        return self.cap.isOpened()
+        try:
+            self.container = av.open(self.url, timeout=(2.0, 3.0), options={
+                "rtsp_transport": "tcp",
+                "fflags": "nobuffer", "flags": "low_delay"})  # newest frame, no buffering
+        except (av.error.FFmpegError, OSError):
+            return False  # no stream yet (phone not connected): the worker says "waiting"
+        self.packets = self.container.demux(video=0)
+        return True
 
     def read(self):
-        ok, frame = self.cap.read()
-        return frame if ok else None
+        while True:
+            try:
+                packet = next(self.packets)
+            except (StopIteration, av.error.FFmpegError, OSError):
+                return None  # phone stopped (nothing for 3 s) or the stream ended
+            try:
+                frames = packet.decode()
+            except av.error.FFmpegError:
+                continue  # damaged by lost network packets: skip, the next one is fine
+            if frames:
+                return self._steady(frames[-1].to_ndarray(format="bgr24"))
+
+    def _steady(self, img):
+        """WebRTC lowered the resolution for a moment -> scale back to the size we started
+        with, so the picture (and everything after it: analytics, outgoing video) stays the
+        same size, like in a video call. A rotated phone really changes the size."""
+        h, w = img.shape[:2]
+        if self.size is None or (w > h) != (self.size[0] > self.size[1]):
+            self.size = (w, h)
+        elif (w, h) != self.size:
+            img = cv2.resize(img, self.size)
+        return img
 
     def close(self):
-        if self.cap is not None:
-            self.cap.release()
+        if self.container is not None:
+            self.container.close()
 
 
 class FrameInbox:
