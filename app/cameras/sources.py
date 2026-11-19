@@ -87,40 +87,72 @@ class RtspSource:
     streaming (the phone sends a smaller picture when the connection gets worse, or it was
     rotated). OpenCV can't handle that: it kept returning the last good picture forever
     (a frozen image at 16 fps). PyAV decodes every frame at its own size.
+
+    A background thread decodes everything as it arrives and keeps only the NEWEST frame
+    (like the FrameInbox below for JPEG uploads). If the analytics are slower than the phone
+    (busy server, several phones), older frames are skipped instead of piling up in the
+    network connection, where they made the video fall further and further behind.
     """
 
     retry_delay_s = 1  # the phone may not be connected yet: try again soon
     WIDTH = 640        # every frame is delivered this wide (see _steady)
+    TIMEOUT_S = 3      # no frame for this long: the phone stopped
 
     def __init__(self, url):
         self.url = url
         self.container = None
-        self.packets = None
         self.size = None   # (width, height) we deliver; stays the same while streaming
         self.fps = None    # decided by the phone
+        self.cond = threading.Condition()
+        self.newest = None  # newest decoded frame (PyAV VideoFrame), set by the thread
+        self.number = 0     # frames decoded so far
+        self.taken = 0      # number of the frame read() gave out last
+        self.alive = False
+        self.closing = False
 
     def open(self):
         try:
-            self.container = av.open(self.url, timeout=(2.0, 3.0), options={
+            self.container = av.open(self.url, timeout=(2.0, self.TIMEOUT_S), options={
                 "rtsp_transport": "tcp",
-                "fflags": "nobuffer", "flags": "low_delay"})  # newest frame, no buffering
+                "fflags": "nobuffer", "flags": "low_delay",          # no buffering
+                "analyzeduration": "500000", "probesize": "100000"})  # start within ~0.5 s
         except (av.error.FFmpegError, OSError):
             return False  # no stream yet (phone not connected): the worker says "waiting"
-        self.packets = self.container.demux(video=0)
+        self.container.streams.video[0].thread_type = "AUTO"  # decode with several CPU cores
+        self.alive = True
+        threading.Thread(target=self._receive, name="rtsp-" + self.url.rsplit("/", 1)[-1], daemon=True).start()
         return True
 
+    def _receive(self):
+        """Background thread: decode every packet (H.264 needs all of them), keep the newest frame."""
+        try:
+            for packet in self.container.demux(video=0):
+                if self.closing:
+                    break
+                try:
+                    frames = packet.decode()
+                except av.error.FFmpegError:
+                    continue  # damaged by lost network packets: skip, the next one is fine
+                if frames:
+                    with self.cond:
+                        self.newest = frames[-1]
+                        self.number += 1
+                        self.cond.notify_all()
+        except (av.error.FFmpegError, OSError):
+            pass  # nothing for TIMEOUT_S seconds, or the stream ended
+        finally:
+            self.container.close()  # closed by this thread: it is the only one using it
+            with self.cond:
+                self.alive = False
+                self.cond.notify_all()
+
     def read(self):
-        while True:
-            try:
-                packet = next(self.packets)
-            except (StopIteration, av.error.FFmpegError, OSError):
-                return None  # phone stopped (nothing for 3 s) or the stream ended
-            try:
-                frames = packet.decode()
-            except av.error.FFmpegError:
-                continue  # damaged by lost network packets: skip, the next one is fine
-            if frames:
-                return self._steady(frames[-1].to_ndarray(format="bgr24"))
+        with self.cond:
+            self.cond.wait_for(lambda: self.number > self.taken or not self.alive, self.TIMEOUT_S)
+            if self.number <= self.taken:
+                return None  # phone stopped
+            frame, self.taken = self.newest, self.number  # frames in between are skipped
+        return self._steady(frame.to_ndarray(format="bgr24"))
 
     def _steady(self, img):
         """Always deliver the SAME picture size, whatever WebRTC does: it starts with a small
@@ -137,8 +169,7 @@ class RtspSource:
         return img
 
     def close(self):
-        if self.container is not None:
-            self.container.close()
+        self.closing = True  # the thread stops after the next packet (or its timeout)
 
 
 class FrameInbox:

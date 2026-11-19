@@ -20,10 +20,12 @@ const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
 
 // width/jpeg: JPEG fallback. short (short side in px) / kbps: WebRTC video.
+// The server works with 640 px wide pictures (app/cameras/sources.py RtspSource.WIDTH), so more
+// than 640 px only costs upload and server CPU: "Sharp" gets more bits per pixel instead.
 const QUALITY = {
   saver: { width: 480, fps: 10, jpeg: 0.6, short: 480, kbps: 600 },
-  balanced: { width: 640, fps: 15, jpeg: 0.7, short: 720, kbps: 1500 },
-  sharp: { width: 960, fps: 20, jpeg: 0.8, short: 1080, kbps: 3000 },
+  balanced: { width: 640, fps: 15, jpeg: 0.7, short: 640, kbps: 1200 },
+  sharp: { width: 960, fps: 20, jpeg: 0.8, short: 640, kbps: 2500 },
 };
 
 let stream = null;          // MediaStream from the camera
