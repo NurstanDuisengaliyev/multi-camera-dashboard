@@ -90,6 +90,7 @@ class RtspSource:
     """
 
     retry_delay_s = 1  # the phone may not be connected yet: try again soon
+    WIDTH = 640        # every frame is delivered this wide (see _steady)
 
     def __init__(self, url):
         self.url = url
@@ -122,14 +123,17 @@ class RtspSource:
                 return self._steady(frames[-1].to_ndarray(format="bgr24"))
 
     def _steady(self, img):
-        """WebRTC lowered the resolution for a moment -> scale back to the size we started
-        with, so the picture (and everything after it: analytics, outgoing video) stays the
-        same size, like in a video call. A rotated phone really changes the size."""
+        """Always deliver the SAME picture size, whatever WebRTC does: it starts with a small
+        picture and raises the resolution once it has measured the connection, and lowers it
+        when the connection gets worse. So every frame is scaled to WIDTH px wide (what the
+        analytics use anyway, config.yaml resize_width); the height comes from the picture's
+        shape and only changes when the phone is rotated (portrait <-> landscape)."""
         h, w = img.shape[:2]
         if self.size is None or (w > h) != (self.size[0] > self.size[1]):
-            self.size = (w, h)
-        elif (w, h) != self.size:
-            img = cv2.resize(img, self.size)
+            height = int(round(self.WIDTH * h / w / 2)) * 2  # even: needed by the H.264 encoder
+            self.size = (self.WIDTH, height)
+        if (w, h) != self.size:
+            img = cv2.resize(img, self.size, interpolation=cv2.INTER_AREA if w > self.WIDTH else cv2.INTER_LINEAR)
         return img
 
     def close(self):
