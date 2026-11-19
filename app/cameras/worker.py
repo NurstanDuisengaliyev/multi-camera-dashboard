@@ -74,7 +74,9 @@ class CameraWorker(threading.Thread):
         self.conditions = {name: HeldCondition(hold) for name in ("motion", "crowd", "dark", "blurry")}
 
         self.log = logging.getLogger(self.cam_id)
-        self.lock = threading.Lock()   # protects the shared state below
+        # Protects the shared state below. A Condition is a lock that threads can also wait on:
+        # wait_jpeg() sleeps until _process() announces a new frame with notify_all().
+        self.lock = threading.Condition()
         self.stop_event = threading.Event()
 
         # --- state shared with other threads (read with get_* methods) ---
@@ -195,6 +197,7 @@ class CameraWorker(threading.Thread):
                 self.history.append({"t": round(time.time()), "people": people,
                                      "motion_pct": round(motion_ratio * 100, 1)})
                 self.last_history = now
+            self.lock.notify_all()  # wake up browsers waiting for the next frame (wait_jpeg)
 
     def _send_alerts(self, alerts, people, motion_ratio, brightness, sharpness, annotated):
         if self.events is None:
@@ -266,6 +269,8 @@ class CameraWorker(threading.Thread):
     # ================= used by other threads =================
     def stop(self):
         self.stop_event.set()
+        with self.lock:
+            self.lock.notify_all()  # browsers waiting in wait_jpeg() get their answer now
         if self.detector is not None:
             self.detector.cancel(self.cam_id)  # don't analyze a frame of a removed camera
 
@@ -292,6 +297,13 @@ class CameraWorker(threading.Thread):
                 self._jpeg = buf.tobytes() if ok else None
                 self._jpeg_frame_no = self.frames_total
             return self._jpeg, self._jpeg_frame_no
+
+    def wait_jpeg(self, after, timeout, quality=75):
+        """Like get_jpeg(), but first waits (up to `timeout` s) for a frame numbered above `after`.
+        Returns (jpeg, frame number); the number is still `after` if no new frame came."""
+        with self.lock:
+            self.lock.wait_for(lambda: self.frames_total > after or self.stopped, timeout)
+        return self.get_jpeg(quality)
 
     def get_history(self):
         with self.lock:

@@ -170,7 +170,8 @@ Also supported: `PORT` (local port, default 8000), `CONFIG_PATH`, `LOG_DIR`, `DA
 | Path | Login | Description |
 |---|---|---|
 | `/` | password | Dashboard |
-| `/video/<cam_id>` | password | Live MJPEG stream |
+| `/frame/<cam_id>?after=N` | password | Next frame newer than N (the dashboard's live video: one frame at a time, so it never lags behind) |
+| `/video/<cam_id>` | password | Live MJPEG stream (open a camera directly in a browser) |
 | `/snapshot/<cam_id>.jpg` | password | Current picture (`?download=1` to save it as a file) |
 | `/api/cameras` | password | Stats of all cameras + summary |
 | `/api/history` | password | Last 5 min of people / motion per camera |

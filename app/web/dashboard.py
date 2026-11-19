@@ -1,7 +1,9 @@
 """Dashboard pages and data.
 
   /                              dashboard page (HTML; cameras are drawn by static/dashboard.js)
-  /video/<cam_id>                live MJPEG stream of one camera (used by <img> tags)
+  /frame/<cam_id>?after=N        the next frame (JPEG) newer than frame N: dashboard.js asks for
+                                 frame after frame, which gives the live video in the dashboard
+  /video/<cam_id>                live MJPEG stream of one camera (for opening a camera directly)
   /snapshot/<cam_id>.jpg         the current picture of one camera (?download=1: as a file)
   /api/cameras                   JSON: stats of all cameras + summary (tells the page which cameras exist)
   /api/history                   JSON: last 5 minutes of people/motion per camera (charts)
@@ -13,6 +15,7 @@
 """
 import io
 import time
+from functools import lru_cache
 
 import cv2
 import numpy as np
@@ -24,6 +27,7 @@ from flask import (Blueprint, Response, abort, current_app, jsonify, render_temp
 bp = Blueprint("dashboard", __name__)
 
 
+@lru_cache(maxsize=64)  # same arguments -> same picture: draw it once, not on every request
 def placeholder_jpeg(title, text, color):
     """Dark image shown instead of video, e.g. 'NO SIGNAL' when a camera is offline."""
     img = np.full((360, 640, 3), 30, np.uint8)
@@ -33,15 +37,18 @@ def placeholder_jpeg(title, text, color):
     return cv2.imencode(".jpg", img)[1].tobytes()
 
 
+def placeholder_for(worker):
+    label = "%s (%s)" % (worker.cam_name, worker.cam_id)
+    if worker.is_phone:
+        return placeholder_jpeg("WAITING FOR PHONE", label, (180, 180, 180))
+    return placeholder_jpeg("NO SIGNAL", label, (60, 60, 210))
+
+
 def mjpeg_stream(worker, fps, quality):
     """Generator: yields one JPEG 'part' per new frame. The browser replaces the picture
     with each part, which looks like video. Ends when the camera is removed."""
     interval = 1.0 / fps
-    label = "%s (%s)" % (worker.cam_name, worker.cam_id)
-    if worker.is_phone:
-        placeholder = placeholder_jpeg("WAITING FOR PHONE", label, (180, 180, 180))
-    else:
-        placeholder = placeholder_jpeg("NO SIGNAL", label, (60, 60, 210))
+    placeholder = placeholder_for(worker)
     last_sent = -1
     while not worker.stopped:
         if worker.get_stats()["status"] == "online":
@@ -73,17 +80,36 @@ def index():
     return render_template("dashboard.html")
 
 
+@bp.route("/frame/<cam_id>")
+def frame(cam_id):
+    """The live video of the dashboard, one frame per request.
+    The browser asks for the next frame only after the previous one has arrived, so at most
+    ONE frame per camera is on its way. With a pushed stream (/video) the server keeps sending
+    even when the viewer's connection is slower than the video: the frames pile up in network
+    buffers and the picture falls seconds behind. Here a slow connection only lowers the FPS,
+    the picture you see is always the newest one."""
+    s = current_app.config["SETTINGS"]
+    worker = current_app.config["CAMERAS"].get(cam_id) or abort(404)
+    after = request.args.get("after", 0, type=int)  # number of the frame the browser already has
+    if worker.get_stats()["status"] != "online":
+        jpeg, frame_no = placeholder_for(worker), 0  # 0 = "placeholder, ask again in a second"
+    else:
+        # Wait until the camera has a newer frame (at most 2 s), then send it at once.
+        jpeg, frame_no = worker.wait_jpeg(after, 2.0, s["jpeg_quality"])
+        if jpeg is None or frame_no <= after:
+            return "", 204  # nothing new yet: the browser simply asks again
+    return Response(jpeg, mimetype="image/jpeg",
+                    headers={"Cache-Control": "no-store", "X-Frame-No": str(frame_no),
+                             "X-Stream-Fps": str(s["stream_fps"])})
+
+
 @bp.route("/video/<cam_id>")
 def video(cam_id):
     s = current_app.config["SETTINGS"]
     worker = current_app.config["CAMERAS"].get(cam_id) or abort(404)
-    # ?raw=1 (used by dashboard.js, which reads the stream with fetch()): same bytes, but sent
-    # as plain binary. With the multipart type, Safari splits the stream into parts itself and
-    # hides the part headers from JavaScript, so the page could not find where a JPEG ends.
-    raw = request.args.get("raw") == "1"
     return Response(mjpeg_stream(worker, s["stream_fps"], s["jpeg_quality"]),
-                    mimetype="application/octet-stream" if raw else "multipart/x-mixed-replace; boundary=frame",
-                    headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
+                    mimetype="multipart/x-mixed-replace; boundary=frame",
+                    headers={"Cache-Control": "no-store"})
 
 
 @bp.route("/snapshot/<cam_id>.jpg")
