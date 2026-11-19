@@ -94,7 +94,7 @@ class RtspSource:
     network connection, where they made the video fall further and further behind.
     """
 
-    retry_delay_s = 1  # the phone may not be connected yet: try again soon
+    retry_delay_s = 0.3  # the phone may not be connected yet: try again soon (each try is ~1 ms)
     WIDTH = 640        # every frame is delivered this wide (see _steady)
     TIMEOUT_S = 3      # no frame for this long: the phone stopped
 
@@ -119,7 +119,7 @@ class RtspSource:
             self.container = av.open(self.url, timeout=(10.0, self.TIMEOUT_S), options={
                 "rtsp_transport": "tcp",
                 "fflags": "nobuffer", "flags": "low_delay",          # no buffering
-                "analyzeduration": "500000", "probesize": "100000"})  # start within ~0.5 s
+                "analyzeduration": "100000", "probesize": "100000"})  # size is known from the keyframe
         except (av.error.FFmpegError, OSError):
             return False  # no stream yet (phone not connected): the worker says "waiting"
         # Decode with several cores by splitting each frame ("SLICE"), not by working on several
