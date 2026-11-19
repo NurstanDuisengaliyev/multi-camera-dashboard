@@ -1,0 +1,81 @@
+# Creating the VM in Europe (closer than India). Earlier attempts:
+## 2026-11-19 20:21:57 bash scripts/azure_create_vm.sh  (region: norwayeast)
+   -> FAILED: (SkuNotAvailable) The requested VM size for resource 'Following SKUs have failed for Capacity Restrictions: Standard_D2as_v4' is currently not available in location 'NorwayEast'. Please try another size or deploy to a different location or different zone. See https://aka.ms/azureskunotavailable for details.
+## 2026-11-19 20:22:34 retry: bash scripts/azure_create_vm.sh  (region: austriaeast)
+   -> FAILED: (SkuNotAvailable) The requested VM size for resource 'Following SKUs have failed for Capacity Restrictions: Standard_D2as_v4' is currently not available in location 'AustriaEast'. Please try another size or deploy to a different location or different zone. See https://aka.ms/azureskunotavailable for details.
+## 2026-11-19 20:23:32 LOCATION=norwayeast SIZE=Standard_F2s_v2 bash scripts/azure_create_vm.sh
+   -> FAILED: (SkuNotAvailable) no free capacity for this size
+## 2026-11-19 20:23:49 LOCATION=austriaeast SIZE=Standard_F2s_v2 bash scripts/azure_create_vm.sh
+   -> FAILED: (SkuNotAvailable) no free capacity for this size
+## 2026-11-19 20:24:03 LOCATION=norwayeast SIZE=Standard_D2s_v4 bash scripts/azure_create_vm.sh
+   -> FAILED: (SkuNotAvailable) no free capacity for this size
+## 2026-11-19 20:24:16 LOCATION=austriaeast SIZE=Standard_D2s_v4 bash scripts/azure_create_vm.sh
+   -> FAILED: (SkuNotAvailable) no free capacity for this size
+## 2026-11-19 20:24:30 LOCATION=norwayeast SIZE=Standard_D2s_v3 bash scripts/azure_create_vm.sh
+   -> FAILED: (SkuNotAvailable) no free capacity for this size
+## 2026-11-19 20:24:44 LOCATION=austriaeast SIZE=Standard_D2s_v3 bash scripts/azure_create_vm.sh
+   -> FAILED: (SkuNotAvailable) no free capacity for this size
+## 2026-11-19 20:24:57 LOCATION=norwayeast SIZE=Standard_D2ds_v4 bash scripts/azure_create_vm.sh
+   -> FAILED: (SkuNotAvailable) no free capacity for this size
+## 2026-11-19 20:25:10 LOCATION=austriaeast SIZE=Standard_D2ds_v4 bash scripts/azure_create_vm.sh
+   -> FAILED: (SkuNotAvailable) no free capacity for this size
+## 2026-11-19 20:25:24 LOCATION=denmarkeast SIZE=Standard_F2s_v2 bash scripts/azure_create_vm.sh
+   -> FAILED: (LocationNotAvailableForResourceType) The provided location 'denmarkeast' is not available for resource type 'Microsoft
+## 2026-11-19 20:26:51 LOCATION=denmarkeast SIZE=Standard_D2s_v4 bash scripts/azure_create_vm.sh
+   -> FAILED: (ResourceGroupBeingDeleted) The resource group 'multicam-rg-denmarkeast' is in deprovisioning state and cannot perform this operation
+## Sizes open to our subscription (az rest .../providers/Microsoft.Compute/skus) AND with quota:
+##   norwayeast: none   austriaeast: DS2_v2, D2_v2, B-series v2 (burstable)   denmarkeast: F2s_v2, DS2_v2, ...
+## 2026-11-19 20:28:30 LOCATION=austriaeast SIZE=Standard_DS2_v2 bash scripts/azure_create_vm.sh
+{
+  "fqdns": "",
+  "id": "/subscriptions/b6005e66-4184-409e-927c-c7aab93186ae/resourceGroups/multicam-rg-austriaeast/providers/Microsoft.Compute/virtualMachines/multicam-vm",
+  "location": "austriaeast",
+  "macAddress": "38-33-C5-FD-2C-7A",
+  "powerState": "VM running",
+  "privateIpAddress": "10.0.0.4",
+  "publicIpAddress": "68.210.227.183",
+  "resourceGroup": "multicam-rg-austriaeast"
+}
+{
+  "access": "Allow",
+  "destinationAddressPrefix": "*",
+  "destinationAddressPrefixes": [],
+  "destinationPortRange": "80",
+  "destinationPortRanges": [],
+  "direction": "Inbound",
+  "etag": "W/\"85710580-5067-46f4-bebd-a04a40b9bfc5\"",
+  "id": "/subscriptions/b6005e66-4184-409e-927c-c7aab93186ae/resourceGroups/multicam-rg-austriaeast/providers/Microsoft.Network/networkSecurityGroups/multicam-vmNSG/securityRules/allow-http-80",
+  "name": "allow-http-80",
+  "priority": 1020,
+  "protocol": "Tcp",
+  "provisioningState": "Succeeded",
+  "resourceGroup": "multicam-rg-austriaeast",
+  "sourceAddressPrefix": "*",
+  "sourceAddressPrefixes": [],
+  "sourcePortRange": "*",
+  "sourcePortRanges": [],
+  "type": "Microsoft.Network/networkSecurityGroups/securityRules"
+}
+{
+  "access": "Allow",
+  "destinationAddressPrefix": "*",
+  "destinationAddressPrefixes": [],
+  "destinationPortRange": "443",
+  "destinationPortRanges": [],
+  "direction": "Inbound",
+  "etag": "W/\"818bebec-555d-40b4-b181-d97414e4439a\"",
+  "id": "/subscriptions/b6005e66-4184-409e-927c-c7aab93186ae/resourceGroups/multicam-rg-austriaeast/providers/Microsoft.Network/networkSecurityGroups/multicam-vmNSG/securityRules/allow-https-443",
+  "name": "allow-https-443",
+  "priority": 1030,
+  "protocol": "Tcp",
+  "provisioningState": "Succeeded",
+  "resourceGroup": "multicam-rg-austriaeast",
+  "sourceAddressPrefix": "*",
+  "sourceAddressPrefixes": [],
+  "sourcePortRange": "*",
+  "sourcePortRanges": [],
+  "type": "Microsoft.Network/networkSecurityGroups/securityRules"
+}
+ERROR: (LocationNotAvailableForResourceType) The provided location 'austriaeast' is not available for resource type 'Microsoft.DevTestLab/schedules'. List of available regions for the resource type is 'westcentralus,southcentralus,centralus,qatarcentral,australiacentral,australiasoutheast,brazilsoutheast,canadacentral,centralindia,eastasia,eastus,francecentral,japaneast,koreacentral,northeurope,southafricanorth,switzerlandnorth,uaenorth,ukwest,westindia,australiacentral2,australiaeast,brazilsouth,canadaeast,eastus2,francesouth,germanywestcentral,japanwest,jioindiawest,koreasouth,northcentralus,norwayeast,southindia,southeastasia,swedencentral,switzerlandwest,uksouth,westeurope,westus,westus2,westus3'.
+Code: LocationNotAvailableForResourceType
+Message: The provided location 'austriaeast' is not available for resource type 'Microsoft.DevTestLab/schedules'. List of available regions for the resource type is 'westcentralus,southcentralus,centralus,qatarcentral,australiacentral,australiasoutheast,brazilsoutheast,canadacentral,centralindia,eastasia,eastus,francecentral,japaneast,koreacentral,northeurope,southafricanorth,switzerlandnorth,uaenorth,ukwest,westindia,australiacentral2,australiaeast,brazilsouth,canadaeast,eastus2,francesouth,germanywestcentral,japanwest,jioindiawest,koreasouth,northcentralus,norwayeast,southindia,southeastasia,swedencentral,switzerlandwest,uksouth,westeurope,westus,westus2,westus3'.

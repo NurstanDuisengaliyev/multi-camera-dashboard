@@ -1,0 +1,18 @@
+# India VM (centralindia, D2as_v4) vs Austria VM (austriaeast, DS2_v2), same code, measured from the laptop
+# 'request time' = how long one frame takes to arrive = how far the picture is behind
+== 68-210-227-183.sslip.io  (2026-11-19 21:36:53)  round trip median 112 ms
+   cam1:  6.4 fps received, request time median 620 ms
+   cam2: 11.6 fps received, request time median 265 ms
+   cam3: 11.6 fps received, request time median 189 ms
+   cam4: 11.9 fps received, request time median 255 ms
+== 20-197-25-248.sslip.io  (2026-11-19 21:37:30)  round trip median 201 ms
+   cam1:  6.0 fps received, request time median 663 ms
+   cam2: 10.9 fps received, request time median 329 ms
+   cam3:  8.4 fps received, request time median 283 ms
+   cam4: 10.0 fps received, request time median 325 ms
+== VM Model name: Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz
+   produces: cam1 6 fps  cam2 13 fps  cam3 15 fps  cam4 13 fps
+   multicam-caddy CPU 0.00% MEM 13.79MiB / 6.712GiB
+== VM Model name: AMD EPYC 7763 64-Core Processor
+   produces: cam1 6 fps  cam2 13 fps  cam3 16 fps  cam4 13 fps
+   multicam-dashboard CPU 66.08% MEM 477.5MiB / 7.698GiB

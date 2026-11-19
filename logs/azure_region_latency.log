@@ -1,0 +1,8 @@
+## Round trip from the laptop to every region our subscription allows
+## (a small storage account per region, HTTPS GET on a reused connection, 15 requests; deleted afterwards)
+Round trip from the laptop to each allowed Azure region (HTTPS, reused connection, 15 requests) 2026-11-19 20:15
+norwayeast         median    84 ms   best    77 ms
+austriaeast        median    90 ms   best    73 ms
+denmarkeast        median   112 ms   best    94 ms
+centralindia       median   195 ms   best   188 ms
+indiasouthcentral  median   282 ms   best   221 ms
