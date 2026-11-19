@@ -1,0 +1,10 @@
+Live video test (/frame/<id>, 4 requests in flight per camera, like dashboard.js)
+Laptop -> Azure VM (Central India) over the internet, 2026-11-19 20:05:24
+network round trip: 217 ms
+cam1:  6.0 fps,  49 KB/frame, request time median 520 ms, duplicates 0
+cam2: 10.9 fps,  17 KB/frame, request time median 329 ms, duplicates 0
+cam3:  9.2 fps,  50 KB/frame, request time median 305 ms, duplicates 0
+cam4: 10.1 fps,  14 KB/frame, request time median 281 ms, duplicates 0
+cam1 7 fps  cam2 12 fps  cam3 15 fps  cam4 13 fps
+cam1 7 fps  cam2 13 fps  cam3 16 fps  cam4 13 fps
+cam1 6 fps  cam2 13 fps  cam3 15 fps  cam4 13 fps
