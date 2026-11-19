@@ -66,6 +66,9 @@ class CameraWorker(threading.Thread):
         self.people_refresh_s = a.get("people_refresh_s", 30)   # ...but re-check at least this often
         self.dark_threshold = a.get("dark_threshold", 40)
         self.blur_threshold = a.get("blur_threshold", 8)
+        # Yellow motion boxes on the video: off by default (they doubled up with the green people
+        # boxes). Motion is still detected; this only changes what is drawn.
+        self.draw_motion_boxes = a.get("draw_motion_boxes", False)
         hold = a.get("alert_hold_s", 1.5)
 
         self.detector = detector  # shared PeopleDetector (or None = no people analytics)
@@ -259,8 +262,9 @@ class CameraWorker(threading.Thread):
     def _draw(self, frame, motion_boxes):
         """Boxes only: names, counts and alerts are shown by the dashboard around the video."""
         img = frame.copy()
-        for (x, y, w, h) in motion_boxes:
-            cv2.rectangle(img, (x, y), (x + w, y + h), YELLOW, 1)
+        if self.draw_motion_boxes:
+            for (x, y, w, h) in motion_boxes:
+                cv2.rectangle(img, (x, y), (x + w, y + h), YELLOW, 1)
         for (x1, y1, x2, y2, conf) in self.people_boxes:
             cv2.rectangle(img, (x1, y1), (x2, y2), GREEN, 2)
             cv2.putText(img, "person %.2f" % conf, (x1, max(12, y1 - 5)),

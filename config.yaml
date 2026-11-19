@@ -10,6 +10,7 @@ analytics:
   # Motion (background subtraction)
   motion_threshold: 0.02     # > 2% of pixels moving = motion
   motion_min_area: 400       # ignore moving blobs smaller than this (pixels)
+  draw_motion_boxes: false   # true = also draw yellow motion boxes (only the green people boxes by default)
 
   # People (YOLOv8n)
   model: yolov8n.pt
