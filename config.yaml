@@ -30,7 +30,8 @@ analytics:
 server:
   stream_fps: 15             # max FPS sent to the browser (less bandwidth = lower cloud traffic cost)
   jpeg_quality: 75           # 0-100, lower = smaller images (JPEG fallback when WebRTC is not possible)
-  webrtc_kbps: 800           # H.264 bitrate per camera for WebRTC (a JPEG stream needs ~5000)
+  webrtc_kbps: 800           # H.264 bitrate per video file camera for WebRTC (a JPEG stream needs ~5000)
+  webrtc_phone_kbps: 1500    # phones: taller, sharper picture (and compressed twice: phone + server)
 
 database: data/events.db
 

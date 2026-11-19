@@ -26,8 +26,10 @@ def ffmpeg_command(width, height, url, kbps):
         "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", "%dx%d" % (width, height),
         "-use_wallclock_as_timestamps", "1", "-i", "pipe:0",
         # Output: H.264 the way browsers play it in WebRTC (baseline profile, yuv420p),
-        # tuned for live video: fastest preset, no frames held back (zerolatency).
-        "-c:v", "libx264", "-preset", "ultrafast", "-tune", "zerolatency",
+        # tuned for live video: no frames held back (zerolatency). Preset "veryfast", not
+        # "ultrafast": ultrafast switches off the deblocking filter (visible squares) and gets
+        # much less quality out of each bit; veryfast costs ~2x the CPU (~6% per camera).
+        "-c:v", "libx264", "-preset", "veryfast", "-tune", "zerolatency",
         "-profile:v", "baseline", "-pix_fmt", "yuv420p",
         "-b:v", "%dk" % kbps, "-maxrate", "%dk" % kbps, "-bufsize", "%dk" % (kbps // 2),
         # A complete picture every second: a browser that just connected waits at most 1 s.

@@ -21,9 +21,9 @@ const ctx = canvas.getContext("2d");
 
 // width/jpeg: JPEG fallback. short (short side in px) / kbps: WebRTC video.
 const QUALITY = {
-  saver: { width: 480, fps: 8, jpeg: 0.6, short: 360, kbps: 400 },
-  balanced: { width: 640, fps: 15, jpeg: 0.7, short: 480, kbps: 1000 },
-  sharp: { width: 960, fps: 15, jpeg: 0.8, short: 720, kbps: 2000 },
+  saver: { width: 480, fps: 10, jpeg: 0.6, short: 480, kbps: 600 },
+  balanced: { width: 640, fps: 15, jpeg: 0.7, short: 720, kbps: 1500 },
+  sharp: { width: 960, fps: 20, jpeg: 0.8, short: 1080, kbps: 3000 },
 };
 
 let stream = null;          // MediaStream from the camera

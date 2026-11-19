@@ -34,7 +34,9 @@ class CameraManager:
     def __init__(self, config, detector=None, events=None, rtsp_base=""):
         """rtsp_base: MediaMTX address, e.g. rtsp://mediamtx:8554 ("" = no WebRTC)."""
         self.rtsp_base = rtsp_base
-        self.webrtc_kbps = config.get("server", {}).get("webrtc_kbps", 800)
+        server = config.get("server", {})
+        self.webrtc_kbps = server.get("webrtc_kbps", 800)              # video file cameras
+        self.webrtc_phone_kbps = server.get("webrtc_phone_kbps", 1500)  # phones: bigger, sharper picture
         self.analytics = config["analytics"]
         self.file_cameras = config.get("cameras", [])
         phones = config.get("phones", {})
@@ -144,7 +146,8 @@ class CameraManager:
 
     def _start_publisher(self, worker):
         if self.rtsp_base:  # stops by itself when the worker stops
-            WebRtcPublisher(worker, "%s/%s" % (self.rtsp_base, worker.cam_id), self.webrtc_kbps).start()
+            kbps = self.webrtc_phone_kbps if worker.is_phone else self.webrtc_kbps
+            WebRtcPublisher(worker, "%s/%s" % (self.rtsp_base, worker.cam_id), kbps).start()
 
     def _new_phone_id(self):  # called with self.lock held
         while True:
