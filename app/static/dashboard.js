@@ -211,7 +211,7 @@ function setHtml(el, html) {
 
 // Event type -> label, severity, filter group, icon
 const EVENT_TYPES = {
-  motion: { label: "Motion", level: "warning", group: "motion", icon: "motion" },
+  motion: { label: "Motion", level: "none", group: "motion", icon: "motion" },   // normal activity: grey, so real alerts stand out
   crowd: { label: "Crowd", level: "serious", group: "crowd", icon: "person" },
   camera_dark: { label: "Camera dark", level: "critical", group: "tamper", icon: "eye-off" },
   camera_blurry: { label: "Blurry", level: "critical", group: "tamper", icon: "eye-off" },
@@ -366,7 +366,7 @@ function renderCard(cam) {
 
   const chips = [];
   if (crowd) chips.push(`<span class="chip serious">${icon("alert", "ic sm")}Crowd · limit ${cam.crowd_limit}</span>`);
-  if (online && cam.alerts.includes("motion")) chips.push(`<span class="chip warning">${icon("motion", "ic sm")}Motion</span>`);
+  if (online && cam.alerts.includes("motion")) chips.push(`<span class="chip">${icon("motion", "ic sm")}Motion</span>`);
   if (online && cam.kind === "phone") {
     const [q, label] = connection(cam);
     chips.push(`<span class="chip"><span class="bars ${q}"><i></i><i></i><i></i></span>${label}</span>`);
@@ -484,7 +484,8 @@ async function pollHistory() {
     state.history = await getJSON("/api/history");
     for (const [id, { card }] of cards) {
       const cam = state.cameras.find((c) => c.id === id);
-      setHtml($(".spark", card), sparkSvg(state.history[id] || [], seriesColor(id), cam?.crowd_limit));
+      const crowd = cam && cam.status === "online" && cam.alerts.includes("crowd");
+      setHtml($(".spark", card), sparkSvg(state.history[id] || [], color(crowd ? "--serious" : "--spark"), cam?.crowd_limit));
     }
     const total = totalPeople(state.history);
     setHtml($("#people-chart"), areaChart(total, color("--accent")));
@@ -638,7 +639,7 @@ function renderSpotlightChart() {
   const cam = state.cameras.find((c) => c.id === state.spotlight);
   if (!cam) return;
   const rows = (state.history[cam.id] || []).map((r) => ({ t: r.t, v: r.people }));
-  setHtml($("#spot-chart"), areaChart(rows, seriesColor(cam.id), { limit: cam.crowd_limit, W: 300, H: 100 }));
+  setHtml($("#spot-chart"), areaChart(rows, color("--accent"), { limit: cam.crowd_limit, W: 300, H: 100 }));
   renderStrip();
 }
 

@@ -6,7 +6,7 @@
   <title>Multi-Camera Monitor</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -97,7 +97,7 @@
         <div class="spot-video" id="spot-video">
           <img id="spot-img" alt="">
           <div class="veil hidden" id="spot-veil"></div>
-          <div class="ov top"><span class="chip live"><span class="rec"></span>LIVE</span><span class="chip mono" id="spot-clock"></span></div>
+          <div class="ov top"><span class="chip live"><span class="rec"></span>Live</span><span class="chip mono" id="spot-clock"></span></div>
           <div class="ov bottom-right">
             <a class="icon-btn" id="spot-save" aria-label="Save snapshot" title="Save snapshot"><svg class="ic"><use href="#i-camera"/></svg></a>
             <button type="button" class="icon-btn" id="spot-full" aria-label="Full screen" title="Full screen"><svg class="ic"><use href="#i-expand"/></svg></button>
@@ -172,7 +172,7 @@
         <img class="feed" alt="">
         <div class="veil hidden"></div>
         <div class="ov top">
-          <span class="chip live"><span class="rec"></span>LIVE</span>
+          <span class="chip live"><span class="rec"></span>Live</span>
           <span class="chip mono people"><svg class="ic sm"><use href="#i-person"/></svg><span class="people-text"></span></span>
         </div>
         <div class="ov bottom"></div>
