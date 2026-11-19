@@ -118,7 +118,9 @@ class RtspSource:
                 "analyzeduration": "500000", "probesize": "100000"})  # start within ~0.5 s
         except (av.error.FFmpegError, OSError):
             return False  # no stream yet (phone not connected): the worker says "waiting"
-        self.container.streams.video[0].thread_type = "AUTO"  # decode with several CPU cores
+        # Decode with several cores by splitting each frame ("SLICE"), not by working on several
+        # frames at once ("FRAME"/"AUTO"): that holds ~2 frames back (+130 ms delay, measured).
+        self.container.streams.video[0].thread_type = "SLICE"
         self.alive = True
         threading.Thread(target=self._receive, name="rtsp-" + self.url.rsplit("/", 1)[-1], daemon=True).start()
         return True
