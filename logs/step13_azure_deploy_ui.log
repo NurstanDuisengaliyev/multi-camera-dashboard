@@ -1,0 +1,162 @@
+$ date -u
+Thu Nov 19 21:26:59 UTC 2026
+$ bash deploy/azure_setup.sh
+
+===== 2026-11-19 21:26:59 System info =====
+Linux multicam-vm 7.0.0-1020-azure #21~24.04.2-Ubuntu SMP PREEMPT Tue Nov 10 01:36:36 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+PRETTY_NAME="Ubuntu 24.04.5 LTS"
+CPU cores: 2
+               total        used        free      shared  buff/cache   available
+Mem:           6.7Gi       1.6Gi       367Mi       4.3Mi       5.1Gi       5.1Gi
+Swap:             0B          0B          0B
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/root        29G   11G   18G  38% /
+
+===== 2026-11-19 21:26:59 1) Install Docker (from Ubuntu packages) =====
+Docker version 29.1.3, build 29.1.3-0ubuntu3~24.04.2
+Docker Compose version 2.40.3+ds1-0ubuntu1~24.04.1
+
+===== 2026-11-19 21:26:59 2) Get the latest code =====
+From https://github.com/NurstanDuisengaliyev/multi-camera-dashboard
+   e8217e2..69d5de5  webrtc     -> origin/webrtc
+Updating e8217e2..69d5de5
+Fast-forward
+ app/cameras/worker.py                      |   8 +-
+ app/static/dashboard.js                    |   9 +-
+ app/static/style.css                       | 128 +++++++++++++++--------------
+ app/templates/dashboard.html               |   6 +-
+ app/templates/phone.html                   |   2 +-
+ config.yaml                                |   1 +
+ logs/step12_phone_start_and_two_phones.log |  15 ++++
+ results/screenshots/step13_ui_after.png    | Bin 0 -> 868211 bytes
+ results/screenshots/step13_ui_before.png   | Bin 0 -> 517438 bytes
+ results/step13_people_boxes_only.jpg       | Bin 0 -> 49106 bytes
+ 10 files changed, 97 insertions(+), 72 deletions(-)
+ create mode 100644 logs/step12_phone_start_and_two_phones.log
+ create mode 100644 results/screenshots/step13_ui_after.png
+ create mode 100644 results/screenshots/step13_ui_before.png
+ create mode 100644 results/step13_people_boxes_only.jpg
+69d5de5 Hide yellow motion boxes by default (config: draw_motion_boxes)
+
+===== 2026-11-19 21:27:00 3) Settings (.env) =====
+.env already exists, keeping it
+
+===== 2026-11-19 21:27:00 4) Build the image and start the containers (dashboard + mediamtx + caddy) =====
+time="2026-11-19T21:27:00Z" level=warning msg="Docker Compose is configured to build using Bake, but buildx isn't installed"
+#0 building with "default" instance using docker driver
+
+#1 [dashboard internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.74kB done
+#1 DONE 0.0s
+
+#2 [dashboard internal] load metadata for docker.io/library/python:3.12-slim
+#2 DONE 0.7s
+
+#3 [dashboard internal] load .dockerignore
+#3 transferring context: 175B done
+#3 DONE 0.0s
+
+#4 [dashboard internal] load build context
+#4 transferring context: 94.67kB 0.0s done
+#4 DONE 0.1s
+
+#5 [dashboard  1/11] FROM docker.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b
+#5 resolve docker.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b 0.1s done
+#5 DONE 0.1s
+
+#6 [dashboard  5/11] COPY requirements.txt .
+#6 CACHED
+
+#7 [dashboard  6/11] RUN pip install --no-cache-dir -r requirements.txt
+#7 CACHED
+
+#8 [dashboard  2/11] RUN apt-get update  && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 ffmpeg  && rm -rf /var/lib/apt/lists/*
+#8 CACHED
+
+#9 [dashboard  3/11] WORKDIR /app
+#9 CACHED
+
+#10 [dashboard  4/11] RUN pip install --no-cache-dir torch==2.8.0 torchvision==0.23.0       --index-url https://download.pytorch.org/whl/cpu
+#10 CACHED
+
+#11 [dashboard  7/11] RUN python -c "from ultralytics import YOLO; YOLO('yolov8n.pt')"
+#11 CACHED
+
+#12 [dashboard  8/11] COPY app ./app
+#12 DONE 0.7s
+
+#13 [dashboard  9/11] COPY scripts ./scripts
+#13 DONE 0.3s
+
+#14 [dashboard 10/11] COPY videos ./videos
+#14 DONE 0.6s
+
+#15 [dashboard 11/11] COPY config.yaml .
+#15 DONE 0.2s
+
+#16 [dashboard] exporting to image
+#16 exporting layers
+#16 exporting layers 1.9s done
+#16 exporting manifest sha256:275ef55f55de6144e363e7db97c3d1ff3e686342ae6265dcd8eea6dafbc2a403 0.0s done
+#16 exporting config sha256:c6cd4c97c633d25523609e8eccbc5a8a322da53bf5faffc3f4faa6f6dea3cb6a 0.0s done
+#16 exporting attestation manifest sha256:8096a63bef1b61c3b40270ca1213822741ab2cb23405080d3db420d2e6d036a8
+#16 exporting attestation manifest sha256:8096a63bef1b61c3b40270ca1213822741ab2cb23405080d3db420d2e6d036a8 0.1s done
+#16 exporting manifest list sha256:137b99ef511e0f4ddda777632ad78daf52335b629ebfeb16df1f4b65290560fa 0.0s done
+#16 naming to docker.io/library/multicam-dashboard:latest done
+#16 unpacking to docker.io/library/multicam-dashboard:latest
+#16 unpacking to docker.io/library/multicam-dashboard:latest 0.4s done
+#16 DONE 2.6s
+
+#17 [dashboard] resolving provenance for metadata file
+#17 DONE 0.0s
+ dashboard  Built
+ Container multicam-mediamtx  Running
+ Container multicam-dashboard  Recreate
+ Container multicam-dashboard  Recreated
+ Container multicam-caddy  Running
+ Container multicam-dashboard  Starting
+ Container multicam-dashboard  Started
+ Container multicam-mediamtx  Running
+ Container multicam-dashboard  Running
+ Container multicam-caddy  Recreate
+ Container multicam-caddy  Recreated
+ Container multicam-caddy  Starting
+ Container multicam-caddy  Started
+WARNING: This output is designed for human readability. For machine-readable output, please use --format.
+IMAGE                       ID             DISK USAGE   CONTENT SIZE   EXTRA
+multicam-dashboard:latest   137b99ef511e       2.89GB          693MB   U    
+
+===== 2026-11-19 21:27:11 5) Wait until the app answers /health =====
+{"cameras_online":0,"cameras_total":4,"status":"ok","uptime_s":0}
+
+
+===== 2026-11-19 21:27:12 6) Check HTTPS (Caddy gets the certificate on first start, can take ~30 s) =====
+HTTPS OK
+
+===== 2026-11-19 21:27:12 7) Status =====
+NAME                 IMAGE                        COMMAND                  SERVICE     CREATED         STATUS                            PORTS
+multicam-caddy       caddy:2.10                   "caddy run --config …"   caddy       3 seconds ago   Up 2 seconds                      0.0.0.0:80->80/tcp, [::]:80->80/tcp, 0.0.0.0:443->443/tcp, [::]:443->443/tcp, 443/udp, 2019/tcp
+multicam-dashboard   multicam-dashboard           "gunicorn --bind 0.0…"   dashboard   6 seconds ago   Up 3 seconds (health: starting)   127.0.0.1:8000->8000/tcp
+multicam-mediamtx    bluenviron/mediamtx:1.21.3   "/mediamtx"              mediamtx    4 hours ago     Up 4 hours                        0.0.0.0:8189->8189/tcp, 0.0.0.0:8189->8189/udp, [::]:8189->8189/tcp, [::]:8189->8189/udp
+CONTAINER ID   NAME                 CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O     PIDS
+33ca150a377b   multicam-caddy       0.00%     12.45MiB / 6.712GiB   0.18%     2.98kB / 5.88kB   0B / 4.1kB    7
+6ae5049294a6   multicam-dashboard   139.61%   441.3MiB / 6.712GiB   6.42%     18.4kB / 310kB    0B / 20.5kB   76
+444d9ab14569   multicam-mediamtx    1.52%     56.09MiB / 6.712GiB   0.82%     3.37GB / 2.05GB   15.5MB / 0B   9
+
+Dashboard:    https://68-210-227-183.sslip.io
+Phone camera: https://68-210-227-183.sslip.io/phone
+Login and phone token: see the .env file (cat .env)
+$ git log --oneline -2
+69d5de5 Hide yellow motion boxes by default (config: draw_motion_boxes)
+0e6ccbf Dashboard UI polish: quiet chrome, color only for real alerts
+$ docker compose ps
+NAME                 IMAGE                        COMMAND                  SERVICE     CREATED         STATUS                            PORTS
+multicam-caddy       caddy:2.10                   "caddy run --config …"   caddy       5 seconds ago   Up 3 seconds                      0.0.0.0:80->80/tcp, [::]:80->80/tcp, 0.0.0.0:443->443/tcp, [::]:443->443/tcp, 443/udp, 2019/tcp
+multicam-dashboard   multicam-dashboard           "gunicorn --bind 0.0…"   dashboard   8 seconds ago   Up 4 seconds (health: starting)   127.0.0.1:8000->8000/tcp
+multicam-mediamtx    bluenviron/mediamtx:1.21.3   "/mediamtx"              mediamtx    4 hours ago     Up 4 hours                        0.0.0.0:8189->8189/tcp, 0.0.0.0:8189->8189/udp, [::]:8189->8189/tcp, [::]:8189->8189/udp
+{"cameras_online":4,"cameras_total":4,"status":"ok","uptime_s":11}
+
+multicam-caddy Up 12 seconds
+multicam-dashboard Up 13 seconds (healthy)
+multicam-mediamtx Up 4 hours
+1
