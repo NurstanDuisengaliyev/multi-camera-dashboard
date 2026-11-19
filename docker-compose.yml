@@ -1,8 +1,12 @@
-# Two containers:
+# Three containers:
 #   dashboard  the Python app (cameras + analytics + web server), plain HTTP on port 8000
-#   caddy      the HTTPS front door: gets a free certificate and forwards requests to the dashboard
+#   mediamtx   the WebRTC media server: live video to the browsers and from the phones
+#   caddy      the HTTPS front door: gets a free certificate and forwards requests
 #
-#   phone / browser --HTTPS (443)--> caddy --HTTP--> dashboard:8000
+#   phone / browser --HTTPS (443)--> caddy --HTTP--> dashboard:8000     pages, API, JPEG fallback
+#                                         \-------> mediamtx:8889      WebRTC signaling (/webrtc/...)
+#   phone / browser <==WebRTC video, UDP/TCP 8189==> mediamtx
+#   dashboard --RTSP (inside Docker)--> mediamtx      analyzed video out, phone video in
 #
 # Settings and secrets come from the .env file next to this one (copy .env.example).
 # Start:  docker compose up -d --build      Stop: docker compose down      Logs: docker compose logs -f
@@ -15,6 +19,9 @@ services:
       - DASHBOARD_USER=${DASHBOARD_USER:-admin}
       - DASHBOARD_PASSWORD=${DASHBOARD_PASSWORD:-}
       - PHONE_TOKEN=${PHONE_TOKEN:-}
+      - MEDIAMTX_RTSP=rtsp://mediamtx:8554   # WebRTC on (remove this line: JPEG frames only)
+    depends_on:
+      - mediamtx
     ports:
       # Only reachable from this machine (http://localhost:8000, for testing).
       # Everyone else comes in through Caddy over HTTPS.
@@ -31,11 +38,25 @@ services:
       retries: 3
       start_period: 60s
 
+  mediamtx:
+    image: bluenviron/mediamtx:1.21.3
+    container_name: multicam-mediamtx
+    environment:
+      # The address browsers send the WebRTC video to: the VM's public IP (PUBLIC_IP in .env).
+      - MTX_WEBRTCADDITIONALHOSTS=${PUBLIC_IP:-127.0.0.1}
+    ports:
+      - "8189:8189/udp"   # WebRTC video (UDP)
+      - "8189:8189/tcp"   # WebRTC video (TCP, for networks that block UDP)
+    volumes:
+      - ./deploy/mediamtx.yml:/mediamtx.yml:ro
+    restart: unless-stopped
+
   caddy:
     image: caddy:2.10
     container_name: multicam-caddy
     depends_on:
       - dashboard
+      - mediamtx
     environment:
       - SITE_ADDRESS=${SITE_ADDRESS:-localhost}   # the address people type, see deploy/Caddyfile
     ports:

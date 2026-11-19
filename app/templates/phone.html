@@ -93,7 +93,7 @@
       <dl class="live-stats">
         <div><dd class="mono" id="st-fps">–</dd><dt>frames/s</dt></div>
         <div><dd class="mono" id="st-rtt">–</dd><dt>round trip</dt></div>
-        <div><dd class="mono" id="st-size">–</dd><dt>per frame</dt></div>
+        <div><dd class="mono" id="st-size">–</dd><dt id="st-size-label">per frame</dt></div>
       </dl>
       <div class="live-buttons">
         <button type="button" class="round-btn big" id="btn-settings" aria-label="Quality settings"><svg class="ic"><use href="#i-sliders"/></svg></button>
@@ -104,7 +104,7 @@
     </section>
   </div>
 
-  <script>window.PHONE_ENABLED = {{ enabled | tojson }};</script>
+  <script>window.PHONE_ENABLED = {{ enabled | tojson }}; window.WEBRTC = {{ webrtc | tojson }};</script>
   <script src="{{ url_for('static', filename='phone.js') }}"></script>
 </body>
 </html>

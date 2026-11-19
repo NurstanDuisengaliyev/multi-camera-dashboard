@@ -47,6 +47,9 @@ az network nsg rule create -g "$RG" --nsg-name "$NSG" -n allow-http-80 --priorit
   --protocol Tcp --destination-port-ranges 80 --access Allow --direction Inbound
 az network nsg rule create -g "$RG" --nsg-name "$NSG" -n allow-https-443 --priority 1030 \
   --protocol Tcp --destination-port-ranges 443 --access Allow --direction Inbound
+# WebRTC video (MediaMTX): UDP, and TCP for networks that block UDP.
+az network nsg rule create -g "$RG" --nsg-name "$NSG" -n allow-webrtc-8189 --priority 1040 \
+  --protocol '*' --destination-port-ranges 8189 --access Allow --direction Inbound
 
 # Auto-shutdown every day at 19:00 UTC+5 (protects the credit if we forget to stop the VM).
 # Created as a resource in the VM's region (`az vm auto-shutdown` uses the resource group's region).

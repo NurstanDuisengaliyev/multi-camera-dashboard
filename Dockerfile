@@ -5,9 +5,10 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# System libraries OpenCV needs.
+# System libraries OpenCV needs, and ffmpeg: it compresses each camera's video to H.264
+# for WebRTC (app/cameras/publisher.py).
 RUN apt-get update \
- && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 \
+ && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 ffmpeg \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

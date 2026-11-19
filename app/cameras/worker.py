@@ -89,6 +89,7 @@ class CameraWorker(threading.Thread):
                          "sharpness": 0.0, "alerts": [], "alert_age_s": {}}
         # Phone cameras only: set by the web server from the upload requests.
         self.device = None             # "iPhone", "Android", ...
+        self.transport = None          # "webrtc" or "jpeg" (how the phone sends its video)
         self.phone_rtt_ms = None       # upload round trip measured by the phone
         self.timing_ms = {"motion": 0.0, "quality": 0.0, "people": 0.0}
         self._jpeg = None              # cached JPEG of latest_frame (see get_jpeg)
@@ -298,6 +299,16 @@ class CameraWorker(threading.Thread):
                 self._jpeg_frame_no = self.frames_total
             return self._jpeg, self._jpeg_frame_no
 
+    def wait_frame(self, after, timeout):
+        """Wait (up to `timeout` s) for a frame numbered above `after` (used by publisher.py).
+        Returns (frame, number), or (None, after) if none came. The frame is not copied:
+        _process() always publishes a NEW image, it never changes one it already published."""
+        with self.lock:
+            self.lock.wait_for(lambda: self.frames_total > after or self.stopped, timeout)
+            if self.frames_total > after and self.latest_frame is not None:
+                return self.latest_frame, self.frames_total
+            return None, after
+
     def wait_jpeg(self, after, timeout, quality=75):
         """Like get_jpeg(), but first waits (up to `timeout` s) for a frame numbered above `after`.
         Returns (jpeg, frame number); the number is still `after` if no new frame came."""
@@ -327,6 +338,7 @@ class CameraWorker(threading.Thread):
                 "timing_ms": dict(self.timing_ms),
                 "device": self.device,
                 "rtt_ms": self.phone_rtt_ms,
+                "transport": self.transport,
             }
             stats.update(self.analysis)
             if not online:

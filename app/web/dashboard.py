@@ -84,7 +84,7 @@ def phone_link():
 
 @bp.route("/")
 def index():
-    return render_template("dashboard.html")
+    return render_template("dashboard.html", webrtc=bool(current_app.config["SETTINGS"]["webrtc"]))
 
 
 @bp.route("/frame/<cam_id>")

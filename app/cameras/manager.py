@@ -5,6 +5,9 @@ Two kinds of camera:
   - phone cameras, created when a phone starts streaming on the /phone page and
     removed when the phone taps "Stop" or has been silent for `remove_after_s`.
 
+With WebRTC on (MEDIAMTX_RTSP set, see docker-compose.yml) every camera also gets a
+WebRtcPublisher (publisher.py) that streams its analyzed video to MediaMTX.
+
 The web server asks the manager for cameras; it never creates workers itself.
 """
 import logging
@@ -13,7 +16,8 @@ import secrets
 import threading
 import time
 
-from app.cameras.sources import FrameInbox, PhoneSource
+from app.cameras.publisher import WebRtcPublisher
+from app.cameras.sources import FrameInbox, PhoneSource, RtspSource
 from app.cameras.worker import CameraWorker
 
 log = logging.getLogger("cameras")
@@ -27,7 +31,10 @@ class TooManyPhones(Exception):
 
 
 class CameraManager:
-    def __init__(self, config, detector=None, events=None):
+    def __init__(self, config, detector=None, events=None, rtsp_base=""):
+        """rtsp_base: MediaMTX address, e.g. rtsp://mediamtx:8554 ("" = no WebRTC)."""
+        self.rtsp_base = rtsp_base
+        self.webrtc_kbps = config.get("server", {}).get("webrtc_kbps", 800)
         self.analytics = config["analytics"]
         self.file_cameras = config.get("cameras", [])
         phones = config.get("phones", {})
@@ -63,15 +70,19 @@ class CameraManager:
         return worker if worker is not None and worker.is_phone else None
 
     # ---------- phone cameras ----------
-    def add_phone(self, name, wanted_id=None, device="Phone"):
+    def add_phone(self, name, wanted_id=None, device="Phone", transport="jpeg"):
         """Create a camera for a phone and return its worker.
         A phone that streamed before sends its old id back, so it keeps the same camera
-        (same color on the charts, same name in the event log)."""
+        (same color on the charts, same name in the event log).
+        transport: "webrtc" (video via MediaMTX) or "jpeg" (frames uploaded to /api/phone/<id>/frame)."""
+        if transport == "webrtc" and not self.rtsp_base:
+            transport = "jpeg"
         with self.lock:
             existing = self.workers.get(wanted_id)
             if existing is not None and existing.is_phone:
                 existing.cam_name = name
                 existing.device = device
+                existing.transport = transport  # used when the worker opens its source next time
                 return existing
             if sum(w.is_phone for w in self.workers.values()) >= self.max_phones:
                 raise TooManyPhones("At most %d phones can stream at the same time" % self.max_phones)
@@ -79,12 +90,23 @@ class CameraManager:
             cam = {"id": cam_id, "name": name, "crowd_limit": self.phone_crowd_limit}
             timeout_s = self.analytics.get("offline_after_s", 5)
             worker = CameraWorker(cam, self.analytics, self.detector, self.events,
-                                  new_source=lambda: PhoneSource(cam_id, self.inbox, timeout_s))
+                                  new_source=lambda: self._phone_source(cam_id, timeout_s))
             worker.device = device
+            worker.transport = transport
             self.workers[cam_id] = worker  # registered inside the lock: no duplicate ids
         worker.start()
-        log.info("phone camera %s (%s) added", cam_id, name)
+        self._start_publisher(worker)
+        log.info("phone camera %s (%s) added, %s", cam_id, name, transport)
         return worker
+
+    def _phone_source(self, cam_id, timeout_s):
+        """Called by the phone's worker each time it (re)opens its source: the phone may have
+        switched between WebRTC and JPEG uploads in the meantime."""
+        worker = self.get(cam_id)
+        if worker is not None and worker.transport == "webrtc":
+            # The phone publishes to "<id>-in"; the analyzed video goes out as "<id>".
+            return RtspSource("%s/%s-in" % (self.rtsp_base, cam_id))
+        return PhoneSource(cam_id, self.inbox, timeout_s)
 
     def remove_phone(self, cam_id):
         with self.lock:
@@ -118,6 +140,11 @@ class CameraManager:
         with self.lock:
             self.workers[worker.cam_id] = worker
         worker.start()
+        self._start_publisher(worker)
+
+    def _start_publisher(self, worker):
+        if self.rtsp_base:  # stops by itself when the worker stops
+            WebRtcPublisher(worker, "%s/%s" % (self.rtsp_base, worker.cam_id), self.webrtc_kbps).start()
 
     def _new_phone_id(self):  # called with self.lock held
         while True:
@@ -133,6 +160,8 @@ class CameraManager:
             for worker in self.all():
                 if not worker.is_phone:
                     continue
-                last = self.inbox.last_received(worker.cam_id) or worker.created_at
-                if now - last > self.remove_after_s:
+                silent_s = worker.seconds_since_last_frame()  # None = no frame yet
+                if silent_s is None:
+                    silent_s = now - worker.created_at
+                if silent_s > self.remove_after_s:
                     self.remove_phone(worker.cam_id)

@@ -1,10 +1,15 @@
 """Phone streaming: any phone can become a camera.
 
-  /phone                         page that opens the phone camera and uploads frames (static/phone.js)
-  POST /api/phone/start          {"name": "Front door", "camera_id": optional old id} -> {"camera_id": ...}
-  POST /api/phone/<id>/frame     body = one JPEG image (+ headers X-Phone-RTT: last round trip in ms,
-                                 X-Phone-Seq: capture time, so frames that arrive late are dropped)
+  /phone                         page that opens the phone camera and sends its video (static/phone.js)
+  POST /api/phone/start          {"name": "Front door", "camera_id": optional old id,
+                                  "transport": "webrtc" | "jpeg"} -> {"camera_id": ..., "transport": ...}
+  POST /api/phone/<id>/frame     JPEG fallback: body = one JPEG image (+ headers X-Phone-RTT: last
+                                 round trip in ms, X-Phone-Seq: capture time, so late frames are dropped)
+  POST /api/phone/<id>/stats     WebRTC: {"rtt_ms": ...} every few seconds (shown on the dashboard)
   POST /api/phone/<id>/stop      the phone tapped "Stop": remove its camera
+
+With WebRTC the video itself does not go through Flask: the phone sends it to MediaMTX
+(POST /webrtc/<id>-in/whip, allowed by webrtc.py) and the camera worker reads it from there.
 
 Every API call needs the header  X-Phone-Token: <PHONE_TOKEN>.
 Without PHONE_TOKEN set on the server, phone streaming is switched off.
@@ -41,7 +46,8 @@ def check_token():
 
 @bp.route("/phone")
 def page():
-    return render_template("phone.html", enabled=bool(current_app.config["SETTINGS"]["phone_token"]))
+    s = current_app.config["SETTINGS"]
+    return render_template("phone.html", enabled=bool(s["phone_token"]), webrtc=bool(s["webrtc"]))
 
 
 @bp.route("/api/phone/start", methods=["POST"])
@@ -52,10 +58,11 @@ def start():
     data = request.get_json(silent=True) or {}
     name = " ".join(str(data.get("name", "")).split())[:MAX_NAME_LENGTH] or "Phone"
     try:
-        worker = current_app.config["CAMERAS"].add_phone(name, data.get("camera_id"), device_name())
+        worker = current_app.config["CAMERAS"].add_phone(name, data.get("camera_id"), device_name(),
+                                                         data.get("transport", "jpeg"))
     except TooManyPhones as e:
         return jsonify({"error": str(e)}), 429
-    return jsonify({"camera_id": worker.cam_id, "name": worker.cam_name})
+    return jsonify({"camera_id": worker.cam_id, "name": worker.cam_name, "transport": worker.transport})
 
 
 @bp.route("/api/phone/<cam_id>/frame", methods=["POST"])
@@ -74,6 +81,20 @@ def frame(cam_id):
     rtt = request.headers.get("X-Phone-RTT", type=int)
     seq = request.headers.get("X-Phone-Seq", type=int)  # capture time, to drop late frames
     cameras.receive_frame(cam_id, jpeg, rtt, seq)
+    return jsonify({"ok": True})
+
+
+@bp.route("/api/phone/<cam_id>/stats", methods=["POST"])
+def stats(cam_id):
+    error = check_token()
+    if error:
+        return error
+    worker = current_app.config["CAMERAS"].get_phone(cam_id)
+    if worker is None:
+        return jsonify({"error": "Unknown phone camera"}), 404  # the page registers again
+    rtt = (request.get_json(silent=True) or {}).get("rtt_ms")
+    if isinstance(rtt, (int, float)):
+        worker.phone_rtt_ms = int(rtt)
     return jsonify({"ok": True})
 
 

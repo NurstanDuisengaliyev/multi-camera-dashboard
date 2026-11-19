@@ -2,8 +2,8 @@
 //   /api/cameras  every second  -> camera cards (added/removed as phones come and go), header
 //   /api/events   every 3 s     -> alerts panel
 //   /api/history  every 3 s     -> sparklines and charts
-// The videos are <img> tags fed by playStream(), which fetches frame after frame from /frame/<id>;
-// the boxes are drawn by the server,
+// Live video comes from playStream(): WebRTC (H.264 from MediaMTX) in a <video>, or, as a
+// fallback, JPEG frames from /frame/<id> in an <img>. The boxes are drawn by the server,
 // everything written on top of the video (LIVE, people, alerts) is HTML from this file.
 
 const POLL_STATS_MS = 1000;
@@ -33,15 +33,19 @@ const HTTP2 = location.protocol === "https:" ||
 const MAX_STREAMS = HTTP2 ? Infinity : 4;
 const STILL_REFRESH_MS = 250;
 
-// ---- Video: each <img> has IN_FLIGHT request loops; each loop asks the server for the next
-// frame and, once it has arrived, asks again (see frame() in app/web/dashboard.py).
-// Why several? The VM is ~220 ms away: with one request at a time we'd get only ~4 fps.
-// Why not a pushed stream? It falls seconds behind when the connection is slower than the
-// video, because frames pile up in network buffers. Here at most IN_FLIGHT frames per camera
-// are on the way: a slow connection lowers the FPS, but the picture stays live.
-// An AbortController stops all loops of a tile at once when it (or the spotlight) closes.
-const IN_FLIGHT = HTTP2 ? 4 : 1;  // HTTP/1.1 (localhost): few connections, but no distance either
-const liveStreams = new WeakMap();  // <img> -> AbortController of its running loops
+// =============================================================== live video
+// playStream(img, id) shows a camera live in the place of <img>:
+//  1. WebRTC (when the server runs MediaMTX): H.264 video in a <video> next to the <img>.
+//     ~10x less data than JPEGs, sent over UDP: lost packets are skipped instead of waited
+//     for, so the picture keeps moving on a bad connection.
+//  2. JPEG frames from /frame/<id> in the <img>: the fallback when WebRTC doesn't work
+//     (local run without MediaMTX, a network that blocks it) and while a camera is offline
+//     (the server's "NO SIGNAL" picture). WebRTC is tried again every RTC_RETRY_MS.
+// stopStream(img) stops both. An AbortController per <img> ends everything at once.
+const RTC_RETRY_MS = 4000;
+const RTC_CONNECT_MS = 8000;   // no picture within this time: use JPEG frames
+const RTC_STALL_MS = 4000;     // picture frozen this long (stream ended): reconnect
+const liveStreams = new WeakMap();  // <img> -> AbortController
 const sleep = (ms) => new Promise((r) => setTimeout(r, Math.max(0, ms)));
 
 function stopStream(img) {
@@ -49,10 +53,115 @@ function stopStream(img) {
   liveStreams.delete(img);
 }
 
+function videoFor(img) {  // the <video> that sits on top of an <img>, created once
+  if (!img._video) {
+    const v = document.createElement("video");
+    v.className = img.className + " rtc hidden";
+    v.muted = true; v.autoplay = true; v.playsInline = true;  // needed to autoplay on phones
+    img.after(v);
+    img._video = v;
+  }
+  return img._video;
+}
+
 function playStream(img, id) {
   stopStream(img);
   const ctrl = new AbortController();
   liveStreams.set(img, ctrl);
+  if (!window.WEBRTC) { playJpeg(img, id, ctrl.signal); return; }
+
+  const video = videoFor(img);
+  const showVideo = (on) => { video.classList.toggle("hidden", !on); img.classList.toggle("hidden", on); };
+  ctrl.signal.addEventListener("abort", () => { showVideo(false); video.srcObject = null; });
+  (async () => {
+    let jpeg = null;  // AbortController of the running JPEG fallback, if any
+    while (!ctrl.signal.aborted) {
+      try {
+        const rtc = await connectWebRtc(video, id, ctrl.signal);
+        jpeg?.abort(); jpeg = null;  // WebRTC works: stop the JPEG frames
+        showVideo(true);
+        await rtc.ended;             // until the stream stops (camera offline, server restart)
+        rtc.pc.close();
+      } catch (e) { /* no WebRTC right now */ }
+      if (ctrl.signal.aborted) break;
+      showVideo(false);
+      if (!jpeg) {
+        jpeg = new AbortController();
+        ctrl.signal.addEventListener("abort", () => jpeg?.abort());
+        playJpeg(img, id, jpeg.signal);
+      }
+      await sleep(RTC_RETRY_MS);
+    }
+  })();
+}
+
+// WHEP (a small standard on top of WebRTC): POST our "offer" (what we can receive, our
+// network addresses), MediaMTX answers with its own; then the video flows directly.
+async function connectWebRtc(video, id, signal) {
+  const pc = new RTCPeerConnection();  // no STUN/TURN servers: the VM has a public IP
+  try {
+    pc.addTransceiver("video", { direction: "recvonly" });
+    const gotTrack = new Promise((resolve) => {
+      pc.ontrack = (ev) => { video.srcObject = new MediaStream([ev.track]); resolve(); };
+    });
+    await pc.setLocalDescription(await pc.createOffer());
+    await iceGathered(pc);
+    const res = await fetch(`/webrtc/${encodeURIComponent(id)}/whep`, {
+      method: "POST", headers: { "Content-Type": "application/sdp" },
+      body: pc.localDescription.sdp, signal,
+    });
+    if (res.status !== 201) throw new Error(`WHEP ${res.status}`);  // e.g. 404: camera not streaming
+    await pc.setRemoteDescription({ type: "answer", sdp: await res.text() });
+    await withTimeout(gotTrack.then(() => videoPlaying(video)), RTC_CONNECT_MS);
+  } catch (e) {
+    pc.close();
+    throw e;
+  }
+  return { pc, ended: streamEnded(pc, video, signal) };
+}
+
+function iceGathered(pc) {  // our addresses are known within a few ms (no STUN to wait for)
+  if (pc.iceGatheringState === "complete") return Promise.resolve();
+  return withTimeout(new Promise((resolve) => {
+    pc.addEventListener("icegatheringstatechange", () => {
+      if (pc.iceGatheringState === "complete") resolve();
+    });
+  }), 1500).catch(() => {});  // not complete after 1.5 s: send what we have
+}
+
+function videoPlaying(video) {
+  video.play().catch(() => {});
+  return new Promise((resolve) => {
+    if (video.readyState >= 2 && !video.paused) resolve();
+    else video.addEventListener("playing", resolve, { once: true });
+  });
+}
+
+function withTimeout(promise, ms) {
+  return Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), ms))]);
+}
+
+function streamEnded(pc, video, signal) {
+  // Ends when the connection fails/closes, the picture freezes, or the tile is closed.
+  return new Promise((resolve) => {
+    let lastTime = -1, still = 0;
+    const timer = setInterval(() => {
+      still = video.currentTime === lastTime ? still + 500 : 0;
+      lastTime = video.currentTime;
+      if (still >= RTC_STALL_MS || ["failed", "closed"].includes(pc.connectionState)) done();
+    }, 500);
+    const done = () => { clearInterval(timer); resolve(); };
+    signal.addEventListener("abort", done);
+  });
+}
+
+// ---- JPEG fallback: IN_FLIGHT request loops per <img>; each loop asks the server for the
+// next frame and, once it has arrived, asks again (see frame() in app/web/dashboard.py).
+// Why several? The VM is ~110 ms away: with one request at a time we'd get only a few fps.
+// At most IN_FLIGHT frames per camera are on the way, so frames can't pile up in the network.
+const IN_FLIGHT = HTTP2 ? 4 : 1;  // HTTP/1.1 (localhost): few connections, but no distance either
+
+function playJpeg(img, id, signal) {
   const viewer = Math.random().toString(36).slice(2);  // the server tracks what we already got
   let shownNo = -1;     // number of the frame on screen (frames can arrive out of order)
   let shownUrl = null;
@@ -68,11 +177,11 @@ function playStream(img, id) {
 
   const loop = async (startDelay) => {
     await sleep(startDelay);  // spread the loops out, so frames arrive evenly
-    while (!ctrl.signal.aborted) {
+    while (!signal.aborted) {
       const started = performance.now();
       let pause = 2000;  // after an error (e.g. server restart): try again in 2 s
       try {
-        const res = await fetch(frameUrl(id, viewer), { signal: ctrl.signal, cache: "no-store" });
+        const res = await fetch(frameUrl(id, viewer), { signal, cache: "no-store" });
         if (res.status === 204) {
           pause = 0;  // no new frame within 2 s: just ask again
         } else if (res.ok) {
@@ -84,13 +193,13 @@ function playStream(img, id) {
           pause = no === 0 ? 1000 : IN_FLIGHT * 1000 / fps - (performance.now() - started);
         }
       } catch (e) {
-        if (ctrl.signal.aborted) break;
+        if (signal.aborted) break;
       }
       await sleep(pause);
     }
   };
   for (let i = 0; i < IN_FLIGHT; i++) loop(i * 1000 / 15);
-  ctrl.signal.addEventListener("abort", () => { if (shownUrl) URL.revokeObjectURL(shownUrl); });
+  signal.addEventListener("abort", () => { if (shownUrl) URL.revokeObjectURL(shownUrl); });
 }
 
 // Set innerHTML only when it changed: no flicker, and hover states survive the 1 s refresh.

@@ -193,6 +193,7 @@
     </article>
   </template>
 
+  <script>window.WEBRTC = {{ webrtc | tojson }};</script>
   <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
 </body>
 </html>

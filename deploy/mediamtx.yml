@@ -1,0 +1,38 @@
+# MediaMTX = the WebRTC media server (container "mediamtx" in docker-compose.yml).
+# Everything not listed here keeps MediaMTX's default (https://github.com/bluenviron/mediamtx).
+#
+#   our ffmpeg (one per camera) --RTSP--> MediaMTX --WebRTC--> dashboards   (stream "cam1", ...)
+#   phone browser          --WebRTC--> MediaMTX --RTSP--> OpenCV worker    (stream "phone-xxxxxx-in")
+logLevel: info
+
+# Only the protocols we use.
+rtmp: false
+hls: false
+srt: false
+moq: false
+
+# RTSP: only inside the Docker network (port 8554 is not published), always over TCP.
+rtsp: true
+rtspTransports: [tcp]
+
+# WebRTC.
+webrtc: true
+webrtcAddress: :8889            # signaling (the offer/answer HTTP requests); reached only through
+                                # Caddy at https://<site>/webrtc/..., which checks the login first
+webrtcLocalUDPAddress: :8189    # the video itself, over UDP (port opened in the Azure firewall)
+webrtcLocalTCPAddress: :8189    # the same over TCP, for networks that block UDP
+webrtcIPsFromInterfaces: false  # the container's own IPs are useless to browsers; instead we tell
+                                # browsers the VM's public IP: MTX_WEBRTCADDITIONALHOSTS in
+                                # docker-compose.yml (from PUBLIC_IP in .env)
+
+# No passwords in MediaMTX itself: nobody can reach it except through Caddy (which asks
+# app/web/webrtc.py) and our own containers. The video port only works for a connection
+# set up through that signaling.
+authInternalUsers:
+  - user: any
+    permissions:
+      - action: publish
+      - action: read
+
+paths:
+  all_others:

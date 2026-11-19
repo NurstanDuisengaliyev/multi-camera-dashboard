@@ -30,8 +30,20 @@
 	tls {
 		protocols tls1.2 tls1.3
 	}
-	reverse_proxy dashboard:8000 {
-		# Pass every video frame on immediately instead of buffering the MJPEG streams.
-		flush_interval -1
+	# WebRTC signaling (the "offer/answer" requests that set up live video) goes to MediaMTX,
+	# but only after the dashboard app said yes (login / phone token, see app/web/webrtc.py).
+	handle_path /webrtc/* {
+		forward_auth dashboard:8000 {
+			uri /api/webrtc-auth
+		}
+		reverse_proxy mediamtx:8889
+	}
+
+	# Everything else: the dashboard app.
+	handle {
+		reverse_proxy dashboard:8000 {
+			# Pass every response on immediately instead of buffering it.
+			flush_interval -1
+		}
 	}
 }

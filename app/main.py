@@ -12,6 +12,8 @@ In Docker:     gunicorn "app.main:create_app()"    (see Dockerfile; Caddy adds H
 Environment variables:
   DASHBOARD_USER, DASHBOARD_PASSWORD   login for the dashboard (no password = open, local use only)
   PHONE_TOKEN                          secret phones must send to stream (not set = phones off)
+  MEDIAMTX_RTSP                        e.g. rtsp://mediamtx:8554: live video over WebRTC through
+                                       MediaMTX (not set = JPEG frames only, e.g. local run)
   CONFIG_PATH, LOG_DIR, DATABASE, PORT
 """
 import os
@@ -25,7 +27,7 @@ from app.analytics.people import PeopleDetector
 from app.cameras.manager import CameraManager
 from app.config import load_config, setup_logging
 from app.events import EventStore
-from app.web import auth, dashboard, phone
+from app.web import auth, dashboard, phone, webrtc
 
 MAX_UPLOAD_BYTES = 2 * 1024 * 1024  # one phone frame is ~20-300 KB; refuse anything huge
 
@@ -45,6 +47,7 @@ def create_app():
         "dashboard_user": os.environ.get("DASHBOARD_USER", "admin"),
         "dashboard_password": os.environ.get("DASHBOARD_PASSWORD", ""),
         "phone_token": os.environ.get("PHONE_TOKEN", ""),
+        "webrtc": os.environ.get("MEDIAMTX_RTSP", ""),
     }
 
     # 1) Shared services, then the cameras.
@@ -52,7 +55,7 @@ def create_app():
                         cooldown_s=a.get("alert_cooldown_s", 30))
     detector = PeopleDetector(a.get("model", "yolov8n.pt"), a.get("person_confidence", 0.4),
                               a.get("detect_imgsz", 640), a.get("detect_interval_s", 1.0))
-    cameras = CameraManager(config, detector, events)
+    cameras = CameraManager(config, detector, events, rtsp_base=settings["webrtc"])
     cameras.start()
     events.add("system", "System", "system_start",
                "Monitoring started with %d cameras" % len(cameras.all()), cooldown=False)
@@ -66,6 +69,7 @@ def create_app():
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
     app.register_blueprint(dashboard.bp)
     app.register_blueprint(phone.bp)
+    app.register_blueprint(webrtc.bp)
     auth.protect_with_password(app, settings["dashboard_user"], settings["dashboard_password"])
     return app
 

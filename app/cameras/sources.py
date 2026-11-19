@@ -6,15 +6,20 @@ Every source has the same small interface, so the CameraWorker doesn't care whic
     close()
     retry_delay_s   how long the worker waits before calling open() again after a failure
 
-Two kinds of source:
+Three kinds of source:
     FileSource   a video file played like a live camera (cameras listed in config.yaml)
-    PhoneSource  frames uploaded by a phone over HTTPS (cameras created by the /phone page)
+    RtspSource   a phone's WebRTC video, read from MediaMTX (which offers it as RTSP)
+    PhoneSource  JPEG frames uploaded by a phone over HTTPS (fallback when WebRTC is not possible)
 """
+import os
 import threading
 import time
 
-import cv2
-import numpy as np
+# Read live RTSP streams with as little buffering as possible: always the newest frame.
+os.environ.setdefault("OPENCV_FFMPEG_CAPTURE_OPTIONS", "rtsp_transport;tcp|fflags;nobuffer|flags;low_delay")
+
+import cv2  # noqa: E402 (must come after the environment variable above)
+import numpy as np  # noqa: E402
 
 
 class FileSource:
@@ -77,6 +82,32 @@ class FileSource:
             self.cap.release()
 
 
+class RtspSource:
+    """A phone's WebRTC video. The phone sends it to MediaMTX (WHIP, see static/phone.js);
+    MediaMTX offers every stream as RTSP too, and OpenCV reads RTSP like a video file."""
+
+    retry_delay_s = 1  # the phone may not be connected yet: try again soon
+
+    def __init__(self, url):
+        self.url = url
+        self.cap = None
+        self.fps = None  # decided by the phone
+
+    def open(self):
+        self.cap = cv2.VideoCapture(self.url, cv2.CAP_FFMPEG, [
+            cv2.CAP_PROP_OPEN_TIMEOUT_MSEC, 2000,   # no stream yet -> fail fast, worker says "waiting"
+            cv2.CAP_PROP_READ_TIMEOUT_MSEC, 3000])  # phone stopped -> read() returns None
+        return self.cap.isOpened()
+
+    def read(self):
+        ok, frame = self.cap.read()
+        return frame if ok else None
+
+    def close(self):
+        if self.cap is not None:
+            self.cap.release()
+
+
 class FrameInbox:
     """Mailbox between the web server (receives frames from phones) and the camera
     workers (analyze them).
@@ -96,11 +127,6 @@ class FrameInbox:
             number = self.frames.get(cam_id, (0, 0, None))[0] + 1
             self.frames[cam_id] = (number, time.monotonic(), jpeg)
             self.cond.notify_all()  # wake up the worker waiting in wait_for_frame()
-
-    def last_received(self, cam_id):
-        """monotonic time of the last frame, or 0 if none was ever received."""
-        with self.cond:
-            return self.frames.get(cam_id, (0, 0.0, None))[1]
 
     def wait_for_frame(self, cam_id, newer_than, timeout):
         """Wait up to `timeout` s for a frame numbered above `newer_than`.

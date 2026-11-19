@@ -2,7 +2,8 @@
 # Deploy the dashboard on a fresh Azure Ubuntu VM.
 #
 # Before the first run, in the Azure portal (VM -> Networking -> Add inbound port rule)
-# allow TCP ports 80 and 443. Port 8000 no longer needs to be open.
+# allow TCP ports 80 and 443, and port 8189 TCP+UDP (WebRTC video).
+# Port 8000 no longer needs to be open. (scripts/azure_create_vm.sh does all of this.)
 #
 # On the VM:
 #   git clone https://github.com/NurstanDuisengaliyev/multi-camera-dashboard.git
@@ -53,6 +54,7 @@ if [ ! -f .env ]; then
   # a real (trusted) HTTPS certificate. Certificates are not given for bare IP addresses.
   cat > .env <<EOF
 SITE_ADDRESS=${PUBLIC_IP//./-}.sslip.io
+PUBLIC_IP=$PUBLIC_IP
 DASHBOARD_USER=admin
 DASHBOARD_PASSWORD=$(openssl rand -hex 12)
 PHONE_TOKEN=$(openssl rand -hex 12)
@@ -61,6 +63,11 @@ EOF
   echo "created .env with a random dashboard password and phone token"
 else
   echo ".env already exists, keeping it"
+  # Older .env files have no PUBLIC_IP yet (needed for WebRTC since step 11): add it.
+  if ! grep -q '^PUBLIC_IP=' .env && [ -n "$PUBLIC_IP" ]; then
+    echo "PUBLIC_IP=$PUBLIC_IP" >> .env
+    echo "added PUBLIC_IP=$PUBLIC_IP to .env (WebRTC)"
+  fi
 fi
 SITE_ADDRESS=$(grep '^SITE_ADDRESS=' .env | cut -d= -f2-)
 

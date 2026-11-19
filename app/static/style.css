@@ -166,7 +166,7 @@ code { font-family: var(--f-mono); font-size: 0.9em; background: var(--surface-2
 .veil strong { font-family: var(--f-display); font-size: 18px; font-weight: 600; }
 .veil span { font-size: 12px; }
 .veil.tamper { background: rgba(208, 59, 59, 0.16); color: #ffd6d6; }
-.cam.tamper .feed, .spot-video.tamper img { filter: brightness(0.35); }
+.cam.tamper .feed, .spot-video.tamper img, .spot-video.tamper video { filter: brightness(0.35); }
 .veil.offline { background: repeating-linear-gradient(135deg, #1d1d1b 0 12px, #222220 12px 24px); color: var(--critical-text); }
 .veil.offline span { color: var(--text-2); }
 .veil.waiting { background: #1d1d1b; color: var(--text-2); }
@@ -242,7 +242,7 @@ code { font-family: var(--f-mono); font-size: 0.9em; background: var(--surface-2
   position: relative; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: #000;
   border: 1px solid var(--border);
 }
-.spot-video img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.spot-video img, .spot-video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
 .spot-video.crowd { border-color: var(--serious); box-shadow: 0 0 0 3px rgba(236, 131, 90, 0.22); }
 .spot-video.tamper { border-color: var(--critical); box-shadow: 0 0 0 3px rgba(208, 59, 59, 0.25); }
 .spot-video .ov.top { top: 14px; left: 14px; right: auto; }
