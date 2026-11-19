@@ -1,0 +1,15 @@
+# Step 12: phone start time and two phones at once (simulated phones from the laptop, aiortc)
+# 2026-11-19, Azure VM Austria East
+
+## Time from "Start" until the server analyzes the phone
+before (open timeout 2 s, retry 1 s):  7.1 - 11.2 s   (server reconnected 4-5 times waiting for a keyframe)
+after  (open timeout 10 s, retry 0.3 s): 4.9 - 6.0 s, of which ~1 s connecting and ~2-4 s waiting
+                                        for the phone's next keyframe (decoding can only start there)
+registration on the server itself (/api/phone/start): 3 ms
+
+## Two phones at the same time: normal 640x360 @ 15 fps + heavy 1920x1080 @ 30 fps
+newest-frame reader, slice threading:   normal 179-213 ms delay, heavy 169-223 ms, full fps
+(frame threading "AUTO" added ~130 ms:  normal 312-323 ms)
+
+## Small previews under the spotlight
+before: still pictures refreshed every 3 s (looked "laggy"); now: live WebRTC video
